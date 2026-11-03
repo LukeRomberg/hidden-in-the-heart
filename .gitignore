@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.DS_Store
+tools/data/
+.env
+.env.*
+*.key
+secrets.*
+.claude/settings.local.json
+.mcp.json
