@@ -1,6 +1,10 @@
+"""Six recolored townsfolk made from the hero's base frames (FREED_IMG, src/data/freed.json).
+Placeholder art: the game shows one only when a freed enemy has no freed sprite of its own,
+which no current enemy does."""
 from PIL import Image
-import colorsys, base64, io, json
-im=Image.open('../assets/source/hero_starter_sheet.png').convert('RGBA')
+import colorsys
+from _paths import asset, data_uri, write_data, out as out_path
+im=Image.open(asset('hero_starter_sheet.png')).convert('RGBA')
 frames=[im.crop((0,0,64,64)), im.crop((64,0,128,64))]
 def hsv(c): return colorsys.rgb_to_hsv(*[k/255 for k in c[:3]])
 def rgb(h,s,v): return tuple(int(max(0,min(1,k))*255) for k in colorsys.hsv_to_rgb(h%1,s,v))+(255,)
@@ -60,7 +64,6 @@ for i,person in enumerate(PEOPLE):
     fr=[make(f,person) for f in frames]
     key='freed'+str(i); out[key]={'w':64,'h':64,'name':person[0],'f':[]}
     for j,f in enumerate(fr):
-        b=io.BytesIO(); f.save(b,'PNG',optimize=True); out[key]['f'].append('data:image/png;base64,'+base64.b64encode(b.getvalue()).decode())
+        out[key]['f'].append(data_uri(f))
         prev.alpha_composite(f.resize((192,192),Image.NEAREST),(i*192,j*192))
-prev.save('villagers.png'); json.dump(out,open('villagers.json','w'))
-print(sum(len(x) for v in out.values() for x in v['f'])//1024,'KB')
+prev.save(out_path('villagers_preview.png')); write_data('freed.json', out)

@@ -60,23 +60,26 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 Berean Standard Bible only (public domain since 2023). Never write verse text from memory:
 pull it from `https://raw.githubusercontent.com/scrollmapper/bible_databases/master/formats/json/BSB.json`
 and check it. (That check caught a missing "and" in Galatians 5:23.) ESV is off the table.
+`npm run verify` checks every verse in `src/` against that file and fails on any mismatch;
+`npm run passages` regenerates `pass.json` from it. See `tools/README.md`.
 Credit line on the title screen: "Scripture quotations are from the Berean Standard Bible,
 public domain."
 
 ## Art pipeline
 
 Source sheets live in `assets/source/`. The generated art lives in `src/data/`
-(see Layout), produced by the scripts in `tools/`:
+(see Layout), produced by the scripts in `tools/` (how to run them: `tools/README.md`):
 
 - `build_hero_layers.py`: cuts `hero_starter_sheet.png` and `hero_armor_sheet.png`
   (7 rows x 4 cols, 64x64 cells: base, then one gear piece per row; cols = front idle,
-  front cast, back idle, back cast) into a base plus diff layers. Outputs `hero2.json`
-  (goes into `const HERO`) and `alpha2.txt` (goes into `const ALPHA`). Gear layers stack;
+  front cast, back idle, back cast) into a base plus diff layers. Writes `hero.json`
+  (`const HERO`) and `hero-alpha.json` (`const ALPHA`). Gear layers stack;
   a later layer's grey hoodie pixels never overwrite an earlier layer's real pixels (`WEAK`).
-- Enemies: `enemies_freed_48x64.png` (rows hothead, grudge, brawler, slanderer; cols idle,
-  attack, freed idle, freed wave) and `furnace_96x96.png` (same 4 columns) become
-  `ENEMY_IMG` entries `name` and `name_f`.
-- `build_villagers.py`: six recolored townsfolk (placeholder, currently unused).
+- `build_enemies.py`: `enemies_freed_48x64.png` (rows hothead, grudge, brawler, slanderer;
+  cols idle, attack, freed idle, freed wave) and `furnace_96x96.png` (same 4 columns) become
+  `ENEMY_IMG` entries `name` and `name_f` in `enemies.json`.
+- `build_villagers.py`: six recolored townsfolk (`freed.json`, placeholder; only shown for
+  a freed enemy without its own freed sprite, which no current enemy lacks).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
   card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
 

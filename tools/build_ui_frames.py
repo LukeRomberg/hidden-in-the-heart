@@ -1,8 +1,12 @@
+"""The pixel UI kit: wood/parchment 9-slice frames, plank buttons, card rims per fruit,
+portrait frame, name plate, floor tile. Writes src/data/ui-frames.json; styles.css uses
+them as __FRAME__(name) in border-image / background."""
 from PIL import Image
-import random, base64, io, json
+import os, random
+from _paths import data_uri, write_data, out as out_path
 random.seed(7)
 def hx(c): return tuple(int(c[i:i+2],16) for i in (1,3,5))+(255,)
-def save(img,name): img.save(name+'.png'); b=io.BytesIO(); img.save(b,'PNG',optimize=True); return 'data:image/png;base64,'+base64.b64encode(b.getvalue()).decode()
+def save(img,name): img.save(out_path(name+'.png')); return data_uri(img)
 OUT={}
 def grain(img, x0,y0,x1,y1, base, dark, light, vertical=False):
     p=img.load()
@@ -105,13 +109,12 @@ def floor():
         rect(im,(off+24)%w,band+4,(off+24)%w+1,band+5,'#5a3a24')
     return im
 OUT['floor']=save(floor(),'floor')
-json.dump(OUT,open('ui.json','w'))
-print({k:len(v) for k,v in OUT.items()}, sum(len(v) for v in OUT.values())//1024,'KB')
+write_data('ui-frames.json', OUT, indent=1)
 
 # preview sheet
 prev=Image.new('RGBA',(520,200),(30,18,10,255))
 x=4
 for n in ['panel','dark','paper','btn','btnDown','btnPrimary','portrait','plate','card_Patience','card_Love','card_Peace']:
-    im=Image.open(n+'.png'); im=im.resize((im.width*4,im.height*4),Image.NEAREST); prev.alpha_composite(im,(x,4)); x+=im.width+6
+    im=Image.open(out_path(n+'.png')); im=im.resize((im.width*4,im.height*4),Image.NEAREST); prev.alpha_composite(im,(x,4)); x+=im.width+6
     if x>420: x=4
-prev.save('preview.png')
+prev.save(out_path('ui_preview.png'))

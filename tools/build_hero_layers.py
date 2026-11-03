@@ -1,6 +1,11 @@
+"""Cut hero_starter_sheet.png and hero_armor_sheet.png into a base plus gear diff layers.
+Writes src/data/hero.json (const HERO) and src/data/hero-alpha.json (const ALPHA).
+Sheets: 7 rows x 4 cols of 64x64 (rows: base, then one gear piece each; cols: front idle,
+front cast, back idle, back cast). The base row must be pixel-identical across both sheets."""
 from PIL import Image
-import json, colorsys
-im=Image.open('../assets/source/hero_starter_sheet.png').convert('RGBA')
+import colorsys
+from _paths import asset, write_data, out as out_path
+im=Image.open(asset('hero_starter_sheet.png')).convert('RGBA')
 cell=lambda r,c: im.crop((c*64,r*64,c*64+64,r*64+64))
 names=['base','cap','vest','belt','boots','lid','bible']
 VIEWS=[('front',0),('front',1),('back',0),('back',1)]
@@ -28,7 +33,7 @@ def weak(c):
 def recolor(layer, fn):
     return [[(c if c in ('T','E') or lum(c)<45 else fn(c)) for c in row] for row in layer]
 def faith_fn(c): return GOLD(c) if lum(c)<120 else WHITE(c)
-arm=Image.open('../assets/source/hero_armor_sheet.png').convert('RGBA')
+arm=Image.open(asset('hero_armor_sheet.png')).convert('RGBA')
 acell=lambda r,c: arm.crop((c*64,r*64,c*64+64,r*64+64))
 for ri,n in enumerate(['helm','breast','truth','sabatons','faith','sword'],1):
     layers[n]={'front':[None,None],'back':[None,None]}
@@ -60,8 +65,8 @@ out={'W':64,'H':64,'base':{v:[enc(base[v][f]) for f in (0,1)] for v in base},
 out['pal']=[k for k,_ in sorted(colors.items(),key=lambda kv:kv[1])]
 out['weak']=''.join(ALPHA[i] for i,k in enumerate(out['pal']) if weak(tuple(int(k[j:j+2],16) for j in (1,3,5))))
 assert len(colors)<len(ALPHA),(len(colors),len(ALPHA))
-json.dump(out,open('hero2.json','w',encoding='utf-8'),ensure_ascii=False,separators=(',',':'))
-open('alpha2.txt','w',encoding='utf-8').write(ALPHA)
+write_data('hero.json', out, separators=(',',':'))
+write_data('hero-alpha.json', ALPHA)
 print(len(colors),'colors /',len(ALPHA),'chars')
 def compose(v,f,items,fr=False):
     g=[r[:] for r in (freed[f] if fr else base[v][f])]; own=[[False]*64 for _ in range(64)]
@@ -82,4 +87,4 @@ t1=[i for i in order if i in ('vest','belt','boots','cap','lid','bible')]; t2=[i
 imgs=[compose('front',0,[]),compose('front',0,t1),compose('back',1,t1),compose('front',0,t2),compose('back',1,t2),compose('front',1,[],True)]
 sheet=Image.new('RGBA',(64*6*3,64*3),(23,17,13,255))
 for i,m in enumerate(imgs): sheet.alpha_composite(m.resize((192,192),Image.NEAREST),(i*192,0))
-sheet.save('hero2_preview.png')
+sheet.save(out_path('hero_preview.png'))

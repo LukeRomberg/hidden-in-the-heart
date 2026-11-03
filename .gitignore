@@ -9,3 +9,6 @@ secrets.*
 .claude/settings.local.json
 .mcp.json
 tests/out/
+tools/out/
+.venv/
+__pycache__/

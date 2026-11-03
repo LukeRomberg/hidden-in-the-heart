@@ -6,7 +6,10 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev.mjs",
-    "smoke": "node scripts/build.mjs && node tests/smoke.mjs dist/index.html"
+    "smoke": "node scripts/build.mjs && node tests/smoke.mjs dist/index.html",
+    "verify": "node tools/verify_scripture.mjs",
+    "passages": "node tools/build_passages.mjs",
+    "test": "npm run verify && npm run smoke"
   },
   "devDependencies": {
     "playwright": "^1.64.1"
