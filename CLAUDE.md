@@ -112,7 +112,10 @@ Tool reference: https://api.pixellab.ai/mcp/docs
 ## Next steps
 
 1. Done: split into `src/` modules with a build that inlines back to one file.
-2. Under git; host on GitHub Pages.
+2. Done: github.com/LukeRomberg/hidden-in-the-heart, live at
+   https://lukeromberg.github.io/hidden-in-the-heart/. Every push to main runs
+   `.github/workflows/pages.yml` (verify, build, smoke, deploy). This repo pushes as the
+   personal account via a repo-local credential helper; the default SSH key is the work account.
 3. Wire PixelLab and replace the placeholder art above.
 4. Finish the UI overhaul: recall popup, after-fight panel, dungeon map.
 5. Design Mission 2 (Hatred / Love) and Ashby.
