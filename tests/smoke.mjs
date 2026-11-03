@@ -1,12 +1,12 @@
 // Headless click-through: title -> New game -> prologue -> pick two verses -> town ->
 // church -> start mission -> one fight. Fails on any console error or page error.
-// Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html if built, else index.html)
+// Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
-import { existsSync, mkdirSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const target = resolve(process.argv[2] || (existsSync('dist/index.html') ? 'dist/index.html' : 'index.html'));
+const target = resolve(process.argv[2] || 'dist/index.html');
 const shots = resolve('tests/out'); mkdirSync(shots, { recursive: true });
 
 const browser = await chromium.launch();

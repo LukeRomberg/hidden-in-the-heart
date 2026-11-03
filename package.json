@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "smoke": "node tests/smoke.mjs"
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/dev.mjs",
+    "smoke": "node scripts/build.mjs && node tests/smoke.mjs dist/index.html"
   },
   "devDependencies": {
     "playwright": "^1.64.1"
