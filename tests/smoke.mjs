@@ -26,6 +26,8 @@ const step = async (name, fn) => {
 const screen = () => page.evaluate(() => screen);
 const waitScreen = s => page.waitForFunction(x => screen === x && !document.getElementById('wipe').className, s, { timeout: 5000 });
 const btn = text => page.locator('#app button', { hasText: text }).first();
+// the main button under a scene's dialogue, whatever it says (so rewording text.js doesn't break the test)
+const act = () => page.locator('#acts button').first();
 
 // Tap through a dialogue box until its action buttons are revealed.
 async function finishDialogue() {
@@ -56,12 +58,12 @@ async function solveRecall() {
 
 // Play cards (answering correctly) until the fight is won.
 async function winFight() {
-  for (let turn = 0; turn < 30; turn++) {
+  for (let turn = 0; turn < 80; turn++) {
     const s = await page.evaluate(() => ({ after: R.after, screen }));
     if (s.after || s.screen !== 'fight') break;
-    const card = page.locator('#app .hand .card:not(.dim)').first();
+    const card = page.locator('#app .hand .card:not(.dim):not(.spent)').first();
     if (await card.count()) { await card.click(); await solveRecall(); }
-    else await btn('End turn').click();
+    else await btn('Brace').click();
     await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
   }
   await page.waitForFunction(() => R.after, null, { timeout: 15000 });
@@ -77,11 +79,11 @@ try {
   });
   await step('new game -> pro1', async () => { await btn('New game').click(); await waitScreen('pro1'); });
   await step('pro1 recall Psalm 119:11', async () => {
-    await finishDialogue(); await btn('One more try').click(); await solveRecall(); await waitScreen('pro2');
+    await finishDialogue(); await act().click(); await solveRecall(); await waitScreen('pro2');
   });
-  await step('pro2', async () => { await finishDialogue(); await btn('Find a door').click(); await waitScreen('pro3'); });
-  await step('pro3', async () => { await finishDialogue(); await btn('Hold it up').click(); await waitScreen('pro4'); });
-  await step('pro4', async () => { await finishDialogue(); await btn('Take the lid').click(); await waitScreen('intro'); });
+  await step('pro2', async () => { await finishDialogue(); await act().click(); await waitScreen('pro3'); });
+  await step('pro3', async () => { await finishDialogue(); await act().click(); await waitScreen('pro4'); });
+  await step('pro4', async () => { await finishDialogue(); await act().click(); await waitScreen('intro'); });
   await step('pick two verses', async () => {
     const hands = page.locator('#app .hand');
     await hands.nth(0).locator('.card').first().click();
@@ -89,11 +91,11 @@ try {
     await btn('Those two').click(); await waitScreen('tutorial');
   });
   await step('tutorial fight', async () => {
-    await finishDialogue(); await btn('Walk over to Bram').click(); await waitScreen('fight');
+    await finishDialogue(); await act().click(); await waitScreen('fight');
     if (!(await page.locator('.coach').count())) throw new Error('no tutorial coaching shown');
     await winFight();
     await btn('Move on').click(); await waitScreen('tutend');
-    await finishDialogue(); await btn('Walk back into town').click(); await waitScreen('town');
+    await finishDialogue(); await act().click(); await waitScreen('town');
     if (!(await page.evaluate(() => P.town.forge && P.tutorialDone))) throw new Error('tutorial did not open the forge');
   });
   await step('town -> church', async () => {

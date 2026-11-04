@@ -50,10 +50,16 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   verses per spell, data in `PASS` (generated from the BSB, see below). State: `P.spell[ref]`.
 - **Recall UI**: verses at 100% use first-letter typing; the newest verse uses multiple
   choice blanks; the reference (book, chapter, verse) counts as part of the blank pool.
-- **Combat**: turn-based, 4-card hand, each spell castable once per fight (deck refreshes
-  when all are spent). A card never costs more than max mana (or the deck could never refresh). Damage = verse value x tier multipliers x accuracy. Type advantage:
+- **Combat**: one action a turn: say one verse, Brace (free, half damage), or Charge (tree
+  perk); then the enemies act. Verses cost **focus** (`BASE_FOCUS` 6, +2 from Peace and from
+  clearing Mission 1). Focus refills at the start of every fight and never during one, except
+  through Romans 12:2 (cost 0, restores focus), which Amos hands you the first time you run
+  dry in the tutorial (you start that fight groggy, at 3). Each verse works once; when nothing
+  unsaid is affordable, they all come back. A card never costs more than max focus. Damage = verse value x tier multipliers x accuracy. Type advantage:
   Patience x1.5 and Gentleness x1.25 vs wrath.
 - **Boss**: three fires; at each third of HP the player assembles Galatians 5:22-23 in order.
+  Slips heal him a little (3 each, max 8; the final puzzle 4 each, max 12). Balance was tuned
+  with a scripted player at 60/70/85% accuracy: the Furnace is the spike, the rest is light.
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
 - **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)

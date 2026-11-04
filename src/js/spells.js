@@ -13,7 +13,7 @@ function glyphs(ref){ const s=sp(ref); return Array.from({length:s.n},(_,i)=>i<s
 function spellLine(ref){ const s=sp(ref); return `${passRef(ref,s.n)} ${glyphs(ref)}`; }
 function spellMult(ref){ const s=sp(ref); let m=0; for(let i=0;i<s.n;i++) m += TIER_MULT[i<s.n-1?3:s.tier]; return m; }
 function spellCost(v){ return v.cost + sp(v.ref).n - 1; }
-function spellEff(v){ const m=spellMult(v.ref); return v.dmg?`${Math.round(v.dmg*m)} dmg`: v.shield?`${Math.round(v.shield*m)} shield`:`heal ${Math.round(v.heal*m)}`; }
+function spellEff(v){ const m=spellMult(v.ref); return v.dmg?`${Math.round(v.dmg*m)} dmg`: v.shield?`${Math.round(v.shield*m)} shield`: v.focus?`+${Math.round(v.focus*m)} focus`:`heal ${Math.round(v.heal*m)}`; }
 // Spells slide with your memory. Three perfect casts climb a tier. A cast under SLIP_BELOW is a slip,
 // and SLIPS_TO_DROP slips in a row drop a tier (or the newest verse). Anything in between holds steady.
 const SLIP_BELOW = 0.75, SLIPS_TO_DROP = 2;

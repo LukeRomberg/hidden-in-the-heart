@@ -84,12 +84,14 @@ const TEXT = {
     // Amos talking you through your first fight
     coach: {
       firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
-      firstCard: 'Each card is a verse you know. The gem is its cost, and your mana refreshes every turn. Tap a card to use that verse. Each verse can only be used once per turn.',
+      firstCard: 'Each card is a verse you know. The gem is how much focus it takes, and your focus only comes back after the fight. Tap a card to use that verse. It takes your whole turn.',
       recall: 'Fill each blank. The more you get right, the harder it lands. Get them all for full power.',
-      anotherCard: 'You still have mana. Say another verse if you can afford one.',
-      endTurn: 'Out of mana. Tap End turn. He gets his swing, then you get your breath back.',
-      readIntent: 'The line above your cards says what he’ll do next. Each verse works once a fight; when they’re all used, they all come back.',
+      oneMove: 'He gets a turn after every verse you say. The line above your cards tells you what he’ll do next. If it’s a big one, Brace.',
+      gift: '“Out of focus? Here.” Amos presses a card into your hand. “Romans 12:2. It costs nothing to say, and it gives your mind back what the fight took.”',
+      readIntent: 'Each verse works once. When you’ve said all the ones you can afford, they all come back.',
     },
+    giftLog: 'Amos hands you Romans 12:2.',
+    groggy: 'It is 2 a.m. somewhere. Your focus is already thin.',
     after: [
       [null, 'The red smoke thins, flickers, and goes out. Bram sits down hard on the edge of the well.'],
       ['blacksmith', '“Three weeks. I’ve been yelling at a door for three weeks.” He looks at his hands. “I let the forge go cold.”'],
@@ -253,7 +255,13 @@ const TEXT = {
     intentBig: 'winds up for {n}',
     intentVex: 'provokes you',
     targetHint: ' Tap an enemy to target it.',
-    notEnoughMana: 'Not enough mana',
+    focus: 'Focus',
+    notEnoughFocus: 'Not enough focus',
+    alreadySaid: 'You’ve said that one. It comes back once you’ve said the others.',
+    ready: 'Your head clears. Every verse is ready again.',
+    refocused: 'Your mind clears. +{n} focus.',
+    brace: 'Brace — say nothing, take half damage',
+    braceLog: 'You plant your feet and wait for it.',
     charge: 'Charge — skip this turn, double the next',
     charged: 'Charged — next verse hits double',
     chargeLog: 'You hold the word in your mouth.',
@@ -347,7 +355,7 @@ const TEXT = {
     story: 'He sits down on the stones of the square, quieter than he has been in years. Someone opens a shutter. Then another.',
     bell: 'That night the church bell rings for the first time in a long time.',
     fruit: 'Fruit: Patience',
-    fruitPerk: '+1 max mana, for good',
+    fruitPerk: '+2 max focus, for good',
     newVerse: 'New verse',
     button: 'Walk back to the church',
   },
@@ -405,7 +413,7 @@ const TEXT = {
     perks: {
       Patience: ['+1 damage on Patience verses', 'Charge: skip a turn to double your next verse', 'A perfect Patience cast dazes a wrath enemy for a turn'],
       Gentleness: ['Every attack also shields you for 2', 'Freed enemies leave 5 extra talents', 'The first Gentleness verse each fight costs nothing'],
-      Peace: ['+1 max mana', 'Your first stumble each fight still casts at full power', 'Start every fight with a shield of 5'],
+      Peace: ['+2 max focus', 'Your first stumble each fight still casts at full power', 'Start every fight with a shield of 5'],
     },
     // when each locked branch opens
     locks: {

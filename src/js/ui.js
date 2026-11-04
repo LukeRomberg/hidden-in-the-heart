@@ -21,7 +21,7 @@ function codexHTML(){
     <button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button>`;
 }
 function deckHTML(){
-  return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} mana</div></div>`;}).join('')}
+  return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div>`;}).join('')}
     <button class="wide" onclick="goto(R.deckFrom||'town')">Back</button>`;
 }
 const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','map','codex','intro']);
@@ -31,7 +31,7 @@ function hudHTML(){
   if(!R || !R.deck) return '';
   return `<div class="hud" role="status"><span class="lv">Lv ${R.level}</span>
     <span class="grow"><span class="it tiny">${icon('soul',1.6)} ${R.xp}/${xpNeed(R.level)} souls</span><div class="bar mn"><i style="width:${100*R.xp/xpNeed(R.level)}%"></i></div></span>
-    <span class="it">${icon('heart',1.8)} ${R.hp}/${R.maxHp}</span><span class="it">${icon('mana',1.8)} ${R.maxMana}</span><span class="it">${icon('coin',1.8)} ${R.talents}</span></div>`;
+    <span class="it">${icon('heart',1.8)} ${R.hp}/${R.maxHp}</span><span class="it" title="${TEXT.fight.focus}">${icon('mana',1.8)} ${R.maxFocus}</span><span class="it">${icon('coin',1.8)} ${R.talents}</span></div>`;
 }
 function tabsHTML(){
   const cur = ['forge','inn','training','scriptorium','world'].includes(screen) ? 'town' : screen;

@@ -78,4 +78,4 @@ function treeHTML(){
     <button class="wide" onclick="saveHero(); goto(R.treeFrom||'town')">Back</button>`;
 }
 function treeSel(b,t){ R.treeSel={b,t}; render(); }
-function pickBranch(b){ R.tree[b]++; R.rank++; if(b==='Peace' && R.tree.Peace===1) R.maxMana++; R.treeSel={b, t:R.tree[b]-1}; render(); }
+function pickBranch(b){ R.tree[b]++; R.rank++; if(b==='Peace' && R.tree.Peace===1) R.maxFocus+=2; R.treeSel={b, t:R.tree[b]-1}; render(); }

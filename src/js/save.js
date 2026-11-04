@@ -8,7 +8,9 @@ try{ const s = localStorage.getItem(SAVE_KEY); if(s){ const o = JSON.parse(s);
 delete P.fresh; delete P.mastery; delete P.perks;
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(P)); }catch(e){} }
 function saveHero(){ if(!R) return; P.hero={}; KEEP.forEach(k=>P.hero[k]=R[k]); save(); }
-function loadHero(){ R = Object.assign(transient(), blankHero(), P.hero||{}); if(R.xp>=xpNeed(R.level)) R.xp=xpNeed(R.level)-1; }
+function loadHero(){ const h = P.hero||{};
+  if(h.maxFocus===undefined && h.maxMana!==undefined){ h.maxFocus = BASE_FOCUS + 2*(h.maxMana-3); delete h.maxMana; }   // saves from the mana days
+  R = Object.assign(transient(), blankHero(), h); if(R.xp>=xpNeed(R.level)) R.xp=xpNeed(R.level)-1; }
 function newGame(){
   P = {casts:{}, hero:null, town:{}, missions:{}, creed:0, run:null, tutorialDone:false}; save();
   R = Object.assign(transient(), blankHero()); Object.keys(heroCache).forEach(k=>delete heroCache[k]);

@@ -14,6 +14,8 @@ const VERSES = [
   {ref:'Proverbs 19:11', type:'Patience', cost:2, dmg:9, text:'A man’s insight gives him patience, and his virtue is to overlook an offense.'},
   {ref:'Galatians 5:22-23', type:'Patience', cost:3, dmg:15, text:'But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, and self-control. Against such things there is no law.'},
   {ref:'Galatians 5:16', type:'Self-control', cost:2, dmg:9, text:'So I say, walk by the Spirit, and you will not gratify the desires of the flesh.'},
+  // Restores focus instead of dealing damage. Amos gives it the first time you run dry.
+  {ref:'Romans 12:2', type:'Peace', cost:0, focus:4, text:'Do not be conformed to this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what is the good, pleasing, and perfect will of God.'},
 ];
 const ARMOR_V = [
   {ref:'Ephesians 6:14', type:'Armor', cost:0, text:'Stand firm then, with the belt of truth buckled around your waist, with the breastplate of righteousness arrayed,'},

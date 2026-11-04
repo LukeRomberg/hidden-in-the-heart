@@ -68,16 +68,18 @@ function tutorialHTML(){
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('idle',40), {src:ENEMY_IMG.hothead.f[0], x:236, y:92, w:48}])}${talk('tut', T.lead,
     `<button class="primary wide" onclick="startTutorial()">${T.start}</button>`)}`;
 }
-function startTutorial(){ R.tutorial=true; R.node={t:'fight', e:['hothead']}; startFight(['hothead']); }
+// you start the tutorial groggy (it is 2 a.m. somewhere), so you run dry and Amos hands you Romans 12:2
+const TUTORIAL_FOCUS = 3;
+function startTutorial(){ R.tutorial=true; R.node={t:'fight', e:['hothead']}; startFight(['hothead']); log(TEXT.tutorial.groggy); }
 // what the priest says over your shoulder, based on where you are in the fight
 function coachLine(){
-  const C = TEXT.tutorial.coach, casts = R.castRefs.length, canCast = R.hand.some(c=>cardCost(BY_REF[c.ref])<=R.mana);
-  if(R.turn===1 && casts===0) return C.firstCard;
-  if(R.turn===1 && canCast) return C.anotherCard;
-  if(!canCast) return C.endTurn;
+  const C = TEXT.tutorial.coach;
+  if(R.gift) return C.gift;
+  if(R.turn===1) return C.firstCard;
+  if(R.turn===2) return C.oneMove;
   return C.readIntent;
 }
-function finishTutorial(){ R.tutorial=false; P.tutorialDone=true; R.unlockMsg=null; saveHero(); goto('tutend'); }
+function finishTutorial(){ addVerse('Romans 12:2'); R.tutorial=false; R.gift=false; P.tutorialDone=true; R.unlockMsg=null; saveHero(); goto('tutend'); }
 function tutendHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,
@@ -103,7 +105,7 @@ function victory(){
   P.run = null;
   const first = !P.missions.wrath;
   P.missions.wrath = (P.missions.wrath||0)+1;
-  if(first){ R.maxMana++; addVerse('Galatians 5:16'); P.town.church=true; }
+  if(first){ R.maxFocus+=2; addVerse('Galatians 5:16'); P.town.church=true; }
   gainXP(first?3:1); R.talents += first?30:15;
   modal=null; R.firstClear=first; saveHero(); goto('victory');
 }

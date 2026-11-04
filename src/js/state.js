@@ -1,9 +1,10 @@
 /* Run state (R), current screen, modal, and small shared helpers. */
 let R = null, screen = 'title', modal = null, toastT = null;
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
-const KEEP = ['hp','maxHp','maxMana','deck','talents','souls','level','xp','rank','tree','gear'];
-function blankHero(){ return {hp:40, maxHp:40, maxMana:3, deck:[], talents:0, souls:0, level:1, xp:0, rank:0, tree:{Patience:0,Gentleness:0,Peace:0}, gear:{head:null,chest:null,waist:null,feet:null,shield:null,hand:null}}; }
-function transient(){ return {mana:0, draw:[], hand:[], disc:[], shield:0, vexed:false, step:0, frags:[], node:null, enemies:[], turn:0, target:0, boss:null, log:[], busy:false,
+const BASE_FOCUS = 6;   // focus at level 1; refills fully at the start of every fight
+const KEEP = ['hp','maxHp','maxFocus','deck','talents','souls','level','xp','rank','tree','gear'];
+function blankHero(){ return {hp:40, maxHp:40, maxFocus:BASE_FOCUS, deck:[], talents:0, souls:0, level:1, xp:0, rank:0, tree:{Patience:0,Gentleness:0,Peace:0}, gear:{head:null,chest:null,waist:null,feet:null,shield:null,hand:null}}; }
+function transient(){ return {focus:0, spent:[], brace:false, shield:0, vexed:false, step:0, frags:[], node:null, enemies:[], turn:0, target:0, boss:null, log:[], busy:false,
   charge:false, pendingDrop:null, after:false, earned:{souls:0,talents:0,xp:0}, treeSel:null, treeFrom:'town', gearFrom:'town', helmUsed:false, gearDropped:null, unlockMsg:null,
   pick:pick(OFFENSE,3), chosen:{off:null, def:null}}; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }

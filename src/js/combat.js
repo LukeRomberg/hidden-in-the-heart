@@ -1,13 +1,13 @@
 /* Turn-based combat, card play, enemy turns, and the Furnace boss assembly. */
 const ENEMIES = {
-  hothead:{hp:12, atk:4, spr:'hothead', pattern:['atk','atk']},
-  grudge:{hp:16, atk:3, spr:'grudge', pattern:['atk','vex']},
-  brawler:{hp:22, atk:6, spr:'brawler', pattern:['atk','atk','big']},
-  slanderer:{hp:30, atk:5, spr:'slanderer', pattern:['vex','atk','atk']},
-  furnace:{hp:70, atk:7, spr:'furnace', pattern:['atk','vex','atk','big'], boss:true},
+  hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
+  grudge:{hp:18, atk:3, spr:'grudge', pattern:['atk','vex']},
+  brawler:{hp:24, atk:5, spr:'brawler', pattern:['atk','atk','big']},
+  slanderer:{hp:28, atk:4, spr:'slanderer', pattern:['vex','atk','atk']},
+  furnace:{hp:50, atk:4, spr:'furnace', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
-  villager:{hp:12, atk:4, pattern:['atk','atk'], villager:true},
-  villager_strong:{hp:26, atk:5, pattern:['vex','atk','atk'], villager:true},
+  villager:{hp:14, atk:3, pattern:['atk','atk'], villager:true},
+  villager_strong:{hp:24, atk:4, pattern:['vex','atk','atk'], villager:true},
 };
 const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', him:'her', his:'her', He:'She'}};
 function makeEnemy(id, i){
@@ -22,14 +22,21 @@ const TYPE_MULT = {Patience:1.5, Gentleness:1.25};
 function startFight(ids, boss){
   R.enemies = ids.map(makeEnemy);
   R.boss = boss ? {phase:0} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.unlockMsg=null;
-  R.draw = shuffle(R.deck.slice()); R.hand=[]; R.disc=[]; R.spent=[]; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
+  R.spent=[]; R.focus = R.tutorial ? Math.min(R.maxFocus, TUTORIAL_FOCUS) : R.maxFocus; R.brace=false; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null; log(boss? TEXT.fight.bossRoars : R.enemies.length>1 ? fill(TEXT.fight.blocksMany,{names:R.enemies.map(e=>e.name).join(' and ')}) : fill(TEXT.fight.blocksOne,{name:R.enemies[0].name})); goto('fight');
 }
+// One action a turn: say one verse (costs focus), Brace, or Charge. Then the enemies act.
+// Focus does not come back during a fight, except through a verse like Romans 12:2.
 function newTurn(){
-  R.turn++; R.mana = R.maxMana; R.shield = 0; R.disc.push(...R.hand); R.hand=[]; if(!R.spent) R.spent=[];
-  if(!R.draw.length && !R.disc.length && !R.hand.length && R.spent.length){ R.draw=shuffle(R.spent); R.spent=[]; log('You catch your breath. Every verse is ready again.'); }
-  for(let i=0;i<4;i++){ if(!R.draw.length){ R.draw = shuffle(R.disc); R.disc=[]; } if(R.draw.length) R.hand.push(R.draw.pop()); }
+  R.turn++; R.shield = 0; R.brace = false;
+  // each verse works once; when nothing unsaid is affordable, they all come back
+  if(R.spent.length && !unsaid().some(ref=>affordable(ref))){ R.spent=[]; log(TEXT.fight.ready); }
+  if(R.tutorial && !R.deck.some(c=>c.ref==='Romans 12:2') && !unsaid().some(ref=>affordable(ref))){
+    addVerse('Romans 12:2'); R.gift=true; log(TEXT.tutorial.giftLog); }
 }
+function verseRefs(){ return [...new Set(R.deck.map(c=>c.ref))]; }
+function unsaid(){ return verseRefs().filter(ref=>!R.spent.includes(ref)); }
+function affordable(ref){ return cardCost(BY_REF[ref]) <= R.focus; }
 function intentText(e){ const a=e.pattern[e.step]; return a==='atk'?fill(TEXT.fight.intentAttack,{n:e.atk}): a==='big'?fill(TEXT.fight.intentBig,{n:e.atk+3}):TEXT.fight.intentVex; }
 function arenaHTML(mini){
   const live = R.enemies.filter(e=>!e.freed);
@@ -46,22 +53,22 @@ function arenaHTML(mini){
     return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = R.enemies[R.target] && !R.enemies[R.target].freed ? R.enemies[R.target] : live[0];
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${t&&t.boss&&R.boss?' · fires '+(3-R.boss.phase):''} ${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp"><i style="width:${t?100*Math.max(0,t.hp)/t.max:0}%"></i></div><div class="small">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
-    ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp"><i style="width:${100*R.hp/R.maxHp}%"></i></div><div class="small">HP ${R.hp}/${R.maxHp}${R.shield?' · shield '+R.shield:''}</div><div class="bar mn"><i style="width:${100*R.mana/R.maxMana}%"></i></div><div class="small">Mana ${R.mana}/${R.maxMana}</div></div>`;
+    ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp"><i style="width:${100*R.hp/R.maxHp}%"></i></div><div class="small">HP ${R.hp}/${R.maxHp}${R.shield?' · shield '+R.shield:''}</div><div class="bar mn"><i style="width:${100*R.focus/R.maxFocus}%"></i></div><div class="small">${TEXT.fight.focus} ${R.focus}/${R.maxFocus}</div></div>`;
   return `<div class="arena ${mini?'mini':''}" id="arena"><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
     ${R.shield&&!mini?'<div class="barrier"></div>':''}${R.vexed&&!mini?'<div class="vex">#!?</div>':''}
     <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2,'f0')}${sprite('back',1,mini?1:2.2,'f1')}</div>
     ${info}<div class="fx" id="fx"></div></div>`;
 }
-// Never more than max mana: an unaffordable card would sit in the hand forever and the deck would never refresh.
-function cardCost(v){ let c=spellCost(v)+(R.vexed?1:0); if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) c=0; return Math.min(c, R.maxMana); }
+// Never more than max focus, so every verse can be said on a full mind.
+function cardCost(v){ let c=spellCost(v)+(R.vexed?1:0); if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) c=0; return Math.min(c, R.maxFocus); }
 function fightHTML(){
-  const hand = R.hand.map((c,i)=>{ const v=BY_REF[c.ref]; const cost=cardCost(v);
-    return cardHTML(v,{cost, cls:cost>R.mana?'dim':'', click:`playCard(${i})`}); }).join('');
+  const hand = verseRefs().map(ref=>{ const v=BY_REF[ref]; const cost=cardCost(v);
+    return cardHTML(v,{cost, cls:R.spent.includes(ref)?'spent':cost>R.focus?'dim':'', click:`playCard('${ref}')`}); }).join('');
   const intents = R.enemies.filter(e=>!e.freed).map(e=>`${e.name} ${intentText(e)}`).join('. ');
   const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}<div class="small mute" style="margin-bottom:8px">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
     <div class="hand">${hand}</div>
-    <button class="primary wide" onclick="endTurn()">End turn</button>
+    <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}`;
   return `${arenaHTML(false)}<div class="textbox" id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${bottom}`;
 }
@@ -81,12 +88,13 @@ function afterHTML(){
     ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${TEXT.afterFight.growTree}</button>`:''}
     <button class="primary wide" onclick="${R.boss?'victory()':R.tutorial?'finishTutorial()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button>`;
 }
-function playCard(i){
+function playCard(ref){
   if(R.busy || R.after) return;
-  const c = R.hand[i]; const v = BY_REF[c.ref]; const cost = cardCost(v);
-  if(cost>R.mana){ toast(TEXT.fight.notEnoughMana); return; }
+  const c = {ref}; const v = BY_REF[ref]; const cost = cardCost(v);
+  if(R.spent.includes(ref)){ toast(TEXT.fight.alreadySaid); return; }
+  if(cost>R.focus){ toast(TEXT.fight.notEnoughFocus); return; }
   openRecall(v, async (frac)=>{
-    R.busy=true; R.mana -= cost; R.vexed = false; R.hand.splice(i,1); R.spent.push(c); if(!R.castRefs.includes(c.ref)) R.castRefs.push(c.ref);
+    R.busy=true; R.focus -= cost; R.vexed = false; R.spent.push(ref); if(!R.castRefs.includes(ref)) R.castRefs.push(ref); R.gift=false;
     if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) R.gentleUsed=true;
     P.casts[c.ref]=(P.casts[c.ref]||0)+1; save();
     let eff = frac; if(frac<1 && R.tree.Peace>=2 && !R.stumbleUsed){ R.stumbleUsed=true; eff=1; }
@@ -114,13 +122,15 @@ function playCard(i){
       else if(t.boss) checkBossPhase(t);
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; log(fill(TEXT.fight.barrier,{n:s})); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); log(fill(TEXT.fight.healed,{n:h})); }
+    else if(v.focus){ const f=Math.round(v.focus*SM*mult); R.focus=Math.min(R.maxFocus,R.focus+f); log(fill(TEXT.fight.refocused,{n:f})); }
     R.busy=false;
     if(modal){ render(); return; }
     if(R.enemies.every(e=>e.freed)){ fightWon(); return; }
-    render();
+    enemyTurn();
   });
 }
-async function endTurn(){
+function brace(){ if(R.busy || R.after) return; R.brace=true; log(TEXT.fight.braceLog); enemyTurn(); }
+async function enemyTurn(){
   if(R.busy || R.after) return; R.busy=true;
   for(const e of R.enemies){ if(e.freed) continue;
     if(e.stun){ e.stun=false; log(fill(TEXT.fight.standsDazed,{name:e.name})); await sleep(300); continue; }
@@ -129,7 +139,7 @@ async function endTurn(){
     await sleep(200);
     if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,{name:e.name})); else { R.vexed=true; log(fill(TEXT.fight.vexed,{name:e.name})); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,{name:e.name})); }
-    else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
+    else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); if(R.brace) d=Math.ceil(d/2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
       const pl=document.getElementById('pl'); if(pl){ pl.classList.add('hit'); setTimeout(()=>pl.classList.remove('hit'),320); }
       log(fill(a==='big'?TEXT.fight.slams:TEXT.fight.strikes,{name:e.name, n:d, absorbed:absorbed?fill(TEXT.fight.absorbed,{n:absorbed}):''})); }
     await sleep(300); if(el) el.classList.remove('lunge');
@@ -138,7 +148,7 @@ async function endTurn(){
   }
   newTurn(); R.busy=false; render();
 }
-function charge(){ if(R.busy||R.charge) return; R.charge=true; log(TEXT.fight.chargeLog); endTurn(); }
+function charge(){ if(R.busy||R.charge||R.after) return; R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
 function fightWon(){
   R.pendingDrop = (R.node && R.node.t==='elite' && !R.deck.some(c=>c.ref==='Romans 12:19')) ? 'Romans 12:19' : null; R.dropFrom = R.enemies[0] && R.enemies[0].name;
   if(has('boots')||has('sabatons')){ R.hp=Math.min(R.maxHp,R.hp+4); }
@@ -171,13 +181,13 @@ async function finishAssembly(){
   const m = modal; modal=null; if(m.phase==='chest'){ finishChest(m); return; } const boss = R.enemies[0];
   if(m.phase==='final'){
     if(m.mistakes===0){ R.busy=true; boss.freed=true; render(); await freedFX(0); log(THANKS.furnace); R.busy=false; fightWon(); return; }
-    boss.hp = Math.min(24, 6*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
+    boss.hp = Math.min(12, 4*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
   } else {
     R.boss.phase++;
     if(m.mistakes===0){ boss.hp = Math.max(1, boss.hp-8); boss.stun=true; log(fill(TEXT.boss.fireDazed,{n:R.boss.phase})); }
-    else { const heal=Math.min(12,4*m.mistakes); boss.hp=Math.min(boss.max,boss.hp+heal); log(fill(TEXT.boss.fireFlares,{slips:slips(m.mistakes), n:heal})); }
+    else { const heal=Math.min(8,3*m.mistakes); boss.hp=Math.min(boss.max,boss.hp+heal); log(fill(TEXT.boss.fireFlares,{slips:slips(m.mistakes), n:heal})); }
   }
-  render();
+  enemyTurn();
 }
 function assemblyHTML(){
   const m = modal;
