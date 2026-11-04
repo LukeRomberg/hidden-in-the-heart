@@ -358,3 +358,31 @@ body.has-tabs #app:has(> .dock:last-child){ padding-bottom:var(--dock-bottom, 0p
 #app{ min-height:100vh; min-height:100dvh; box-sizing:border-box; display:flex; flex-direction:column; }
 #app > .dock{ margin-top:auto; }
 #app > *:nth-last-child(2):has(+ .dock){ margin-bottom:12px; }
+
+/* ---- Sentences are never pixel: buttons, section headings, toasts and chips use Nunito.
+   Pixel stays for the screen titles, name tags, card references and numbers, tabs and map labels. ---- */
+button, h2, h3, .px, .toast, .chip, input[type=text], .coach::before, .lvopt b{ font-family:'Nunito',system-ui,sans-serif; }
+button{ font-size:17px; font-weight:700; }
+h2{ font-size:15px; font-weight:800; letter-spacing:1.2px; }
+.px{ font-size:16px; font-weight:800; }
+.toast{ font-size:16px; font-weight:700; }
+.chip{ font-size:17px; font-weight:600; }
+.tabs button{ font-family:'Pixelify Sans',sans-serif; }
+/* fruit colors are too dark on wood: lighter versions inside buttons */
+button .t-Patience{ color:#ffd860; } button .t-Gentleness{ color:#c4e88e; } button .t-Self-control, button .t-Peace{ color:#acd6ff; }
+button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .sub{ color:#ffe8c0; }
+
+/* ---- Fight: compact arena and log, cards in a side-scrolling row in the pinned bar ---- */
+/* arena height and scale k are set per screen in arenaHTML; these follow it */
+.arena .info{ zoom:max(var(--k,1), .86); }
+.barrier{ left:calc(104px * var(--k,1)); bottom:calc(16px * var(--k,1)); height:calc(84px * var(--k,1)); }
+.vex{ left:calc(52px * var(--k,1)); bottom:calc(104px * var(--k,1)); }
+.textbox{ font-size:15px; line-height:1.3; min-height:3.9em; }
+.fightdock{ padding-top:4px; }
+.fightdock .intents{ font-size:15px; color:#e8d2a8; margin:2px 0 0; }
+.hand.hscroll{ display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
+  padding:16px 2px 4px 16px; margin:0 -12px 0 -4px; scrollbar-width:none; }
+.hand.hscroll::-webkit-scrollbar{ display:none; }
+.hand.hscroll .card{ flex:0 0 42%; min-height:0; scroll-snap-align:start; }
+.hand.hscroll .card .txt{ font-size:14px; }
+.hand.hscroll .card .ref{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

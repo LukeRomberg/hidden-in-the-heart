@@ -39,36 +39,42 @@ function unsaid(){ return verseRefs().filter(ref=>!R.spent.includes(ref)); }
 function affordable(ref){ return cardCost(BY_REF[ref]) <= R.focus; }
 function intentText(e){ const a=e.pattern[e.step]; return a==='atk'?fill(TEXT.fight.intentAttack,{n:e.atk}): a==='big'?fill(TEXT.fight.intentBig,{n:e.atk+3}):TEXT.fight.intentVex; }
 function arenaHTML(mini){
+  // the battle scene shrinks on short screens (k = scale) so it, the log and the cards all fit
+  const H = mini ? 0 : Math.round(Math.min(260, Math.max(160, (window.innerHeight||800)*0.31))), k = mini ? 1 : H/260;
   const live = R.enemies.filter(e=>!e.freed);
   const boss = R.enemies.find(e=>e.boss);
   const glow = boss ? 0.35 + 0.65*(1 - Math.max(0,boss.hp)/boss.max) : 0.25;
   const embers = mini ? '' : Array.from({length:14},(_,i)=>`<div class="ember" style="left:${8+(i*37)%84}%;animation-duration:${2.2+(i%5)*0.5}s;animation-delay:${(i*0.37)%2.5}s"></div>`).join('');
-  const enemies = R.enemies.map((e,i)=>{ const sc = mini ? (e.boss?3.5:3) : (e.boss?6.2:7); const right = mini ? 14 : (i===0 ? 24 : 128);
+  const enemies = R.enemies.map((e,i)=>{ const sc = mini ? (e.boss?3.5:3) : (e.boss?6.2:7)*k; const right = mini ? 14 : Math.round((i===0 ? 24 : 128)*k);
     const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':''].join(' ');
     let sn, ssc, top, f0=0, f1=1, held='';
     if(e.villager || (e.freed && !ENEMY_IMG[e.spr+'_f'])){   // townsfolk sprites: same person held (tinted) and freed
-      sn = e.villager ? e.spr : 'freed'+(e.fk||0); ssc = mini?0.8:1.6; top = mini?11:8; if(!e.freed){ f1=0; held=' held'; } }
+      sn = e.villager ? e.spr : 'freed'+(e.fk||0); ssc = mini?0.8:1.6*k; top = mini?11:Math.round(8*k); if(!e.freed){ f1=0; held=' held'; } }
     else { const own = e.freed; sn = own ? e.spr+'_f' : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
-      top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, 106-Math.round(EI.h*enemyK(sc))); }
+      top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, Math.round(106*k-EI.h*enemyK(sc))); }
     return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = R.enemies[R.target] && !R.enemies[R.target].freed ? R.enemies[R.target] : live[0];
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${t&&t.boss&&R.boss?' · fires '+(3-R.boss.phase):''} ${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp"><i style="width:${t?100*Math.max(0,t.hp)/t.max:0}%"></i></div><div class="small">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp"><i style="width:${100*R.hp/R.maxHp}%"></i></div><div class="small">HP ${R.hp}/${R.maxHp}${R.shield?' · shield '+R.shield:''}</div><div class="bar mn"><i style="width:${100*R.focus/R.maxFocus}%"></i></div><div class="small">${TEXT.fight.focus} ${R.focus}/${R.maxFocus}</div></div>`;
-  return `<div class="arena ${mini?'mini':''}" id="arena"><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
+  return `<div class="arena ${mini?'mini':''}" id="arena" ${mini?'':`style="height:${H}px;--k:${k.toFixed(3)}"`}><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
     ${R.shield&&!mini?'<div class="barrier"></div>':''}${R.vexed&&!mini?'<div class="vex">#!?</div>':''}
-    <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2,'f0')}${sprite('back',1,mini?1:2.2,'f1')}</div>
+    <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2*k,'f0')}${sprite('back',1,mini?1:2.2*k,'f1')}</div>
     ${info}<div class="fx" id="fx"></div></div>`;
 }
 // Never more than max focus, so every verse can be said on a full mind.
 function cardCost(v){ let c=spellCost(v)+(R.vexed?1:0); if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) c=0; return Math.min(c, R.maxFocus); }
 function fightHTML(){
-  const hand = verseRefs().map(ref=>{ const v=BY_REF[ref]; const cost=cardCost(v);
+  // ready verses first, then ones you can't afford yet, then ones already said
+  const rank = ref => R.spent.includes(ref) ? 2 : cardCost(BY_REF[ref])>R.focus ? 1 : 0;
+  const hand = verseRefs().map((ref,i)=>[ref,i]).sort((a,b)=>rank(a[0])-rank(b[0]) || a[1]-b[1]).map(([ref])=>{ const v=BY_REF[ref]; const cost=cardCost(v);
     return cardHTML(v,{cost, cls:R.spent.includes(ref)?'spent':cost>R.focus?'dim':'', click:`playCard('${ref}')`}); }).join('');
   const intents = R.enemies.filter(e=>!e.freed).map(e=>`${e.name} ${intentText(e)}`).join('. ');
-  const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}<div class="small mute" style="margin-bottom:8px">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
-    <div class="hand">${hand}</div>
-    <div class="dock"><button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
+  // the cards ride in the pinned bottom bar as a side-scrolling row, so the battle stays in view
+  const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}
+    <div class="dock fightdock"><div class="intents">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
+    <div class="hand hscroll">${hand}</div>
+    <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}</div>`;
   return `${arenaHTML(false)}<div class="textbox" id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${bottom}`;
 }
