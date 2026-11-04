@@ -13,6 +13,7 @@ function titleHTML(){
     ${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
     <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm(TEXT.title.newGameConfirm)) newGame()">New game</button>
     <button class="wide" onclick="R=R||Object.assign(transient(),blankHero()); R.codexFrom='title'; goto('codex')">Codex</button>
+    <button class="wide" onclick="goto('saves')">${TEXT.saves.heading}</button>
     <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain. ${CREED.credit}</div>`;
 }
 function codexHTML(){
@@ -39,7 +40,7 @@ function tabsHTML(){
 }
 function tab(id){ if(modal) return; R.treeFrom='town'; R.gearFrom='town'; R.deckFrom='town'; R.codexFrom='town'; if(id==='tree') R.treeSel=null; goto(id); }
 function render(){
-  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, mstory:mstoryHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, corridor:corridorHTML, bossintro:bossintroHTML, map:mapHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, reward:rewardHTML, shrine:shrineHTML, rest:restHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, lock:lockHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
+  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, mstory:mstoryHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, corridor:corridorHTML, bossintro:bossintroHTML, map:mapHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, shrine:shrineHTML, rest:restHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, lock:lockHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   const tabs = R && R.deck && R.deck.length && TAB_ON.has(screen); document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();

@@ -114,6 +114,24 @@ try {
     const who = await page.evaluate(() => R.enemies.map(e => e.villager ? 'villager' : e.id));
     if (who.includes('hothead')) throw new Error('fought Bram again after freeing him');
   });
+  await step('move save to a fresh browser', async () => {
+    const before = await page.evaluate(() => { saveHero(); return { deck: R.deck.length, forge: !!P.town.forge, level: R.level }; });
+    await page.evaluate(() => goto('title')); await waitScreen('title');
+    await btn('Move your save').click(); await waitScreen('saves');
+    await btn('Copy save code').click();
+    const code = await page.locator('#savecode').inputValue();
+    if (!code.startsWith('HITH1.')) throw new Error('no save code shown');
+    await page.evaluate(() => localStorage.clear()); await page.reload();
+    if (await btn('Continue').count()) throw new Error('save survived clearing storage');
+    await btn('Move your save').click(); await waitScreen('saves');
+    await page.locator('#loadcode').fill('HITH1.not-a-real-save'); await btn('Load save').click();
+    if (await page.evaluate(() => !!P.hero)) throw new Error('accepted a broken code');
+    await page.locator('#loadcode').fill(code); await btn('Load save').click();
+    await page.waitForLoadState('load'); await btn('Continue').waitFor();
+    await btn('Continue').click();
+    const after = await page.evaluate(() => ({ deck: R.deck.length, forge: !!P.town.forge, level: R.level }));
+    if (JSON.stringify(after) !== JSON.stringify(before)) throw new Error(`save changed in transit: ${JSON.stringify(before)} -> ${JSON.stringify(after)}`);
+  });
 } catch { result = 'fail'; }
 
 await browser.close();

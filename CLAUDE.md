@@ -75,7 +75,8 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   by reciting Ephesians 6 cumulatively (6:14, then 6:14-15, ... 6:14-17). Gear is permanent.
 - **Saves**: localStorage key `hidden-in-the-heart-v1` (object `P`; hero in `P.hero`). A
   mission in progress is `P.run` (step + fragments), so a reload resumes on the map.
-  Per-device. Moving saves to a backend is on the list.
+  Per-browser; "Move your save" on the title screen copies the whole save as a code
+  (`HITH1.` + base64 JSON) and loads one pasted from another browser. Moving saves to a backend is on the list.
 
 ## Scripture text
 

@@ -318,3 +318,7 @@ input[type=text]{ border:10px solid transparent; border-image:url(__FRAME__(pape
 .lvopt .sub{ font-family:'Pixelify Sans',sans-serif; font-size:17px; }
 @keyframes lvpop{ from{ transform:scale(.6); opacity:0; } to{ transform:scale(1); opacity:1; } }
 .lvopt b{ color:#fff0d0; text-shadow:1px 1px 0 #2a160c; }
+
+/* save codes on the Move your save screen */
+textarea.code{ width:100%; box-sizing:border-box; font-family:ui-monospace,Menlo,monospace; font-size:13px; line-height:1.3; word-break:break-all; resize:vertical;
+  border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; background:none; color:#3a2414; margin-bottom:8px; }

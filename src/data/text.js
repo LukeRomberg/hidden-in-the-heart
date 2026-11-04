@@ -495,6 +495,21 @@ const TEXT = {
     creedNone: 'Chests in the square hold pieces of it.',
     creedSoFar: '{n} of {total} pieces.',
   },
+  // the Move your save screen (title screen), for carrying a save to another browser or device
+  saves: {
+    heading: 'Move your save',
+    copyHeading: 'Copy this browser’s save',
+    copyHelp: 'Copy the code, then paste it into “Load a save” on your other browser or device. It carries your whole journey.',
+    noSave: 'There is no save on this browser yet.',
+    copy: 'Copy save code',
+    copied: 'Save code copied.',
+    copyManual: 'Couldn’t copy automatically. Select the code and copy it.',
+    loadHeading: 'Load a save',
+    loadHelp: 'Paste a save code from another browser. It replaces the save on this one.',
+    load: 'Load save',
+    bad: 'That isn’t a whole save code. Copy it again and paste all of it.',
+    confirm: 'Replace the save on this browser with the one you pasted?',
+  },
   levelUp: {
     heading: 'Level {n}',
     body: 'Max HP +{hp}. A fruit of the Spirit can grow.',
