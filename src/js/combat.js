@@ -1,14 +1,26 @@
 /* Turn-based combat, card play, enemy turns, and the Furnace boss assembly. */
 const ENEMIES = {
-  hothead:{name:TEXT.enemies.hothead, hp:12, atk:4, spr:'hothead', pattern:['atk','atk']},
-  grudge:{name:TEXT.enemies.grudge, hp:16, atk:3, spr:'grudge', pattern:['atk','vex']},
-  brawler:{name:TEXT.enemies.brawler, hp:22, atk:6, spr:'brawler', pattern:['atk','atk','big']},
-  slanderer:{name:TEXT.enemies.slanderer, hp:30, atk:5, spr:'slanderer', pattern:['vex','atk','atk']},
-  furnace:{name:TEXT.enemies.furnace, hp:70, atk:7, spr:'furnace', pattern:['atk','vex','atk','big'], boss:true},
+  hothead:{hp:12, atk:4, spr:'hothead', pattern:['atk','atk']},
+  grudge:{hp:16, atk:3, spr:'grudge', pattern:['atk','vex']},
+  brawler:{hp:22, atk:6, spr:'brawler', pattern:['atk','atk','big']},
+  slanderer:{hp:30, atk:5, spr:'slanderer', pattern:['vex','atk','atk']},
+  furnace:{hp:70, atk:7, spr:'furnace', pattern:['atk','vex','atk','big'], boss:true},
+  // townsfolk held by anger: stand-ins once the named person in that room has been freed
+  villager:{hp:12, atk:4, pattern:['atk','atk'], villager:true},
+  villager_strong:{hp:26, atk:5, pattern:['vex','atk','atk'], villager:true},
 };
+const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', him:'her', his:'her', He:'She'}};
+function makeEnemy(id, i){
+  const e = ENEMIES[id], base = {id, hp:e.hp, max:e.hp, atk:e.atk, pattern:e.pattern, step:i%e.pattern.length, freed:false, boss:!!e.boss};
+  if(e.villager){ const k = pickFreed(), v = TEXT.villagers[k]; return {...base, villager:true, name:v.name, pron:v.pronoun, spr:'freed'+k, fk:k}; }
+  return {...base, name:TEXT.enemies[id].name, pron:TEXT.enemies[id].pronoun, spr:e.spr};
+}
+// a named person is freed once; after that their room holds a villager instead
+function standIn(id){ const u = UNLOCKS[id]; if(!u || !P.town[u[0]]) return id; return ENEMIES[id].pattern.length>2 ? 'villager_strong' : 'villager'; }
+function thanksFor(e){ return e.villager ? TEXT.villagers[e.fk].thanks : THANKS[e.id]; }
 const TYPE_MULT = {Patience:1.5, Gentleness:1.25};
 function startFight(ids, boss){
-  R.enemies = ids.map((id,i)=>{ const e=ENEMIES[id]; return {id, name:e.name, hp:e.hp, max:e.hp, atk:e.atk, spr:e.spr, pattern:e.pattern, step:i%e.pattern.length, freed:false, boss:!!e.boss}; });
+  R.enemies = ids.map(makeEnemy);
   R.boss = boss ? {phase:0} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.unlockMsg=null;
   R.draw = shuffle(R.deck.slice()); R.hand=[]; R.disc=[]; R.spent=[]; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null; log(boss? TEXT.fight.bossRoars : R.enemies.length>1 ? fill(TEXT.fight.blocksMany,{names:R.enemies.map(e=>e.name).join(' and ')}) : fill(TEXT.fight.blocksOne,{name:R.enemies[0].name})); goto('fight');
@@ -24,9 +36,14 @@ function arenaHTML(mini){
   const boss = R.enemies.find(e=>e.boss);
   const glow = boss ? 0.35 + 0.65*(1 - Math.max(0,boss.hp)/boss.max) : 0.25;
   const embers = mini ? '' : Array.from({length:14},(_,i)=>`<div class="ember" style="left:${8+(i*37)%84}%;animation-duration:${2.2+(i%5)*0.5}s;animation-delay:${(i*0.37)%2.5}s"></div>`).join('');
-  const enemies = R.enemies.map((e,i)=>{ const sc = mini ? (e.boss?3.5:3) : (e.boss?6.2:7); const right = mini ? 14 : (i===0 ? 24 : 128); const own = e.freed && ENEMY_IMG[e.spr+'_f']; const EI=ENEMY_IMG[own?e.spr+'_f':e.spr]; const top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : ((e.freed&&!own)?8:Math.max(0, 106-Math.round(EI.h*enemyK(sc))));
-    const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':''].join(' '); const sn = e.freed ? (own ? e.spr+'_f' : 'freed'+(e.fk||0)) : e.spr; const ssc = (e.freed && !own) ? (mini?0.8:1.6) : sc;
-    return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,0,ssc,'f0')}${sprite(sn,1,ssc,'f1')}</div>`; }).join('');
+  const enemies = R.enemies.map((e,i)=>{ const sc = mini ? (e.boss?3.5:3) : (e.boss?6.2:7); const right = mini ? 14 : (i===0 ? 24 : 128);
+    const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':''].join(' ');
+    let sn, ssc, top, f0=0, f1=1, held='';
+    if(e.villager || (e.freed && !ENEMY_IMG[e.spr+'_f'])){   // townsfolk sprites: same person held (tinted) and freed
+      sn = e.villager ? e.spr : 'freed'+(e.fk||0); ssc = mini?0.8:1.6; top = mini?11:8; if(!e.freed){ f1=0; held=' held'; } }
+    else { const own = e.freed; sn = own ? e.spr+'_f' : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
+      top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, 106-Math.round(EI.h*enemyK(sc))); }
+    return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = R.enemies[R.target] && !R.enemies[R.target].freed ? R.enemies[R.target] : live[0];
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${t&&t.boss&&R.boss?' · fires '+(3-R.boss.phase):''} ${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp"><i style="width:${t?100*Math.max(0,t.hp)/t.max:0}%"></i></div><div class="small">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp"><i style="width:${100*R.hp/R.maxHp}%"></i></div><div class="small">HP ${R.hp}/${R.maxHp}${R.shield?' · shield '+R.shield:''}</div><div class="bar mn"><i style="width:${100*R.mana/R.maxMana}%"></i></div><div class="small">Mana ${R.mana}/${R.maxMana}</div></div>`;
@@ -36,12 +53,13 @@ function arenaHTML(mini){
     <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2,'f0')}${sprite('back',1,mini?1:2.2,'f1')}</div>
     ${info}<div class="fx" id="fx"></div></div>`;
 }
-function cardCost(v){ let c=spellCost(v)+(R.vexed?1:0); if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) c=0; return c; }
+// Never more than max mana: an unaffordable card would sit in the hand forever and the deck would never refresh.
+function cardCost(v){ let c=spellCost(v)+(R.vexed?1:0); if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) c=0; return Math.min(c, R.maxMana); }
 function fightHTML(){
   const hand = R.hand.map((c,i)=>{ const v=BY_REF[c.ref]; const cost=cardCost(v);
     return cardHTML(v,{cost, cls:cost>R.mana?'dim':'', click:`playCard(${i})`}); }).join('');
   const intents = R.enemies.filter(e=>!e.freed).map(e=>`${e.name} ${intentText(e)}`).join('. ');
-  const bottom = R.after ? afterHTML() : `<div class="small mute" style="margin-bottom:8px">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
+  const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}<div class="small mute" style="margin-bottom:8px">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
     <div class="hand">${hand}</div>
     <button class="primary wide" onclick="endTurn()">End turn</button>
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}`;
@@ -61,10 +79,10 @@ function afterHTML(){
     ${R.gearDropped?`<button class="wide" onclick="R.gearFrom='fight';goto('gear')">See your gear</button>`:''}
     ${R.pendingDrop?`<button class="wide" onclick="addVerse(R.pendingDrop);R.pendingDrop=null;render()">Take ${R.pendingDrop}</button>`:''}
     ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${TEXT.afterFight.growTree}</button>`:''}
-    <button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button>`;
+    <button class="primary wide" onclick="${R.boss?'victory()':R.tutorial?'finishTutorial()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button>`;
 }
 function playCard(i){
-  if(R.busy) return;
+  if(R.busy || R.after) return;
   const c = R.hand[i]; const v = BY_REF[c.ref]; const cost = cardCost(v);
   if(cost>R.mana){ toast(TEXT.fight.notEnoughMana); return; }
   openRecall(v, async (frac)=>{
@@ -91,8 +109,8 @@ function playCard(i){
       if(R.tree.Patience>=3 && frac===1 && v.type==='Patience' && !t.boss){ t.stun=true; log(fill(TEXT.fight.dazed,{name:t.name})); }
       t.hp -= dmg; const el=document.getElementById('en'+ti); if(el){ el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),320); }
       log(fill(TYPE_MULT[v.type]?TEXT.fight.takesType:TEXT.fight.takes,{name:t.name, n:dmg, type:v.type})); await sleep(350);
-      if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,{name:t.name})); t.hp=0; }
-      if(t.hp<=0){ if(t.boss){ R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); log(fill(TEXT.fight.freed,{name:t.name})); await freedFX(ti); log(THANKS[t.id]); }
+      if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,{name:t.name, ...PRONOUNS[t.pron]})); t.hp=0; }
+      if(t.hp<=0){ if(t.boss){ R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); log(fill(TEXT.fight.freed,{name:t.name, ...PRONOUNS[t.pron]})); await freedFX(ti); log(thanksFor(t)); }
       else if(t.boss) checkBossPhase(t);
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; log(fill(TEXT.fight.barrier,{n:s})); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); log(fill(TEXT.fight.healed,{n:h})); }
@@ -103,7 +121,7 @@ function playCard(i){
   });
 }
 async function endTurn(){
-  if(R.busy) return; R.busy=true;
+  if(R.busy || R.after) return; R.busy=true;
   for(const e of R.enemies){ if(e.freed) continue;
     if(e.stun){ e.stun=false; log(fill(TEXT.fight.standsDazed,{name:e.name})); await sleep(300); continue; }
     const a=e.pattern[e.step]; e.step=(e.step+1)%e.pattern.length; const i=R.enemies.indexOf(e);
@@ -122,17 +140,16 @@ async function endTurn(){
 }
 function charge(){ if(R.busy||R.charge) return; R.charge=true; log(TEXT.fight.chargeLog); endTurn(); }
 function fightWon(){
-  R.pendingDrop = (R.node && R.node.t==='elite') ? 'Romans 12:19' : null;
+  R.pendingDrop = (R.node && R.node.t==='elite' && !R.deck.some(c=>c.ref==='Romans 12:19')) ? 'Romans 12:19' : null; R.dropFrom = R.enemies[0] && R.enemies[0].name;
   if(has('boots')||has('sabatons')){ R.hp=Math.min(R.maxHp,R.hp+4); }
-  if(!R.boss && (R.node && R.node.t==='elite' || Math.random()<0.5)){ const g=gearDrop(); if(g){ equip(g); R.gearDropped=g; } }
+  if(!R.boss && !R.tutorial && (R.node && R.node.t==='elite' || Math.random()<0.5)){ const g=gearDrop(); if(g){ equip(g); R.gearDropped=g; } }
   R.after=true; render();
 }
 function nextAfterFight(){
   if(R.pendingDrop){ screen='drop'; render(); return; }
-  if(Math.floor(R.souls/2) - R.rank > 0){ screen='tree'; render(); return; }
   clearColumn();
 }
-function dropHTML(){ const v=BY_REF[R.pendingDrop]; return `<h1>${TEXT.drop.heading}</h1><div class="panel small">${TEXT.drop.body}</div><div class="hand">${cardView(v)}</div><button class="primary wide" onclick="R.deck.push({ref:R.pendingDrop});R.pendingDrop=null;nextAfterFight()">${TEXT.drop.take}</button>`; }
+function dropHTML(){ const v=BY_REF[R.pendingDrop]; return `<h1>${TEXT.drop.heading}</h1><div class="panel small">${fill(TEXT.drop.body,{name:R.dropFrom||''})}</div><div class="hand">${cardView(v)}</div><button class="primary wide" onclick="R.deck.push({ref:R.pendingDrop});R.pendingDrop=null;nextAfterFight()">${TEXT.drop.take}</button>`; }
 function enterBoss(){ startFight(['furnace'], true); }
 function checkBossPhase(t){
   const th = [Math.floor(t.max*0.66), Math.floor(t.max*0.33)];
@@ -146,14 +163,14 @@ function bossAssembly(phase){
 function tapChunk(i){
   const m = modal;
   if(i===m.next){ m.next++; m.wrong=null; if(m.next===m.chunks.length){ finishAssembly(); return; } }
-  else { m.mistakes++; m.wrong=i; }
+  else { m.mistakes++; m.wrong=i; if(m.phase==='chest' && m.mistakes>m.allowed){ finishAssembly(); return; } }
   render();
 }
 function slips(n){ return `${n} slip${n>1?'s':''}`; }
 async function finishAssembly(){
-  const m = modal; modal=null; const boss = R.enemies[0];
+  const m = modal; modal=null; if(m.phase==='chest'){ finishChest(m); return; } const boss = R.enemies[0];
   if(m.phase==='final'){
-    if(m.mistakes===0){ render(); await freedFX(0); log(THANKS.furnace); fightWon(); return; }
+    if(m.mistakes===0){ R.busy=true; boss.freed=true; render(); await freedFX(0); log(THANKS.furnace); R.busy=false; fightWon(); return; }
     boss.hp = Math.min(24, 6*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
   } else {
     R.boss.phase++;
@@ -165,9 +182,14 @@ async function finishAssembly(){
 function assemblyHTML(){
   const m = modal;
   const placed = m.chunks.slice(0,m.next).join(' ');
+  const chips = m.order.map(i=>`<span class="chip ${i<m.next?'placed':''} ${m.wrong===i?'wrong':''}" onclick="tapChunk(${i})">${m.chunks[i]}</span>`).join('');
+  if(m.phase==='chest'){ const T=TEXT.rooms;
+    return `<div class="overlay"><div class="panel"><h2>${fill(T.chestCreed,{n:m.sec+1, total:CREED.sections.length})}</h2>
+      <div class="small mute">${T.chestTap} ${fill(T.chestMistakes,{n:m.mistakes, max:m.allowed})}</div>
+      <div class="seq">${placed||'&nbsp;'}</div><div>${chips}</div></div></div>`; }
   const title = m.phase==='final' ? TEXT.boss.lastFire : fill(TEXT.boss.fireOut,{n:m.phase+1});
   return `<div class="overlay"><div class="panel"><h2>${title} — ${PASSAGE_REF}</h2>${arenaHTML(true)}
     <div class="small mute">${TEXT.boss.assemble}${m.phase==='final'?TEXT.boss.assembleFinal:TEXT.boss.assemblePhase} Mistakes: ${m.mistakes}</div>
     <div class="seq">${placed||'&nbsp;'}</div>
-    <div>${m.order.map(i=>`<span class="chip ${i<m.next?'placed':''} ${m.wrong===i?'wrong':''}" onclick="tapChunk(${i})">${m.chunks[i]}</span>`).join('')}</div></div></div>`;
+    <div>${chips}</div></div></div>`;
 }

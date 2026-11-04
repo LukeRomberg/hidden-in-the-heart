@@ -59,18 +59,39 @@ function introHTML(){
   return `<h1>${T.heading}</h1>${talk('intro',[T.line],'',false)}<div class="small mute" style="margin-bottom:8px">${T.hint}</div>
     <h2>${T.offense}</h2><div class="hand">${R.pick.map(ref=>cardPick(ref,'off')).join('')}</div>
     <h2>${T.defense}</h2><div class="hand">${DEFENSE.map(ref=>cardPick(ref,'def')).join('')}</div>
-    <button class="primary wide" ${ready?'':'disabled'} onclick="R.deck.push({ref:R.chosen.off},{ref:R.chosen.def}); freshen(R.chosen.off); freshen(R.chosen.def); R.hp=R.maxHp; saveHero(); goto('town')">${T.button}</button>`;
+    <button class="primary wide" ${ready?'':'disabled'} onclick="R.deck.push({ref:R.chosen.off},{ref:R.chosen.def}); R.hp=R.maxHp; saveHero(); goto('tutorial')">${T.button}</button>`;
 }
 function chooseOpener(ref, group){ R.chosen[group] = R.chosen[group]===ref ? null : ref; render(); }
+// ---- Tutorial: one guided fight in the square before any dungeon ----
+function tutorialHTML(){
+  const T = TEXT.tutorial;
+  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('idle',40), {src:ENEMY_IMG.hothead.f[0], x:236, y:92, w:48}])}${talk('tut', T.lead,
+    `<button class="primary wide" onclick="startTutorial()">${T.start}</button>`)}`;
+}
+function startTutorial(){ R.tutorial=true; R.node={t:'fight', e:['hothead']}; startFight(['hothead']); }
+// what the priest says over your shoulder, based on where you are in the fight
+function coachLine(){
+  const C = TEXT.tutorial.coach, casts = R.castRefs.length, canCast = R.hand.some(c=>cardCost(BY_REF[c.ref])<=R.mana);
+  if(R.turn===1 && casts===0) return C.firstCard;
+  if(R.turn===1 && canCast) return C.anotherCard;
+  if(!canCast) return C.endTurn;
+  return C.readIntent;
+}
+function finishTutorial(){ R.tutorial=false; P.tutorialDone=true; R.unlockMsg=null; saveHero(); goto('tutend'); }
+function tutendHTML(){
+  const T = TEXT.tutorial;
+  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,
+    `<button class="primary wide" onclick="goto('town')">${T.toTown}</button>`)}`;
+}
 function mstoryHTML(){
   return `${sceneHTML(IMG.battle.square,[],180)}${talk('mstory', TEXT.mission1.intro,
     `<button class="primary wide" onclick="goto('map')">${TEXT.mission1.goIn}</button>`)}`;
 }
 const LINES = TEXT.mission1.corridor;
 function corridorHTML(){
-  const n=R.next.n; const key=n.e?n.e[0]:n.t;
-  return `<div class="panel" style="padding:0;overflow:hidden"><svg viewBox="0 0 140 60" width="100%" shape-rendering="crispEdges" aria-hidden="true">${stoneBG(140,60)}<rect y="46" width="140" height="14" fill="var(--room)"/>${pxg(ICON.torch[0],18,12,2)}${pxg(ICON.torch[1],114,12,2)}<g class="walk">${heroRects('front',0,57,17,0.45)}</g></svg></div>
-    <div class="story"><p>${LINES[key]}</p></div><button class="primary wide" onclick="proceed()">${TEXT.mission1.goIn}</button>`;
+  const n=R.next.n; const key=n.e?n.e[0].replace('_strong',''):n.t;
+  return `${sceneHTML(n.t==='boss'?IMG.battle.lair:IMG.battle.square,[{html:sprite('back',0,1), x:128, y:110, w:64}],180)}
+    <div class="story"><p>${Array.isArray(LINES[key]) ? LINES[key][R.step % LINES[key].length] : LINES[key]}</p></div><button class="primary wide" onclick="proceed()">${TEXT.mission1.goIn}</button>`;
 }
 const THANKS = TEXT.thanks;
 function bossintroHTML(){
@@ -78,11 +99,8 @@ function bossintroHTML(){
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.battle.lair,[],180)}${talk('bossintro', T.intro.map(([w,t])=>[w, fill(t,{passage:PASSAGE_REF})]),
     `<button class="primary wide" onclick="startFight(['furnace'],true)">${T.face}</button>`)}`;
 }
-function carriedHTML(){
-  const m = Object.entries(P.mastery).filter(([r,m])=>m.lvl>=3).map(([r])=>r);
-  return `<div class="panel"><h2>${TEXT.codex.carried}</h2>${m.length? m.map(r=>`<div>${r}</div>`).join('') : `<div class="mute">${TEXT.codex.nothingMastered}</div>`}</div>`;
-}
 function victory(){
+  P.run = null;
   const first = !P.missions.wrath;
   P.missions.wrath = (P.missions.wrath||0)+1;
   if(first){ R.maxMana++; addVerse('Galatians 5:16'); P.town.church=true; }
@@ -90,10 +108,12 @@ function victory(){
   modal=null; R.firstClear=first; saveHero(); goto('victory');
 }
 function defeat(){
+  if(R.tutorial){ R.hp=R.maxHp; modal=null; startFight(['hothead']); return; }   // nobody fails the tutorial
+  P.run = null;
   const lost = Math.floor(R.talents*0.25); R.talents-=lost; R.lostTalents=lost; R.hp=Math.ceil(R.maxHp/2);
   modal=null; saveHero(); goto('defeat');
 }
-function retreat(){ R.hp=Math.max(1,R.hp); saveHero(); goto('town'); }
+function retreat(){ R.hp=Math.max(1,R.hp); P.run=null; saveHero(); goto('town'); }
 function victoryHTML(){
   const T = TEXT.victory;
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.square)}<div class="panel story"><p>${T.story}</p>

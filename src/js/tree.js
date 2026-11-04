@@ -1,8 +1,22 @@
 /* Souls, levels, and the fruit-of-the-Spirit tree. */
 function xpNeed(l){ return l+1; }
-function gainXP(n){ R.souls+=n; R.xp+=n; if(R.earned) R.earned.souls=(R.earned.souls||0)+n; let up=false;
-  while(R.xp>=xpNeed(R.level)){ R.xp-=xpNeed(R.level); R.level++; R.maxHp+=4; R.hp+=4; up=true; }
-  if(up){ toast(fill(TEXT.tree.levelUp,{n:R.level})); if(R.earned) R.earned.leveled=true; } }
+function gainXP(n){ R.souls+=n; R.xp+=n; if(R.earned) R.earned.souls=(R.earned.souls||0)+n; let up=0;
+  while(R.xp>=xpNeed(R.level)){ R.xp-=xpNeed(R.level); R.level++; R.maxHp+=4; R.hp+=4; up++; }
+  if(up){ R.levelUps=(R.levelUps||0)+up; R.levelHp=(R.levelHp||0)+4*up; if(R.earned) R.earned.leveled=true; } }   // render() opens the popup
+// ---- Level-up popup: shows when a fight is over (or right away outside one) ----
+function levelUpDue(){ return R && R.levelUps>0 && treeDue()>0 && (screen!=='fight' || R.after); }
+function levelUpHTML(){
+  const T = TEXT.levelUp, due = treeDue();
+  const opts = FRUIT.filter(f=>!f.lock && (R.tree[f.b]||0)<3).map(f=>{ const g=R.tree[f.b]||0;
+    return `<button class="wide lvopt" onclick="growFromPopup('${f.b}')">${IMG.icon[f.b]?`<img class="ico" src="${IMG.icon[f.b]}" width="32" height="32" alt="">`:''}<span><b>${fill(T.grow,{branch:f.b})} · ${g+1}/3</b><br><span class="sub">${TREE[f.b][g]}</span></span></button>`; }).join('');
+  const locked = FRUIT.filter(f=>f.lock).map(f=>f.b);
+  return `<div class="overlay levelup"><div class="panel"><div class="lvglow"></div><h2>${fill(T.heading,{n:R.level})}</h2>
+    <div class="lvbody">${due>1?fill(T.bodyMany,{hp:R.levelHp, n:due}):fill(T.body,{hp:R.levelHp})}</div>${opts}
+    <div class="small mute" style="margin:6px 0 10px">${fill(T.locked,{branches:locked.join(', ')})}</div>
+    <button class="wide" onclick="closeLevelUp()">${T.later}</button></div></div>`;
+}
+function growFromPopup(b){ modal=null; R.levelUps=Math.max(0, Math.min(R.levelUps-1, treeDue()-1)); if(!R.levelUps) R.levelHp=0; pickBranch(b); saveHero(); }
+function closeLevelUp(){ R.levelUps=0; R.levelHp=0; modal=null; render(); }
 function treeDue(){ return (R.level-1) - R.rank; }
 const TREE = TEXT.tree.perks;
 // All nine fruit of the Spirit, grown from the ground up: the three from Emberford first, then one branch per mission.

@@ -302,3 +302,19 @@ input[type=text]{ border:10px solid transparent; border-image:url(__FRAME__(pape
 /* a parchment wash behind card text so patterned frame middles stay readable */
 .card:not(.ty-Armor):not(.ty-Patience)::before{ content:""; position:absolute; inset:0; background:rgba(246,232,196,.62); pointer-events:none; }
 .card > :not(.gem){ position:relative; }
+
+/* tutorial coaching from Amos */
+.coach{ border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; color:#3a2414; font-size:17px; line-height:1.35; margin:0 0 10px; padding:2px 4px; }
+.coach::before{ content:"Amos: "; font-family:'Pixelify Sans',sans-serif; font-weight:700; color:#7a4a24; }
+/* a villager still held by anger: tinted red and dim */
+.sprite.held{ filter:sepia(1) saturate(3.5) hue-rotate(-25deg) brightness(.72) drop-shadow(0 0 3px #e0402a); }
+/* level-up popup */
+.levelup .panel{ position:relative; text-align:center; animation:lvpop .35s steps(4); }
+.levelup h2{ font-size:30px; color:#7a4a24; margin:4px 0; }
+.levelup .lvbody{ margin-bottom:10px; }
+.levelup .lvglow{ position:absolute; inset:-6px; pointer-events:none; box-shadow:0 0 0 3px #f2c84a, 0 0 28px 6px rgba(242,200,74,.55); animation:tf 1s steps(1) infinite; }
+.lvopt{ display:flex; align-items:center; gap:10px; text-align:left; }
+.lvopt .ico{ flex:0 0 32px; }
+.lvopt .sub{ font-family:'Pixelify Sans',sans-serif; font-size:17px; }
+@keyframes lvpop{ from{ transform:scale(.6); opacity:0; } to{ transform:scale(1); opacity:1; } }
+.lvopt b{ color:#fff0d0; text-shadow:1px 1px 0 #2a160c; }

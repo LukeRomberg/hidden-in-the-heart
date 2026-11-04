@@ -23,7 +23,7 @@ function enterBuilding(id){
 function townHTML(){
   saveHero();
   const open = ['forge','inn','training','scriptorium'].filter(k=>P.town[k]).length;
-  return `<h1>${TEXT.town.heading}</h1><div class="panel scene">${townMap()}</div>${statusHTML()}
+  return `<h1>${TEXT.town.heading}</h1><div class="panel scene">${townMap()}</div>
     <div class="small mute" style="margin-bottom:8px">${open===4?TEXT.town.allOpen: open===3?TEXT.town.stillBoardedOne: fill(TEXT.town.stillBoardedMany,{n:4-open})}</div>
     <div class="row">${['forge','inn','training','scriptorium'].map(k=>`<button ${P.town[k]?'':'disabled'} onclick="enterBuilding('${k}')">${BUILD[k].name}</button>`).join('')}<button onclick="goto('world')">Road</button></div>
     <div class="row" style="margin-top:8px"><button onclick="R.codexFrom='town';goto('codex')">Codex</button><button onclick="goto('title')">Title</button></div>`;
@@ -43,6 +43,7 @@ function churchHTML(){
 function startMission(){
   if(R.hp < R.maxHp*0.3){ toast(TEXT.church.tooHurt); return; }
   Object.assign(R, {step:0, frags:[], node:null, enemies:[], helmUsed:false, boss:null});
+  P.run={step:0, frags:[]}; saveHero();
   goto('mstory');
 }
 function forgeHTML(){
@@ -69,10 +70,11 @@ function trainingHTML(){
 }
 function drill(ref, yard){
   openRecall(BY_REF[ref], frac=>{
-    recordResult(ref, frac);
-    const T = TEXT.training;
+    const T = TEXT.training, before = sp(ref);
+    recordResult(ref, frac); const now = sp(ref);
     if(frac===1){ if(yard) R.talents+=2; toast(yard?T.cleanYard:T.clean); }
-    else toast(sp(ref).fails?fill(T.close,{n:sp(ref).fails}):T.closeDropped);
+    else if(now.tier<before.tier || now.n<before.n) toast(T.dropped);
+    else toast(now.fails ? fill(T.shaky,{n:now.fails}) : T.close);
     saveHero(); render();
   }, undefined, yard?TEXT.training.drillTitle:TEXT.training.prayTitle);
 }

@@ -11,9 +11,10 @@
    - Short UI labels (Back, End turn, Talents, Gear…) are still in the code. */
 const TEXT = {
   speakers: {
-    priest: 'Priest',
+    priest: 'Amos',
+    oldPriest: 'Old priest',   // Amos, before he introduces himself
     you: 'You',
-    blacksmith: 'Blacksmith',
+    blacksmith: 'Bram',
     innkeeper: 'Innkeeper',
     drill: 'Drill master',
     scribe: 'Scribe',
@@ -23,48 +24,81 @@ const TEXT = {
   prologue: {
     bedroom: {
       lines: [
-        [null, 'Flashcards. A desk lamp. Your Bible open to the same page it has been open to for three nights.'],
-        ['you', '“Psalm one nineteen, eleven. I have hidden… Your… in my…”'],
-        [null, 'Your eyes are very heavy.'],
+        [null, '2:14 a.m. A desk lamp, a stack of flashcards, and your Bible, open to the same page it has been open to for three nights.'],
+        [null, 'Psalm 119:11. Fifteen words. You have read them maybe two hundred times. They have stayed in your head for roughly none of those.'],
+        ['you', '“I have hidden… Your… something. In my heart. I have hidden Your something in my heart.”'],
+        [null, 'The lamp hums. The page swims. One more try, and then bed. Definitely bed.'],
       ],
-      recallTitle: 'One more time',
-      button: 'Try one more time',
+      recallTitle: 'One more try',
+      button: 'One more try',
     },
     square: {
       // first line depends on how the Psalm 119:11 recall went
-      firstRight: 'You get it right. You are so pleased with yourself that you put your head down for just a second.',
-      firstMissed: 'You get about half of it. Your head goes down on the open page.',
+      firstRight: 'Every word. You are so pleased with yourself that you rest your head on the open page. Just for a second.',
+      firstMissed: 'About half. Your head drifts down onto the open page. Just for a second.',
       lines: [
-        [null, 'Cold stone under your cheek. A village square at dusk. Every door barred, every window dark.'],
-        [null, 'Somewhere a man is shouting at nobody. Nobody shouts back.'],
+        [null, 'The page is cold. It is also stone. You are lying face-down in a village square, and the sky is the color of an old bruise.'],
+        [null, 'Every door is barred. Every window is dark. The only light comes from a man by the well, and it is coming off him.'],
+        [null, 'He is shouting at a door that isn’t answering. Red smoke rolls off his shoulders like heat off a summer road. Nobody else is out to see it.'],
       ],
-      button: 'Look for an open door',
+      button: 'Find a door that’s open',
     },
     church: {
       lines: [
-        [null, 'One door is open. Dusty pews, a cold altar, and an old priest sweeping a floor nobody walks on anymore.'],
-        ['priest', '“Nobody comes now. Not since the anger got into the town. Then the grudges. Then worse.”'],
-        [null, 'He sees the Bible still in your hand, and stops sweeping.'],
+        [null, 'One door is open. Inside: dusty pews, a cold altar, and an old man sweeping a floor nobody walks on anymore.'],
+        ['oldPriest', '“You saw him. Bram, by the well.” He doesn’t look up. “Most people can’t, at first. They only hear the shouting.”'],
+        ['oldPriest', '“It got into the town a month ago. Anger first. Then the grudges. Then worse. It sits on people until they forget there was ever anything else.”'],
+        [null, 'The broom stops. He is looking at the Bible still in your hand.'],
       ],
       button: 'Hold it up',
     },
     lid: {
       lines: [
-        ['priest', '“The armor of God was kept here once.” He hands you a dented trash-can lid. “This is what is left. That, and what you are holding. And the words.”'],
-        ['priest', '“Do you know the words?”'],
-        [null, 'You think about the flashcards.'],
+        ['priest', '“Well. That changes things.” He leans the broom on a pew. “I’m Amos. The armor of God was kept here once. I’m afraid this is what’s left of it.”'],
+        [null, 'He hands you a dented trash-can lid. He does it with great dignity.'],
+        ['priest', '“That, and what you’re holding. And the words, if you have them. Do you know the words?”'],
+        [null, 'You think about the flashcards. You think about two hundred readings of fifteen words.'],
         ['you', '“…Some of them.”'],
       ],
       button: 'Take the lid',
     },
     pickVerses: {
       heading: 'The words you know',
-      line: ['priest', '“Tell me two. One to stand against the anger, and one to keep you standing.”'],
-      hint: 'Patience hits wrath hardest. Longer verses hit harder and cost more.',
+      line: ['priest', '“Then give me two. One to say to the anger, and one to keep you on your feet while you say it.”'],
+      hint: 'Patience cuts through wrath. Longer verses hit harder and cost more.',
       offense: 'Against wrath',
       defense: 'To keep you standing',
       button: '“Those two.”',
     },
+  },
+
+  // ---------- Tutorial: one guided fight with Bram ----------
+  tutorial: {
+    lead: [
+      ['priest', '“Good. Now, Bram.” Amos nods out the door. “He’s the blacksmith. He has been shouting at his own forge for three weeks.”'],
+      ['priest', '“The anger isn’t him. Remember that. It’s sitting on him. Say the true thing, and it has to let go.”'],
+      ['you', '“And if he swings at me?”'],
+      ['priest', '“He will. That’s what the lid is for.”'],
+    ],
+    start: 'Walk over to Bram',
+    // Amos talking you through your first fight
+    coach: {
+      firstRecall: 'Tap the word that fills each blank. Get them all and the verse is yours.',
+      firstCard: 'Each card is a verse you know. The gem is its cost, and you get 3 mana a turn. Tap a card to say it.',
+      recall: 'Fill each blank. The more you get right, the harder it lands. Get them all for full power.',
+      anotherCard: 'You still have mana. Say another verse if you can afford one.',
+      endTurn: 'Out of mana. Tap End turn. He gets his swing, then you get your breath back.',
+      readIntent: 'The line above your cards says what he’ll do next. Each verse works once a fight; when they’re all used, they all come back.',
+    },
+    after: [
+      [null, 'The red smoke thins, flickers, and goes out. Bram sits down hard on the edge of the well.'],
+      ['blacksmith', '“Three weeks. I’ve been yelling at a door for three weeks.” He looks at his hands. “I let the forge go cold.”'],
+      ['priest', '“Then go light it.” Amos helps him up. “And the next time this one needs something hammered, you’ll do it for free.”'],
+      ['blacksmith', '“For a start.” Bram looks at you properly for the first time. “You have more of those words?”'],
+      ['you', '“Some of them.”'],
+      ['priest', '“There are more people out there like Bram. Come by the church when you’re ready. We’ll start with the square.”'],
+    ],
+    toTown: 'Walk back into town',
   },
 
   // ---------- Emberford ----------
@@ -88,7 +122,7 @@ const TEXT = {
     },
     // shown after a fight when you free the person who ran each building
     unlocked: {
-      hothead: 'The blacksmith goes home. His forge will be lit when you get back to town.',
+      hothead: 'Bram goes home. His forge will be lit when you get back to town.',
       grudge: 'The innkeeper goes home to unbar his doors.',
       brawler: 'The old drill master heads for the training yard.',
       slanderer: 'The scribe hurries back to the scriptorium to fix what he wrote.',
@@ -96,7 +130,7 @@ const TEXT = {
   },
   church: {
     heading: 'The Church',
-    lineBefore: ['priest', '“The anger is worst in the square. Start there. Free who you can.”'],
+    lineBefore: ['priest', '“It’s worst in the square after dark. Start there. Free who you can, and come back when you can’t.”'],
     lineAfter: ['priest', '“The bell rang last night. People are coming back.” He nods at the road. “Other towns are worse off than we were.”'],
     missions: 'Missions',
     mission1: 'Anger in the Square',
@@ -108,7 +142,7 @@ const TEXT = {
     pray: 'Pray over your verses',
     prayBlurb: 'Level your spells in quiet. The training yard pays 2 talents a drill.',
     rest: 'Rest on a pew · 5 talents, heal fully',
-    restDone: 'The priest binds your wounds.',
+    restDone: 'Amos binds your wounds.',
     tooHurt: 'You can barely stand. Rest first.',
   },
   forge: {
@@ -131,17 +165,18 @@ const TEXT = {
     pewsHeading: 'The Pews',
     yardLine: ['drill', '“Again. Until you can say it in your sleep. Which, I hear, is a problem for you.”'],
     pewsLine: [null, 'Quiet. Candles. Nobody watching.'],
-    help: 'Three clean recitals level a spell up; three slips in a row knock it back down. A spell known fully by heart grows by adding the next verse. ',
+    help: 'Three perfect recitals level a spell up. Two shaky ones in a row (under 75%) knock it back down. A spell known fully by heart grows by adding the next verse. ',
     helpYard: 'A clean drill here also earns 2 talents.',
     toLevelUp: '{n}/3 perfect to level up',
     toGrow: '{n}/3 perfect to add the next verse',
-    slips: ' · {n}/3 slips',
+    slips: ' · {n}/2 shaky',
     drillTitle: 'Drill',
     prayTitle: 'Pray',
     cleanYard: 'Clean. +2 talents.',
     clean: 'Clean.',
-    close: 'Close. {n}/3 slips.',
-    closeDropped: 'Close. It slipped a level.',
+    close: 'Close enough. It holds.',
+    shaky: 'Shaky. {n}/2 before it drops.',
+    dropped: 'It slipped a level.',
   },
   scriptorium: {
     heading: 'The Scriptorium',
@@ -160,7 +195,7 @@ const TEXT = {
   // ---------- Mission 1: Anger in the Square ----------
   mission1: {
     intro: [
-      [null, 'The square again, darker than before. Every door is barred except the ones that have been kicked in.'],
+      [null, 'The square again, after dark. Every door is barred, except the ones that have been kicked in. Somewhere ahead, someone is breaking something slowly.'],
       [null, '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
       ['priest', '“The people out there are not your enemies. They are the held. Say the true thing over them, and whatever has them lets go.”'],
     ],
@@ -176,13 +211,31 @@ const TEXT = {
       grudge: 'A man sits counting on his fingers. Old debts, by the look of it.',
       brawler: 'The door has been kicked off its hinges. From the inside.',
       slanderer: 'The voice ahead is calm, reasonable, and lying.',
+      villager: ['Someone ahead is kicking a door that isn’t locked.', 'A woman is arguing with an empty street. She is winning.', 'Somebody is breaking crates, one at a time, with care.'],
       boss: 'The heat reaches you before the sound does.',
       shrine: 'Light under a door. Someone left a lamp burning for you.',
       lock: 'A chest with no key. There are words carved around the lock.',
       rest: 'Ashes, still warm. Whoever rested here left the fire for the next one.',
     },
   },
-  enemies: { hothead: 'Hothead', grudge: 'Grudge', brawler: 'Brawler', slanderer: 'Slanderer', furnace: 'The Furnace' },
+  // pronoun: 'he' or 'she' (fills {he} {him} {his} {He} in the fight log)
+  enemies: {
+    hothead: { name: 'Hothead', pronoun: 'he' },
+    grudge: { name: 'Grudge', pronoun: 'he' },
+    brawler: { name: 'Brawler', pronoun: 'he' },
+    slanderer: { name: 'Slanderer', pronoun: 'he' },
+    furnace: { name: 'The Furnace', pronoun: 'he' },
+  },
+  // Townsfolk held by anger. Once a named person is freed, later fights (and retries) are
+  // against these instead. Order matches the six villager sprites.
+  villagers: [
+    { name: 'Tomas', pronoun: 'he', thanks: 'Tomas sits down on the curb and laughs, a little shaky. “I was going to put my fist through my own window.”' },
+    { name: 'Abel', pronoun: 'he', thanks: 'Abel rubs his face like a man waking up. “How long was I standing here?”' },
+    { name: 'Ezra', pronoun: 'he', thanks: 'Ezra looks at his hands. “I said things to my brother I can’t take back. I’m going to try anyway.”' },
+    { name: 'Ruth', pronoun: 'she', thanks: 'Ruth lets out a breath she seems to have been holding for a month. “Thank you. Thank God.”' },
+    { name: 'Mara', pronoun: 'she', thanks: 'Mara wipes her eyes. “It felt like being right. It was only being angry.”' },
+    { name: 'Lydia', pronoun: 'she', thanks: 'Lydia unclenches her fists one finger at a time. “I’m going home. I think I remember where it is.”' },
+  ],
   // what each person says once they are freed
   thanks: {
     hothead: 'I don’t know what I was so angry about. It’s gone. Thank God, it’s gone.',
@@ -211,8 +264,8 @@ const TEXT = {
     dazed: '{name} is dazed.',
     takes: '{name} takes {n}.',
     takesType: '{name} takes {n} — {type} cuts through wrath.',
-    givesUp: '{name} lowers his fists. He doesn’t want this anymore.',
-    freed: '{name} goes still. Something lets go of him.',
+    givesUp: '{name} lowers {his} fists. {He} doesn’t want this anymore.',
+    freed: '{name} goes still. Something lets go of {him}.',
     barrier: 'A barrier of {n} rises.',
     healed: 'You breathe. Healed {n}.',
     standsDazed: '{name} stands dazed.',
@@ -228,14 +281,14 @@ const TEXT = {
     fruitCanGrow: 'a fruit can grow',
     foundGear: 'Found, and put on',
     bootsHeal: 'Your boots carry you on. Healed 4.',
-    slipsWarning: '{n}/3 slips before it drops a level',
+    slipsWarning: '{n}/2 shaky casts before it drops a level',
     growTree: 'Grow the tree',
     leaveRoom: 'Leave the room',
     moveOn: 'Move on',
   },
   drop: {
     heading: 'Something dropped',
-    body: 'The Slanderer leaves a verse behind. Rare, and heavy.',
+    body: '{name} leaves a verse behind. Rare, and heavy.',
     take: 'Take it',
   },
   rooms: {
@@ -243,6 +296,7 @@ const TEXT = {
     shrineNote: 'Read it twice. It is also a spell, and the boss will ask for it in pieces.',
     shrineTake: 'Take it as a spell and go on',
     shrineLearned: 'Learned Galatians 5:22-23',
+    shrineKnown: 'You know this one. Read it again anyway, and go on.',
     restHeading: 'Rest',
     restBody: 'A quiet corner. Choose one.',
     sleep: 'Sleep — heal 12',
@@ -252,14 +306,23 @@ const TEXT = {
     studyHeading: 'Study',
     studyNote: 'A perfect recital counts as one of the three needed to promote the verse.',
     studyMissed: 'Not quite. Rest anyway.',
-    lockHeading: 'Lock',
-    lockBody: 'The key is a verse you carry, recited one step harder than you know it.',
-    pickLock: 'Pick the lock',
-    lockHalf: 'It gives, grudgingly. 5 talents.',
+    lockHeading: 'A chest',
+    lockBody: 'Words are carved around the lock, scrambled: a piece of the Nicene Creed. Put them back in order and it opens.',
+    lockSmall: 'Something light rattles inside.',
+    lockBig: 'Something heavy shifts inside.',
+    lockRules: '{pieces} pieces. {mistakes} mistakes allowed.',
+    lockRulesNone: '{pieces} pieces. No mistakes allowed.',
+    pickLock: 'Open it',
     lockHeld: 'It holds. You go around.',
     chestHeading: 'The chest opens',
     chestTake: 'Take one verse',
     chestLeave: 'Leave it',
+    chestTalents: 'The chest opens. {n} talents.',
+    chestCreed: 'The Nicene Creed, {n} of {total}',
+    chestTitle: 'The Nicene Creed',
+    chestTap: 'Tap the pieces in order.',
+    chestMistakes: 'Mistakes: {n} of {max}',
+    creedGained: 'You carry a new piece of the Creed: {n} of {total}.',
   },
   boss: {
     heading: 'The Furnace',
@@ -290,7 +353,7 @@ const TEXT = {
   },
   defeat: {
     heading: 'You wake on a pew',
-    story: 'The priest found you in the square and carried you back. “The words were right,” he says. “You just ran out of breath to say them.”',
+    story: 'Amos found you in the square and carried you back. “The words were right,” he says. “You just ran out of breath to say them.”',
     summary: 'You keep your level, gear, and verses. The mission starts over, and {n} talents were lost in the square.',
     button: 'Get up',
   },
@@ -360,11 +423,19 @@ const TEXT = {
     waitingOne: '1 growth waiting.',
     waitingMany: '{n} growths waiting.',
     everyLevel: 'Every level grows one fruit.',
-    levelUp: 'Level {n}. A new fruit can grow.',
   },
   codex: {
-    carried: 'Carried in your head',
-    nothingMastered: 'Nothing mastered yet. Three perfect casts at each level.',
+    creed: 'The Nicene Creed',
+    creedNone: 'Chests in the square hold pieces of it.',
+    creedSoFar: '{n} of {total} pieces.',
+  },
+  levelUp: {
+    heading: 'Level {n}',
+    body: 'Max HP +{hp}. A fruit of the Spirit can grow.',
+    bodyMany: 'Max HP +{hp}. {n} fruit can grow.',
+    grow: 'Grow {branch}',
+    locked: '{branches} grow in later missions.',
+    later: 'Later',
   },
 };
 

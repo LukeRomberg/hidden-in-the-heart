@@ -2,9 +2,9 @@
 const STEPS = [
   {rooms:[{t:'fight',e:['hothead']}]},
   {rooms:[{t:'shrine'}], frag:0},
-  {rooms:[{t:'lock'},{t:'fight',e:['grudge']}], frag:1},
+  {rooms:[{t:'lock', tier:1},{t:'fight',e:['grudge']}], frag:1},
   {rooms:[{t:'fight',e:['brawler']}], frag:2},
-  {rooms:[{t:'rest'},{t:'lock'}]},
+  {rooms:[{t:'rest'},{t:'lock', tier:2}]},
   {rooms:[{t:'elite',e:['slanderer']},{t:'fight',e:['hothead']}], frag:3},
 ];
 const NODE_LABEL = {fight:'Fight', elite:'Elite', shrine:'Shrine', lock:'Lock', rest:'Rest', forge:'Forge'};
@@ -36,18 +36,19 @@ function mapHTML(){
     st.rooms.forEach((r,i)=>{ svg+=room(roomX(st.rooms.length,i), ry(s), r.t, state, NODE_LABEL[r.t]+(r.e&&r.e.length>1?' '+r.e.length:''), s, i); }); });
   svg += room(56, ry(STEPS.length), 'boss', R.step===STEPS.length?'cur':'future', 'Boss', -1, 0);
   svg += heroRects('front',0, 0, ry(Math.min(R.step,STEPS.length))+1, 0.36);
-  return `<h1>${TEXT.mission1.mapHeading}</h1>${statusHTML()}
+  return `<h1>${TEXT.mission1.mapHeading}</h1>
     <div class="panel" style="padding:0;overflow:hidden"><svg class="dmap" viewBox="0 0 ${MW} ${H}" width="100%" shape-rendering="crispEdges" role="img" aria-label="Dungeon map">${svg}</svg></div>
     <div class="small mute">${TEXT.mission1.mapHint}</div>
     <div class="panel"><h2>${PASSAGE_REF}</h2>${FRAGS.map((f,i)=>`<div class="frag ${R.frags.includes(i)?'have':''}">${R.frags.includes(i)?f:'· · · · · ·'}</div>`).join('')}
     <div class="small mute" style="margin-top:8px">${TEXT.mission1.bossLocked}</div></div>
     <button onclick="R.gearFrom='map';goto('gear')">Gear</button><button onclick="R.treeFrom='map';R.treeSel=null;goto('tree')">Tree</button><button onclick="R.deckFrom='map';goto('deck')">Deck</button><button onclick="if(confirm(TEXT.mission1.retreatConfirm)) retreat()">Retreat</button>`;
 }
-function statusHTML(){ return ''; }
 function enterNode(s,i){
-  const n = s===-1 ? {t:'boss'} : STEPS[s].rooms[i]; R.node = n; R.next = {n}; goto('corridor');
+  const n0 = s===-1 ? {t:'boss'} : STEPS[s].rooms[i]; const n = n0.e ? {...n0, e:n0.e.map(standIn)} : n0;
+  R.node = n; R.next = {n}; goto('corridor');
 }
-function clearColumn(){ const st=STEPS[R.step]; if(st && st.frag!==undefined && !R.frags.includes(st.frag)) R.frags.push(st.frag); R.step++; goto('map'); }
+function clearColumn(){ const st=STEPS[R.step]; if(st && st.frag!==undefined && !R.frags.includes(st.frag)) R.frags.push(st.frag); R.step++;
+  P.run={step:R.step, frags:R.frags.slice()}; saveHero(); goto('map'); }   // mid-mission save: a reload resumes on the map
 function proceed(){ const n=R.next.n; if(n.t==='fight'||n.t==='elite') startFight(n.e); else if(n.t==='boss') goto('bossintro'); else goto(n.t); }
 function rewardHTML(){
   return `<h1>${TEXT.rooms.chestHeading}</h1><h2>${TEXT.rooms.chestTake}</h2><div class="hand">${R.reward.map(ref=>`<div onclick="takeReward('${ref}')">${cardView(BY_REF[ref])}</div>`).join('')}</div>
@@ -57,7 +58,9 @@ function takeReward(ref){ addVerse(ref); clearColumn(); }
 function shrineHTML(){
   return `<h1>${TEXT.rooms.shrineHeading}</h1><div class="panel"><h2>${PASSAGE_REF}</h2><div class="verse">${CHUNKS.join(' ')}</div>
     <div class="small mute">${TEXT.rooms.shrineNote}</div></div>
-    <button class="primary wide" onclick="addVerse('Galatians 5:22-23');R.hp=Math.min(R.maxHp,R.hp+5);toast(TEXT.rooms.shrineLearned);clearColumn()">${TEXT.rooms.shrineTake}</button>`;
+    ${R.deck.some(c=>c.ref==='Galatians 5:22-23')
+      ? `<button class="primary wide" onclick="R.hp=Math.min(R.maxHp,R.hp+5);clearColumn()">${TEXT.rooms.shrineKnown}</button>`
+      : `<button class="primary wide" onclick="addVerse('Galatians 5:22-23');R.hp=Math.min(R.maxHp,R.hp+5);toast(TEXT.rooms.shrineLearned);clearColumn()">${TEXT.rooms.shrineTake}</button>`}`;
 }
 function restHTML(){
   return `<h1>${TEXT.rooms.restHeading}</h1><div class="panel">${TEXT.rooms.restBody}</div>
@@ -71,11 +74,41 @@ function studyHTML(){
     ${refs.map(ref=>`<button class="wide" onclick="studyVerse('${ref}')">${spellLine(ref)} · ${TIER_NAME[sp(ref).tier]}</button>`).join('')}`;
 }
 function studyVerse(ref){ openRecall(BY_REF[ref], (frac)=>{ recordResult(ref,frac); if(frac<1) toast(TEXT.rooms.studyMissed); clearColumn(); }, undefined, TEXT.rooms.studyHeading); }
+// ---- Chests: put a scrambled piece of the Nicene Creed back in order ----
+// Deeper chests are harder and hold better loot. Fail and you get nothing.
+const CREED = __DATA__('creed.json');
+const CHEST = {
+  1: {pieces:4, mistakes:2, talents:10, verse:false},
+  2: {pieces:6, mistakes:1, talents:15, verse:true},
+  3: {pieces:8, mistakes:0, talents:25, verse:true},
+};
+// split a section into n pieces of similar length, cutting after punctuation where it can
+function creedPieces(text, n){
+  const w = text.split(' '); n = Math.min(n, w.length); const cuts = [];
+  for(let k=1;k<n;k++){ const prev = cuts.length ? cuts[cuts.length-1] : 0; let c = Math.round(k*w.length/n);
+    for(const d of [0,1,-1,2,-2]){ const j=c+d; if(j>prev && j<w.length && /[,;.:]$/.test(w[j-1])){ c=j; break; } }
+    cuts.push(Math.min(w.length-(n-k), Math.max(c, prev+1))); }
+  return [...cuts, w.length].map((c,i,a)=>w.slice(i?a[i-1]:0, c).join(' '));
+}
 function lockHTML(){
-  return `<h1>${TEXT.rooms.lockHeading}</h1><div class="panel">${TEXT.rooms.lockBody}</div>
-    <button class="primary wide" onclick="pickLock()">${TEXT.rooms.pickLock}</button>`;
+  const T = TEXT.rooms, spec = CHEST[R.node.tier||1];
+  return `<h1>${T.lockHeading}</h1><div class="panel">${T.lockBody} <span class="mute">${spec.verse?T.lockBig:T.lockSmall}</span></div>
+    <div class="small mute" style="margin-bottom:8px">${fill(spec.mistakes?T.lockRules:T.lockRulesNone,{pieces:spec.pieces, mistakes:spec.mistakes})}</div>
+    <button class="primary wide" onclick="pickLock()">${T.pickLock}</button>`;
 }
 function pickLock(){
-  const c = R.deck[Math.floor(Math.random()*R.deck.length)]; const v=BY_REF[c.ref]; const lvl=Math.min(3, sp(c.ref).tier+1);
-  openRecall(v, (frac)=>{ if(frac===1){ R.talents+=15; recordPerfect(c.ref); R.reward=pick(VERSES.filter(x=>!x.ref.startsWith('Galatians') && !R.deck.some(d=>d.ref===x.ref)).map(x=>x.ref),3); screen='reward'; render(); return; } else if(frac>0){ R.talents+=5; toast(TEXT.rooms.lockHalf); } else toast(TEXT.rooms.lockHeld); clearColumn(); }, lvl, TEXT.rooms.lockHeading);
+  const tier = R.node.tier||1, spec = CHEST[tier], N = CREED.sections.length;
+  const sec = P.creed < N ? P.creed : Math.floor(Math.random()*N);   // the next piece, then any piece once you have them all
+  const chunks = creedPieces(CREED.sections[sec].join(' '), spec.pieces);
+  modal = {kind:'assembly', phase:'chest', tier, sec, allowed:spec.mistakes, chunks, order:shuffle(chunks.map((c,i)=>i)), next:0, mistakes:0, wrong:null};
+  render();
+}
+function finishChest(m){
+  const T = TEXT.rooms, spec = CHEST[m.tier];
+  if(m.mistakes > m.allowed){ toast(T.lockHeld); clearColumn(); return; }
+  R.talents += spec.talents; let msg = fill(T.chestTalents,{n:spec.talents});
+  if(m.sec===P.creed && P.creed < CREED.sections.length){ P.creed++; msg += ' ' + fill(T.creedGained,{n:P.creed, total:CREED.sections.length}); }
+  toast(msg); saveHero();
+  if(spec.verse){ R.reward = pick(VERSES.filter(x=>!x.ref.startsWith('Galatians') && !R.deck.some(d=>d.ref===x.ref)).map(x=>x.ref),3); if(R.reward.length){ screen='reward'; render(); return; } }
+  clearColumn();
 }

@@ -30,6 +30,7 @@ const IMG = {
   portrait: {
     // keyed by speaker id (see TEXT.speakers)
     priest: __IMG__('portraits/priest.png'),
+    oldPriest: __IMG__('portraits/priest.png'),
     blacksmith: __IMG__('portraits/blacksmith.png'),
     innkeeper: __IMG__('portraits/innkeeper.png'),
     drill: __IMG__('portraits/drill.png'),

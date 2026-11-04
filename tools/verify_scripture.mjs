@@ -4,6 +4,7 @@
 //   2. CHUNKS (the boss assembly) joined == BSB for PASSAGE_REF
 //   3. src/data/pass.json == what tools/build_passages.mjs generates from the BSB
 //   4. Quotations inline in src/ (“…” followed by a reference, e.g. the Ephesians 6:12 line)
+//   5. The Nicene Creed (src/data/creed.json) against the pinned ELLC text
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadBSB, ROOT } from './bsb.mjs';
@@ -46,10 +47,20 @@ for (const f of files) {
   for (const m of src.matchAll(QUOTE)) { inline++; check(`src/${f}`, m[2], m[1]); }
 }
 
+// 5. the Nicene Creed in the chests == the pinned ELLC text (tools/creed_ellc.json)
+checked++;
+const ellc = JSON.parse(readFileSync(join(ROOT, 'tools/creed_ellc.json'), 'utf8'));
+const creed = JSON.parse(readFileSync(join(ROOT, 'src/data/creed.json'), 'utf8')).sections.flat();
+const expected = ellc.lines.map(l => l.replace('[and the Son]', 'and the Son'));
+if (JSON.stringify(creed) !== JSON.stringify(expected)) {
+  const i = creed.findIndex((l, k) => l !== expected[k]);
+  fails.push(`src/data/creed.json does not match the ELLC text (tools/creed_ellc.json), first at line ${i + 1}\n    ours: ${creed[i]}\n    ELLC: ${expected[i]}`);
+}
+
 if (fails.length) {
   console.error(`\nSCRIPTURE CHECK FAILED: ${fails.length} problem(s)\n`);
   for (const f of fails) console.error('  ' + f + '\n');
   process.exit(1);
 }
 console.log(`scripture OK: ${checked} checks against the BSB (${S.VERSES.length + S.ARMOR_V.length + S.STORY_V.length} verses, ` +
-  `Galatians chunks, ${Object.keys(JSON.parse(passFile)).length} passages, ${inline} inline quotations)`);
+  `Galatians chunks, ${Object.keys(JSON.parse(passFile)).length} passages, ${inline} inline quotations, Nicene Creed vs ELLC)`);

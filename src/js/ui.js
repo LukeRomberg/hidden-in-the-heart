@@ -13,10 +13,11 @@ function titleHTML(){
     ${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
     <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm(TEXT.title.newGameConfirm)) newGame()">New game</button>
     <button class="wide" onclick="R=R||Object.assign(transient(),blankHero()); R.codexFrom='title'; goto('codex')">Codex</button>
-    <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain.</div>`;
+    <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain. ${CREED.credit}</div>`;
 }
 function codexHTML(){
-  return `<h1>Codex</h1>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
+  const C = TEXT.codex, have = CREED.sections.slice(0, P.creed||0);
+  return `<h1>Codex</h1><div class="panel"><div class="px">${C.creed}</div>${have.length?`<div class="verse" style="font-size:21px">${have.map(s=>s.join(' ')).join(' ')}</div><div class="small mute">${fill(C.creedSoFar,{n:have.length, total:CREED.sections.length})}</div>`:`<div class="small mute">${C.creedNone}</div>`}<div class="small mute" style="font-size:13px;margin-top:6px">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
     <button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button>`;
 }
 function deckHTML(){
@@ -38,11 +39,12 @@ function tabsHTML(){
 }
 function tab(id){ if(modal) return; R.treeFrom='town'; R.gearFrom='town'; R.deckFrom='town'; R.codexFrom='town'; if(id==='tree') R.treeSel=null; goto(id); }
 function render(){
-  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, mstory:mstoryHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, corridor:corridorHTML, bossintro:bossintroHTML, map:mapHTML, fight:fightHTML, reward:rewardHTML, shrine:shrineHTML, rest:restHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, lock:lockHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
+  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, mstory:mstoryHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, corridor:corridorHTML, bossintro:bossintroHTML, map:mapHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, reward:rewardHTML, shrine:shrineHTML, rest:restHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, lock:lockHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   const tabs = R && R.deck && R.deck.length && TAB_ON.has(screen); document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();
-  if(modal){ html += modal.kind==='recall'? recallHTML() : assemblyHTML(); }
+  if(!modal && levelUpDue()) modal = {kind:'levelup'};
+  if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : assemblyHTML(); }
   document.getElementById('app').innerHTML = html;
   const inp = document.getElementById('ans'); if(inp) inp.focus();
   if(document.getElementById('tw')) typeIt();

@@ -10,13 +10,16 @@ not sin against You"), which is also the verse the hero falls asleep studying.
 
 A regular guy in a hoodie falls asleep trying to memorize verses (the game's whole premise:
 memorization is boring, so make it a game). He wakes in Emberford, a village where sin has
-become visible. The church is empty; the old priest gives him a dented trash-can lid and
-asks if he knows the words. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
+become visible. The church is empty; the old priest, Amos, gives him a dented trash-can lid
+and asks if he knows the words. A guided tutorial fight frees Bram, the blacksmith, shouting
+at his own forge (the Hothead), which opens the Forge before any dungeon. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
 and blood). Reciting truth over them frees them, and each freed person reopens part of town.
 
 - Emberford / Mission 1 "Anger in the Square": the Wrath floor. Boss: The Furnace.
-- Freeing the Hothead reopens the Forge (blacksmith), the Grudge the Inn (old innkeeper,
-  male), the Brawler the Training Yard (drill master), the Slanderer the Scriptorium (scribe).
+- Freeing the Hothead reopens the Forge (Bram, in the tutorial), the Grudge the Inn (old
+  innkeeper, male), the Brawler the Training Yard (drill master), the Slanderer the
+  Scriptorium (scribe). Named people are freed once; after that their rooms hold held
+  villagers (`TEXT.villagers`, men and women, tinted red until freed).
 - The world map shows Ashby and two unknown towns. Next missions pair a vice with a fruit
   (Galatians 5): Hatred/Love, Envy/Joy, Rivalry/Kindness, Impurity/Goodness,
   Idolatry/Faithfulness, Drunkenness/Self-control.
@@ -25,8 +28,9 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 
 - Source is in `src/`; `npm run build` inlines it into one self-contained `dist/index.html`
   (the file that gets hosted). `npm run dev` rebuilds on save and serves on the LAN for phone
-  testing. `npm run smoke` builds, then plays title -> first fight headless and fails on any
-  console error. Run it after every change.
+  testing. `npm run smoke` builds, then plays title -> tutorial -> first mission fight headless
+  and fails on any console error. `npm test` = verify + smoke. Run it after every change.
+  `npm run script` prints the story as a readable script to `tools/out/script.md`.
 - `src/js/*.js` are plain scripts sharing one global scope (inline onclick handlers call
   top-level functions by name), concatenated in the `ORDER` list in `scripts/build.mjs`.
 - `src/data/`: scripture (`scripture.js`, `pass.json`), art (`hero.json`, `hero-alpha.json`,
@@ -40,23 +44,30 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 ## Core systems
 
 - **Spells are passages that grow.** Each verse climbs 4 tiers of blanks: 25/50/75/100%.
-  3 clean casts promote a tier. At 100% (shown ●) and 3 more clean casts, the next verse
-  is added at 25%. 3 failed casts in a row demote the newest verse (or drop it). Max 5
+  3 perfect casts promote a tier. At 100% (shown ●) and 3 more perfect casts, the next verse
+  is added at 25%. A cast under 75% is a slip; 2 slips in a row drop a tier (or the newest
+  verse), so a spell slides to match what you actually remember. 75-99% holds steady. Max 5
   verses per spell, data in `PASS` (generated from the BSB, see below). State: `P.spell[ref]`.
 - **Recall UI**: verses at 100% use first-letter typing; the newest verse uses multiple
   choice blanks; the reference (book, chapter, verse) counts as part of the blank pool.
 - **Combat**: turn-based, 4-card hand, each spell castable once per fight (deck refreshes
-  when all are spent). Damage = verse value x tier multipliers x accuracy. Type advantage:
+  when all are spent). A card never costs more than max mana (or the deck could never refresh). Damage = verse value x tier multipliers x accuracy. Type advantage:
   Patience x1.5 and Gentleness x1.25 vs wrath.
 - **Boss**: three fires; at each third of HP the player assembles Galatians 5:22-23 in order.
-- **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree.
+- **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
+  in a level-up popup that opens when the fight ends.
+- **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)
+  to put back in order. Tier comes from the map (`STEPS`): deeper chests have more pieces, fewer
+  allowed mistakes and better loot (`CHEST` in map.js). Fail and you get nothing. Progress is
+  `P.creed`; the Codex shows the Creed so far.
 - **The tree**: all nine fruit of the Spirit, bottom-up. Patience, Gentleness, Peace are
   open; the rest unlock one per mission going up the trunk. Only those three have perks
   defined (`TREE`); the rest need designing.
 - **Gear** arrives in a fixed order and follows Ephesians 6:14-17. Plain gear (belt, vest,
   boots, cap; Bible and lid from the priest) is consecrated at the Forge into the Armor of God
   by reciting Ephesians 6 cumulatively (6:14, then 6:14-15, ... 6:14-17). Gear is permanent.
-- **Saves**: localStorage key `hidden-in-the-heart-v1` (object `P`; hero in `P.hero`).
+- **Saves**: localStorage key `hidden-in-the-heart-v1` (object `P`; hero in `P.hero`). A
+  mission in progress is `P.run` (step + fragments), so a reload resumes on the map.
   Per-device. Moving saves to a backend is on the list.
 
 ## Scripture text
@@ -67,7 +78,9 @@ and check it. (That check caught a missing "and" in Galatians 5:23.) ESV is off 
 `npm run verify` checks every verse in `src/` against that file and fails on any mismatch;
 `npm run passages` regenerates `pass.json` from it. See `tools/README.md`.
 Credit line on the title screen: "Scripture quotations are from the Berean Standard Bible,
-public domain."
+public domain." followed by the ELLC credit for the Creed. The Creed is ELLC's text verbatim
+(pinned in `tools/creed_ellc.json`, fetched from englishtexts.org), except "and the Son"
+without ELLC's optional brackets; `npm run verify` checks it.
 
 ## Art pipeline
 

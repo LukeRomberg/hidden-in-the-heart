@@ -1,5 +1,5 @@
-// Headless click-through: title -> New game -> prologue -> pick two verses -> town ->
-// church -> start mission -> one fight. Fails on any console error or page error.
+// Headless click-through: title -> New game -> prologue -> pick two verses -> tutorial fight ->
+// town -> church -> start mission -> first fight. Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -53,6 +53,21 @@ async function solveRecall() {
   throw new Error('recall never finished');
 }
 
+
+// Play cards (answering correctly) until the fight is won.
+async function winFight() {
+  for (let turn = 0; turn < 30; turn++) {
+    const s = await page.evaluate(() => ({ after: R.after, screen }));
+    if (s.after || s.screen !== 'fight') break;
+    const card = page.locator('#app .hand .card:not(.dim)').first();
+    if (await card.count()) { await card.click(); await solveRecall(); }
+    else await btn('End turn').click();
+    await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
+  }
+  await page.waitForFunction(() => R.after, null, { timeout: 15000 });
+  await page.evaluate(() => { if (modal && modal.kind === 'levelup') closeLevelUp(); });
+}
+
 let result = 'pass';
 try {
   await step('load title', async () => {
@@ -62,16 +77,24 @@ try {
   });
   await step('new game -> pro1', async () => { await btn('New game').click(); await waitScreen('pro1'); });
   await step('pro1 recall Psalm 119:11', async () => {
-    await finishDialogue(); await btn('Try one more time').click(); await solveRecall(); await waitScreen('pro2');
+    await finishDialogue(); await btn('One more try').click(); await solveRecall(); await waitScreen('pro2');
   });
-  await step('pro2', async () => { await finishDialogue(); await btn('Look for an open door').click(); await waitScreen('pro3'); });
+  await step('pro2', async () => { await finishDialogue(); await btn('Find a door').click(); await waitScreen('pro3'); });
   await step('pro3', async () => { await finishDialogue(); await btn('Hold it up').click(); await waitScreen('pro4'); });
   await step('pro4', async () => { await finishDialogue(); await btn('Take the lid').click(); await waitScreen('intro'); });
   await step('pick two verses', async () => {
     const hands = page.locator('#app .hand');
     await hands.nth(0).locator('.card').first().click();
     await hands.nth(1).locator('.card').first().click();
-    await btn('Those two').click(); await waitScreen('town');
+    await btn('Those two').click(); await waitScreen('tutorial');
+  });
+  await step('tutorial fight', async () => {
+    await finishDialogue(); await btn('Walk over to Bram').click(); await waitScreen('fight');
+    if (!(await page.locator('.coach').count())) throw new Error('no tutorial coaching shown');
+    await winFight();
+    await btn('Move on').click(); await waitScreen('tutend');
+    await finishDialogue(); await btn('Walk back into town').click(); await waitScreen('town');
+    if (!(await page.evaluate(() => P.town.forge && P.tutorialDone))) throw new Error('tutorial did not open the forge');
   });
   await step('town -> church', async () => {
     await page.locator('.town [onclick="enterBuilding(\'church\')"]').click(); await waitScreen('church');
@@ -85,20 +108,9 @@ try {
     await btn('Go in').click(); await waitScreen('fight');
   });
   await step('fight', async () => {
-    for (let turn = 0; turn < 30; turn++) {
-      const s = await page.evaluate(() => ({ after: R.after, screen }));
-      if (s.after || s.screen !== 'fight') break;
-      const card = page.locator('#app .hand .card:not(.dim)').first();
-      if (await card.count()) {
-        await card.click(); await solveRecall();
-        await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
-      } else {
-        await btn('End turn').click();
-        await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
-      }
-    }
-    const end = await page.evaluate(() => ({ after: R.after, screen, hp: R.hp, freed: R.enemies.map(e => e.freed) }));
-    if (!end.after) throw new Error('fight did not end in a win: ' + JSON.stringify(end));
+    await winFight();
+    const who = await page.evaluate(() => R.enemies.map(e => e.villager ? 'villager' : e.id));
+    if (who.includes('hothead')) throw new Error('fought Bram again after freeing him');
   });
 } catch { result = 'fail'; }
 
