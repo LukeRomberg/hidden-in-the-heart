@@ -30,6 +30,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Check text.js
+        run: npm run check-text
+
       - name: Verify Scripture against the BSB
         run: npm run verify
 

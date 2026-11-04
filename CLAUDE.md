@@ -39,7 +39,8 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 - `src/data/text.js` (`TEXT`) holds every line of story, dialogue and flavor text, grouped by
   scene. Luke writes it; never put player-facing sentences in `src/js/`. Dialogue is
   `[speaker id, line]`; `{placeholders}` are filled with `fill()`. Short UI labels (Back,
-  End turn…) are still inline.
+  End turn…) are still inline. `npm run check-text` (part of `npm test` and CI) catches
+  missing commas, unknown speakers and straight quotes in it.
 
 ## Core systems
 

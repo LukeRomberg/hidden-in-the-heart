@@ -3,6 +3,12 @@
 Scripts that generate the data in `src/data/`. Run them from the repo root. After any
 of them, run `npm run build` and `npm run smoke`.
 
+## Text
+
+`npm run check-text` lints `src/data/text.js`: dialogue lines are `[speaker, 'text']` with a
+known speaker, no missing commas between lines, no straight double quotes. `npm test` runs it
+first. `npm run script` prints the story as a readable script to `tools/out/script.md`.
+
 ## Scripture (Node, no setup)
 
 The BSB text is downloaded on first use to `tools/data/BSB.json` (gitignored) from the
