@@ -10,6 +10,13 @@ const IMG = {
   battle: {
     square: __IMG__('battle/square_night.png'),
     lair: __IMG__('battle/furnace_lair.png'),
+    cave: __IMG__('battle/cave.png'),   // PixelLab
+  },
+  // one scene per cave (PixelLab), keyed by CAVES[].id
+  cave: {
+    hollow: __IMG__('caves/hollow.png'),
+    quarry: __IMG__('caves/quarry.png'),
+    deep: __IMG__('caves/deep.png'),
   },
   hero: {
     asleep: __IMG__('hero/hero_asleep_desk.png'),

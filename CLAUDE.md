@@ -126,7 +126,8 @@ Tool reference: https://api.pixellab.ai/mcp/docs
 
 ## Art in the game (assets/source/, listed in src/data/images.js)
 
-Scenes, battle backgrounds, town buildings (boarded/open), priest, portraits, hero poses,
+Scenes, battle backgrounds, cave scenes and the cave battle background (PixelLab, in
+`assets/source/caves/` and `battle/cave.png`), town buildings (boarded/open), priest, portraits, hero poses,
 HUD icons, six fruit icons and six fruit card frames are wired in. The build inlines them
 as data URIs via `__IMG__('path')`.
 

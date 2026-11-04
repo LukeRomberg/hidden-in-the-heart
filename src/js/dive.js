@@ -34,19 +34,10 @@ function caveIntroHTML(){
   const C = TEXT.caves[R.cave];
   return `${caveScene()}${talk('caveintro'+R.cave, C.intro, `<button class="primary wide" onclick="goto('dive')">${TEXT.dive.enter}</button>`)}`;
 }
-// placeholder cave art (no cave backdrop yet): rock walls, a tunnel mouth, two torches, you from behind
-function caveSVG(withHero){
-  let r = `<rect width="160" height="80" fill="#0d0907"/><rect x="40" y="10" width="80" height="60" fill="#05030a"/>`;
-  for(let x=0;x<160;x+=4){ const t=3+((x*37)%11), b=6+((x*53)%9); const shade=['#2a1f19','#33261e','#241b16'][x%3];
-    r+=`<rect x="${x}" y="0" width="4" height="${t}" fill="${shade}"/><rect x="${x}" y="${80-b}" width="4" height="${b}" fill="${shade}"/>`; }
-  for(let y=0;y<80;y+=4){ const l=18+((y*29)%13), rr=18+((y*41)%13);
-    r+=`<rect x="0" y="${y}" width="${l}" height="4" fill="#2a1f19"/><rect x="${160-rr}" y="${y}" width="${rr}" height="4" fill="#2a1f19"/>`; }
-  r += `<polygon points="30,80 62,46 98,46 130,80" fill="#1d1612"/>`;
-  [[24,30],[132,30]].forEach(([x,y])=>{ r+=`<g class="fa">${pxg(ICON.torch[0],x,y,1)}</g><g class="fb">${pxg(ICON.torch[1],x,y,1)}</g><rect x="${x-6}" y="${y-6}" width="16" height="16" fill="#e8903a" opacity=".12"/>`; });
-  if(withHero) r += heroRects('back',0,64,46,0.5);
-  return `<svg viewBox="0 0 160 80" preserveAspectRatio="xMidYMid slice" width="100%" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
-}
-function caveScene(){ return `<div class="panel scene"><div class="scn">${caveSVG(true)}</div></div>`; }
+// each cave's scene, with you from behind at the mouth of the tunnel (scene heights in scene pixels)
+const CAVE_H = {hollow:160, quarry:160, deep:142};
+function caveScene(){ const id = CAVES[R.cave].id, H = CAVE_H[id];
+  return sceneHTML(IMG.cave[id], [{html:sprite('back',0,1), x:128, y:H-64, w:64}], H); }
 function diveHTML(){
   const C = TEXT.caves[R.cave], D = TEXT.dive, steps = caveSteps(R.cave), opts = steps[R.step];
   const head = `<h1>${C.name}</h1>${caveScene()}<div class="small mute depth">${fill(D.depth,{n:R.step+1, total:steps.length})}</div>`;
