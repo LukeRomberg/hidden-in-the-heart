@@ -65,64 +65,53 @@ function chooseOpener(ref, group){ R.chosen[group] = R.chosen[group]===ref ? nul
 // ---- Tutorial: one guided fight in the square before any dungeon ----
 function tutorialHTML(){
   const T = TEXT.tutorial;
-  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('idle',40), {src:ENEMY_IMG.hothead.f[0], x:236, y:92, w:48}])}${talk('tut', T.lead,
+  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('idle',40), {src:ENEMY_IMG.furnace.f[0], x:206, y:58, w:96}])}${talk('tut', T.lead,
     `<button class="primary wide" onclick="startTutorial()">${T.start}</button>`)}`;
 }
-// you start the tutorial groggy (it is 2 a.m. somewhere), so you run dry and Amos hands you Romans 12:2
+// The tutorial is the Furnace: Bram, burning by the well. Amos hands you Galatians 5:22-23 for the fires;
+// you start groggy, so you run dry and he hands you Romans 12:2 too.
 const TUTORIAL_FOCUS = 3;
-function startTutorial(){ R.tutorial=true; R.node={t:'fight', e:['hothead']}; startFight(['hothead']); log(TEXT.tutorial.groggy); }
+const BRAM_GIFT = 'boots';   // what Bram gives you when he is freed (an ITEMS id)
+function startTutorial(){ R.tutorial=true; addVerse('Galatians 5:22-23'); R.node={t:'boss'}; startFight(['furnace'], true); log(TEXT.tutorial.groggy); }
 // what the priest says over your shoulder, based on where you are in the fight
 function coachLine(){
   const C = TEXT.tutorial.coach;
   if(R.gift) return C.gift;
+  if(R.boss && R.boss.phase>0 && R.turn>2) return C.afterFire;
   if(R.turn===1) return C.firstCard;
   if(R.turn===2) return C.oneMove;
   return C.readIntent;
 }
-function finishTutorial(){ addVerse('Romans 12:2'); R.tutorial=false; R.gift=false; P.tutorialDone=true; R.unlockMsg=null; saveHero(); goto('tutend'); }
 function tutendHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,
     `<button class="primary wide" onclick="goto('town')">${T.toTown}</button>`)}`;
 }
-function mstoryHTML(){
-  return `${sceneHTML(IMG.battle.square,[],180)}${talk('mstory', TEXT.mission1.intro,
-    `<button class="primary wide" onclick="goto('map')">${TEXT.mission1.goIn}</button>`)}`;
-}
-const LINES = TEXT.mission1.corridor;
-function corridorHTML(){
-  const n=R.next.n; const key=n.e?n.e[0].replace('_strong',''):n.t;
-  return `${sceneHTML(n.t==='boss'?IMG.battle.lair:IMG.battle.square,[{html:sprite('back',0,1), x:128, y:110, w:64}],180)}
-    <div class="story"><p>${Array.isArray(LINES[key]) ? LINES[key][R.step % LINES[key].length] : LINES[key]}</p></div><div class="dock"><button class="primary wide" onclick="proceed()">${TEXT.mission1.goIn}</button></div>`;
-}
 const THANKS = TEXT.thanks;
-function bossintroHTML(){
-  const T = TEXT.boss;
-  return `<h1>${T.heading}</h1>${sceneHTML(IMG.battle.lair,[],180)}${talk('bossintro', T.intro.map(([w,t])=>[w, fill(t,{passage:PASSAGE_REF})]),
-    `<button class="primary wide" onclick="startFight(['furnace'],true)">${T.face}</button>`)}`;
-}
 function victory(){
+  // the Furnace is freed: Bram again. This is the end of the tutorial.
   P.run = null;
   const first = !P.missions.wrath;
   P.missions.wrath = (P.missions.wrath||0)+1;
-  if(first){ R.maxFocus+=2; addVerse('Galatians 5:16'); P.town.church=true; }
+  if(first){ R.maxFocus+=2; addVerse('Galatians 5:16'); addVerse('Romans 12:2'); P.town.church=true; if(!owns(BRAM_GIFT)) equip(BRAM_GIFT); Object.keys(heroCache).forEach(k=>delete heroCache[k]); }
+  R.tutorial=false; R.gift=false; P.tutorialDone=true;
   gainXP(first?3:1); R.talents += first?30:15;
   modal=null; R.firstClear=first; saveHero(); goto('victory');
 }
 function defeat(){
-  if(R.tutorial){ R.hp=R.maxHp; modal=null; startFight(['hothead']); return; }   // nobody fails the tutorial
+  if(R.tutorial){ R.hp=R.maxHp; modal=null; startFight(['furnace'], true); return; }   // nobody fails the tutorial
   P.run = null;
   const lost = Math.floor(R.talents*0.25); R.talents-=lost; R.lostTalents=lost; R.hp=Math.ceil(R.maxHp/2);
   modal=null; saveHero(); goto('defeat');
 }
-function retreat(){ R.hp=Math.max(1,R.hp); P.run=null; saveHero(); goto('town'); }
+function retreat(){ R.hp=Math.max(1,R.hp); P.run=null; R.cave=null; saveHero(); goto('town'); }
 function victoryHTML(){
   const T = TEXT.victory;
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.square)}<div class="panel story"><p>${T.story}</p>
     ${R.firstClear?`<p>${T.bell}</p>`:''}</div>
     <div class="panel"><h2>Earned</h2><div class="stat"><span>Souls saved</span><span>+${R.firstClear?3:1}</span></div><div class="stat"><span>Talents</span><span>+${R.firstClear?30:15}</span></div>
-    ${R.firstClear?`<div class="stat t-Patience"><span>${T.fruit}</span><span>${T.fruitPerk}</span></div><div class="stat t-Self-control"><span>${T.newVerse}</span><span>Galatians 5:16</span></div>`:''}</div>
-    <div class="dock"><button class="primary wide" onclick="goto('town')">${T.button}</button></div>`;
+    ${R.firstClear?`<div class="stat t-Patience"><span>${T.fruit}</span><span>${T.fruitPerk}</span></div><div class="stat t-Self-control"><span>${T.newVerse}</span><span>Galatians 5:16</span></div><div class="stat t-Gentleness"><span>${T.gift}</span><span>${ITEMS[BRAM_GIFT].name}</span></div>`:''}</div>
+    <div class="dock"><button class="primary wide" onclick="goto(R.firstClear?'tutend':'town')">${T.button}</button></div>`;
 }
 function defeatHTML(){
   const T = TEXT.defeat;

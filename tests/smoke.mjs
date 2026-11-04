@@ -1,5 +1,5 @@
-// Headless click-through: title -> New game -> prologue -> pick two verses -> tutorial fight ->
-// town -> church -> start mission -> first fight. Fails on any console error or page error.
+// Headless click-through: title -> New game -> prologue -> pick two verses -> the Furnace (tutorial) ->
+// Bram -> town -> church -> first cave -> first fight -> deeper -> move the save to a fresh browser. Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -59,8 +59,15 @@ async function solveRecall() {
 // Play cards (answering correctly) until the fight is won.
 async function winFight() {
   for (let turn = 0; turn < 80; turn++) {
-    const s = await page.evaluate(() => ({ after: R.after, screen }));
+    const s = await page.evaluate(() => ({ after: R.after, screen, asm: modal && modal.kind === 'assembly' }));
     if (s.after || s.screen !== 'fight') break;
+    if (s.asm) {   // a fire went out: tap the Galatians pieces in order
+      while (await page.evaluate(() => modal && modal.kind === 'assembly')) {
+        const i = await page.evaluate(() => modal.order.indexOf(modal.next));
+        await page.locator('.overlay .chip').nth(i).click();
+      }
+      await page.waitForFunction(() => !R.busy, null, { timeout: 15000 }); continue;
+    }
     const card = page.locator('#app .hand .card:not(.dim):not(.spent)').first();
     if (await card.count()) { await card.click(); await solveRecall(); }
     else await btn('Brace').click();
@@ -90,29 +97,34 @@ try {
     await hands.nth(1).locator('.card').first().click();
     await btn('Those two').click(); await waitScreen('tutorial');
   });
-  await step('tutorial fight', async () => {
+  await step('tutorial: the Furnace', async () => {
     await finishDialogue(); await act().click(); await waitScreen('fight');
     if (!(await page.locator('.coach').count())) throw new Error('no tutorial coaching shown');
+    if (!(await page.evaluate(() => R.boss && R.enemies[0].id === 'furnace'))) throw new Error('the tutorial is not the Furnace');
     await winFight();
-    await btn('Move on').click(); await waitScreen('tutend');
+    await btn('Leave the room').click(); await waitScreen('victory');
+    if (await page.locator('.overlay.levelup').count()) await page.locator('.overlay .lvopt').first().click();   // grow a fruit
+    await page.locator('.dock button').first().click(); await waitScreen('tutend');
     await finishDialogue(); await act().click(); await waitScreen('town');
-    if (!(await page.evaluate(() => P.town.forge && P.tutorialDone))) throw new Error('tutorial did not open the forge');
+    const s = await page.evaluate(() => ({ forge: P.town.forge, done: P.tutorialDone, gift: owns(BRAM_GIFT), romans: R.deck.some(c => c.ref === 'Romans 12:2') }));
+    if (!s.forge || !s.done || !s.gift || !s.romans) throw new Error('after the Furnace: ' + JSON.stringify(s));
   });
   await step('town -> church', async () => {
     await page.locator('.town [onclick="enterBuilding(\'church\')"]').click(); await waitScreen('church');
   });
-  await step('start mission', async () => {
-    await btn('Anger in the Square').click(); await waitScreen('mstory');
-    await finishDialogue(); await btn('Go in').click(); await waitScreen('map');
+  await step('into the first cave', async () => {
+    await page.locator('#app button[onclick="startCave(0)"]').click(); await waitScreen('caveintro');
+    await finishDialogue(); await act().click(); await waitScreen('dive');
   });
-  await step('enter first room', async () => {
-    await page.locator('svg.dmap g.roomclick').first().click(); await waitScreen('corridor');
-    await btn('Go in').click(); await waitScreen('fight');
+  await step('first room', async () => {
+    await page.locator('.dock button').first().click(); await waitScreen('fight');
   });
   await step('fight', async () => {
     await winFight();
     const who = await page.evaluate(() => R.enemies.map(e => e.villager ? 'villager' : e.id));
-    if (who.includes('hothead')) throw new Error('fought Bram again after freeing him');
+    if (!who.every(w => w === 'villager')) throw new Error('expected rescued villagers, got ' + who);
+    await btn('Move on').click(); await waitScreen('dive');
+    if (await page.evaluate(() => R.step) !== 1) throw new Error('did not move deeper into the cave');
   });
   await step('move save to a fresh browser', async () => {
     const before = await page.evaluate(() => { saveHero(); return { deck: R.deck.length, forge: !!P.town.forge, level: R.level }; });

@@ -1,19 +1,19 @@
 /* Turn-based combat, card play, enemy turns, and the Furnace boss assembly. */
 const ENEMIES = {
   hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
-  grudge:{hp:18, atk:3, spr:'grudge', pattern:['atk','vex']},
-  brawler:{hp:24, atk:5, spr:'brawler', pattern:['atk','atk','big']},
-  slanderer:{hp:28, atk:4, spr:'slanderer', pattern:['vex','atk','atk']},
-  furnace:{hp:50, atk:4, spr:'furnace', pattern:['atk','vex','atk','big'], boss:true},
+  grudge:{hp:34, atk:3, spr:'grudge', pattern:['atk','vex']},
+  brawler:{hp:44, atk:5, spr:'brawler', pattern:['atk','atk','big']},
+  slanderer:{hp:52, atk:4, spr:'slanderer', pattern:['vex','atk','atk']},
+  furnace:{hp:28, atk:2, spr:'furnace', freedSpr:'hothead_f', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
-  villager:{hp:14, atk:3, pattern:['atk','atk'], villager:true},
-  villager_strong:{hp:24, atk:4, pattern:['vex','atk','atk'], villager:true},
+  villager:{hp:16, atk:3, pattern:['atk','atk'], villager:true},
+  villager_strong:{hp:28, atk:4, pattern:['vex','atk','atk'], villager:true},
 };
 const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', him:'her', his:'her', He:'She'}};
 function makeEnemy(id, i){
   const e = ENEMIES[id], base = {id, hp:e.hp, max:e.hp, atk:e.atk, pattern:e.pattern, step:i%e.pattern.length, freed:false, boss:!!e.boss};
   if(e.villager){ const k = pickFreed(), v = TEXT.villagers[k]; return {...base, villager:true, name:v.name, pron:v.pronoun, spr:'freed'+k, fk:k}; }
-  return {...base, name:TEXT.enemies[id].name, pron:TEXT.enemies[id].pronoun, spr:e.spr};
+  return {...base, name:TEXT.enemies[id].name, pron:TEXT.enemies[id].pronoun, spr:e.spr, freedSpr:e.freedSpr};
 }
 // a named person is freed once; after that their room holds a villager instead
 function standIn(id){ const u = UNLOCKS[id]; if(!u || !P.town[u[0]]) return id; return ENEMIES[id].pattern.length>2 ? 'villager_strong' : 'villager'; }
@@ -50,7 +50,7 @@ function arenaHTML(mini){
     let sn, ssc, top, f0=0, f1=1, held='';
     if(e.villager || (e.freed && !ENEMY_IMG[e.spr+'_f'])){   // townsfolk sprites: same person held (tinted) and freed
       sn = e.villager ? e.spr : 'freed'+(e.fk||0); ssc = mini?0.8:1.6*k; top = mini?11:Math.round(8*k); if(!e.freed){ f1=0; held=' held'; } }
-    else { const own = e.freed; sn = own ? e.spr+'_f' : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
+    else { const own = e.freed; sn = own ? (e.freedSpr || e.spr+'_f') : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
       top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, Math.round(106*k-EI.h*enemyK(sc))); }
     return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = R.enemies[R.target] && !R.enemies[R.target].freed ? R.enemies[R.target] : live[0];
@@ -92,7 +92,7 @@ function afterHTML(){
     ${R.gearDropped?`<button class="wide" onclick="R.gearFrom='fight';goto('gear')">See your gear</button>`:''}
     ${R.pendingDrop?`<button class="wide" onclick="addVerse(R.pendingDrop);R.pendingDrop=null;render()">Take ${R.pendingDrop}</button>`:''}
     ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${TEXT.afterFight.growTree}</button>`:''}
-    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':R.tutorial?'finishTutorial()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button></div>`;
+    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button></div>`;
 }
 function playCard(ref){
   if(R.busy || R.after) return;
@@ -138,6 +138,7 @@ function playCard(ref){
 function brace(){ if(R.busy || R.after) return; R.brace=true; log(TEXT.fight.braceLog); enemyTurn(); }
 async function enemyTurn(){
   if(R.busy || R.after) return; R.busy=true;
+  R.vexed = false;   // being provoked lasts one turn: it wears off whatever you did with it (or you could be stuck at 0 focus)
   for(const e of R.enemies){ if(e.freed) continue;
     if(e.stun){ e.stun=false; log(fill(TEXT.fight.standsDazed,{name:e.name})); await sleep(300); continue; }
     const a=e.pattern[e.step]; e.step=(e.step+1)%e.pattern.length; const i=R.enemies.indexOf(e);
@@ -156,6 +157,7 @@ async function enemyTurn(){
 }
 function charge(){ if(R.busy||R.charge||R.after) return; R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
 function fightWon(){
+  if(R.boss) townUnlock('furnace');   // Bram is free: the forge opens
   R.pendingDrop = (R.node && R.node.t==='elite' && !R.deck.some(c=>c.ref==='Romans 12:19')) ? 'Romans 12:19' : null; R.dropFrom = R.enemies[0] && R.enemies[0].name;
   if(has('boots')||has('sabatons')){ R.hp=Math.min(R.maxHp,R.hp+4); }
   if(!R.boss && !R.tutorial && (R.node && R.node.t==='elite' || Math.random()<0.5)){ const g=gearDrop(); if(g){ equip(g); R.gearDropped=g; } }
@@ -186,12 +188,13 @@ function slips(n){ return `${n} slip${n>1?'s':''}`; }
 async function finishAssembly(){
   const m = modal; modal=null; if(m.phase==='chest'){ finishChest(m); return; } const boss = R.enemies[0];
   if(m.phase==='final'){
-    if(m.mistakes===0){ R.busy=true; boss.freed=true; render(); await freedFX(0); log(THANKS.furnace); R.busy=false; fightWon(); return; }
-    boss.hp = Math.min(12, 4*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
+    if(m.mistakes && R.tutorial) log(TEXT.boss.amosHelps);   // in the tutorial Amos says it with you
+    if(m.mistakes===0 || R.tutorial){ R.busy=true; boss.freed=true; render(); await freedFX(0); log(THANKS.furnace); R.busy=false; fightWon(); return; }
+    boss.hp = R.tutorial ? 4 : Math.min(12, 4*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
   } else {
     R.boss.phase++;
     if(m.mistakes===0){ boss.hp = Math.max(1, boss.hp-8); boss.stun=true; log(fill(TEXT.boss.fireDazed,{n:R.boss.phase})); }
-    else { const heal=Math.min(8,3*m.mistakes); boss.hp=Math.min(boss.max,boss.hp+heal); log(fill(TEXT.boss.fireFlares,{slips:slips(m.mistakes), n:heal})); }
+    else { const heal=R.tutorial ? 0 : Math.min(8,3*m.mistakes); boss.hp=Math.min(boss.max,boss.hp+heal); log(fill(TEXT.boss.fireFlares,{slips:slips(m.mistakes), n:heal})); }
   }
   enemyTurn();
 }
@@ -205,7 +208,7 @@ function assemblyHTML(){
       <div class="seq">${placed||'&nbsp;'}</div><div>${chips}</div></div></div>`; }
   const title = m.phase==='final' ? TEXT.boss.lastFire : fill(TEXT.boss.fireOut,{n:m.phase+1});
   return `<div class="overlay"><div class="panel"><h2>${title} — ${PASSAGE_REF}</h2>${arenaHTML(true)}
-    <div class="small mute">${TEXT.boss.assemble}${m.phase==='final'?TEXT.boss.assembleFinal:TEXT.boss.assemblePhase} Mistakes: ${m.mistakes}</div>
+    ${R.tutorial?`<div class="coach">${TEXT.tutorial.coach.assembly}</div>`:''}<div class="small mute">${TEXT.boss.assemble}${m.phase==='final'?TEXT.boss.assembleFinal:TEXT.boss.assemblePhase} Mistakes: ${m.mistakes}</div>
     <div class="seq">${placed||'&nbsp;'}</div>
     <div>${chips}</div></div></div>`;
 }

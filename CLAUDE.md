@@ -11,15 +11,18 @@ not sin against You"), which is also the verse the hero falls asleep studying.
 A regular guy in a hoodie falls asleep trying to memorize verses (the game's whole premise:
 memorization is boring, so make it a game). He wakes in Emberford, a village where sin has
 become visible. The church is empty; the old priest, Amos, gives him a dented trash-can lid
-and asks if he knows Scripture. A guided tutorial fight frees Bram, the blacksmith, shouting
-at his own forge (the Hothead), which opens the Forge before any dungeon. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
+and asks if he knows Scripture. The first fight is the tutorial and the first boss: Bram, the
+blacksmith, burning by the well, has become the Furnace. Freeing him opens the Forge and he
+gives you his work boots (`BRAM_GIFT`). The held townsfolk who were in the square flee into
+three caves; the church sends you after them one cave at a time. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
 and blood). Reciting truth over them frees them, and each freed person reopens part of town.
 
-- Emberford / Mission 1 "Anger in the Square": the Wrath floor. Boss: The Furnace.
-- Freeing the Hothead reopens the Forge (Bram, in the tutorial), the Grudge the Inn (old
-  innkeeper, male), the Brawler the Training Yard (drill master), the Slanderer the
-  Scriptorium (scribe). Named people are freed once; after that their rooms hold held
-  villagers (`TEXT.villagers`, men and women, tinted red until freed).
+- Emberford is the Wrath chapter: the Furnace (Bram) in the square, then three caves. Each
+  cave ends with a held townsperson whose freeing reopens one building: The Hollow (the
+  Grudge, Wendell, Inn), The Old Quarry (the Brawler, Hale, Training Yard), The Deep Cave
+  (the Slanderer, Silas, Scriptorium). After all three, the road to Ashby opens.
+- Fights along the way are fled villagers (`TEXT.villagers`, men and women, tinted red until
+  freed). A cave cleared again has a villager instead of its named boss.
 - The world map shows Ashby and two unknown towns. Next missions pair a vice with a fruit
   (Galatians 5): Hatred/Love, Envy/Joy, Rivalry/Kindness, Impurity/Goodness,
   Idolatry/Faithfulness, Drunkenness/Self-control.
@@ -58,9 +61,15 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   dry in the tutorial (you start that fight groggy, at 3). Each verse works once; when nothing
   unsaid is affordable, they all come back. A card never costs more than max focus. Damage = verse value x tier multipliers x accuracy. Type advantage:
   Patience x1.5 and Gentleness x1.25 vs wrath.
-- **Boss**: three fires; at each third of HP the player assembles Galatians 5:22-23 in order.
-  Slips heal him a little (3 each, max 8; the final puzzle 4 each, max 12). Balance was tuned
-  with a scripted player at 60/70/85% accuracy: the Furnace is the spike, the rest is light.
+- **The Furnace** (tutorial boss): three fires; at each third of HP the player assembles
+  Galatians 5:22-23 in order (Amos hands it over before the fight). In the tutorial slips
+  don't heal him and Amos says the last passage with you, so nobody can get stuck.
+- **Provoked** (vex) raises verse costs by 1 for one turn only, then wears off whatever you
+  do; otherwise a player at 0 focus could never cast again.
+- **Caves** (`CAVES` in dive.js): one view, no map. A scene, narration, and "Go left / Go
+  right" buttons with hints at a fork; chests and rest stops open in place; fights switch to
+  the arena and return. `P.caves` counts clears; `P.run` resumes a dive after a reload.
+- Balance was tuned with a scripted player at 60/70/85% accuracy over the whole arc.
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
 - **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)

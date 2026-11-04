@@ -93,12 +93,14 @@ const TEXT = {
     },
   },
 
-  // ---------- Tutorial: one guided fight with Bram ----------
+  // ---------- Tutorial: the Furnace (Bram, burning by the well) ----------
   tutorial: {
     lead: [
-      ['priest', '“Good. Now, let us go and see about Bram.” Amos takes his coat from the peg by the door. “He is the town’s blacksmith. He has been out by that well for three weeks, shouting at a door that will not answer him.”'],
-      ['you', '“Three weeks? Hasn’t anyone tried to help him?”'],
-      ['priest', '“They are all behind their own doors, son. That is the trouble.” He sighs. “Remember this: the anger is not Bram. It is sitting on him. Speak the truth over him, and it has to let go.”'],
+      ['priest', '“Good. Now, about Bram.” Amos takes his coat from the peg by the door. “The anger has burned in him so long that it has become a furnace. You saw it.”'],
+      ['you', '“The fire on his skin. I thought I was dreaming.”'],
+      ['priest', '“Perhaps you are. It is real all the same.” He opens his worn Bible and reads aloud.'],
+      [null, '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
+      ['priest', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire burns low, say it, piece by piece, in order.”'],
       ['you', '“And if he swings at me?”'],
       ['priest', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
     ],
@@ -111,18 +113,21 @@ const TEXT = {
       oneMove: 'Bram gets his turn after every verse you say. The line above your cards tells you what he means to do. If he is winding up for something big, Brace.',
       gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
       readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
+      assembly: 'His fire is burning low. Now, son: Galatians 5:22–23, piece by piece, in order. Tap the pieces.',
+      afterFire: 'One fire is out. Keep at him. When the next one burns low, the room will go quiet again.',
     },
     giftLog: 'Amos hands you Romans 12:2.',
     groggy: 'You have been awake since yesterday. Your focus is already thin.',
     after: [
-      [null, 'The red smoke thins, flickers, and goes out. The fire on his skin dies with it. Bram sits down hard on the edge of the well.'],
-      ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks, yelling at a door. Let the forge go cold.”'],
+      [null, 'The last of the fire goes out. Where the Furnace stood, Bram sits down hard on the edge of the well, smoke still rising off his sleeves.'],
+      ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks, burning. Let the forge go cold.”'],
       ['you', '“Are you okay?”'],
       ['blacksmith', '“Don’t know yet.” He looks at you properly for the first time. “Who are you?”'],
       ['you', '“Honestly? I’m not sure. I fell asleep studying, and I woke up here.”'],
       ['priest', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
-      ['blacksmith', '“Right.” Bram nods at you. “You come by. Whatever you need hammered, it’s yours.”'],
-      ['priest', '“There are many more out there like Bram. Rest a while, then come and see me at the church. We will start with the square.”'],
+      ['blacksmith', 'Bram looks down at your sneakers and shakes his head. He unlaces his own work boots and pushes them into your arms. “Here. Where you’re going, you’ll want real boots.”'],
+      ['you', '“Where am I going?”'],
+      ['priest', '“When the fire went out, the others who were held out here ran. Into the caves outside town, most of them. Wendell. Hale. Silas.” He sighs. “Rest a while, then come and see me at the church. We will go and bring them home.”'],
     ],
     toTown: 'Walk back into town',
   },
@@ -148,7 +153,7 @@ const TEXT = {
     },
     // shown after a fight when you free the person who ran each building
     unlocked: {
-      hothead: 'Bram heads home. The forge will be lit when you get back to town.',
+      furnace: 'Bram heads home. The forge will be lit when you get back to town.',
       grudge: 'The innkeeper heads home to unbar his doors.',
       brawler: 'The drill master heads back to the training yard.',
       slanderer: 'The scribe hurries back to the scriptorium to set right what he wrote.',
@@ -156,13 +161,12 @@ const TEXT = {
   },
   church: {
     heading: 'The Church',
-    lineBefore: ['priest', '“The square is the worst of it, especially after dark. Start there. Free whoever you can, and come back here when you need rest. The Lord goes with you, son.”'],
-    lineAfter: ['priest', '“Did you hear the bell last night? People are coming back to service.” He smiles, then nods toward the road. “I have heard there are other towns, though. Worse off than we were.”'],
+    lineBefore: ['priest', '“The ones who ran are in the caves outside town, son. Bring them home, one at a time. Come back here when you need rest. The Lord goes with you.”'],
+    lineAfter: ['priest', '“Every door in Emberford is open again, and people are coming back to service.” He smiles, then nods toward the road. “I have heard there are other towns, though. Worse off than we were.”'],
     missions: 'Missions',
-    mission1: 'Anger in the Square',
-    mission1Cleared: ' · cleared {n}×',
-    mission1Blurb: 'Mission 1. Free the people of Emberford from their anger.',
-    nextLocked: '??? · clear the square first',
+    caveCleared: ' · cleared {n}×',
+    caveLocked: 'Bring the last one home first.',
+    nextLocked: '??? · bring everyone home first',
     nextOpen: 'The Road to Ashby · coming soon',
     pews: 'The pews',
     pray: 'Pray over your verses',
@@ -243,37 +247,73 @@ const TEXT = {
     heading: 'The Road',
     towns: { emberford: 'Emberford', ashby: 'Ashby', fennmarsh: 'Fennmarsh', greyhollow: 'Greyhollow' },
     open: 'The road east to Ashby is open. Nobody in Emberford will say what is wrong there. The next town is still being built.',
-    blocked: 'The road out of town is blocked by the anger in the square. Clear it first.',
+    blocked: 'The road out of town runs past the caves. Bring everyone home first.',
     back: 'Back to Emberford',
   },
 
-  // ---------- Mission 1: Anger in the Square ----------
-  mission1: {
-    intro: [
-      [null, 'The square again, after dark. Every door is barred, except the ones that have been kicked in. Somewhere ahead, someone is smashing something, slowly.'],
-      ['you', '“There are so many of them.”'],
-      ['priest', '“Then remember who they are.” Amos opens his worn Bible and reads aloud.'],
-      [null, '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
-      ['priest', '“The people out there are not your enemies, son. They are held. Speak the truth over them, and whatever has hold of them must let go.”'],
-      ['you', '“Okay.” You take a breath. “Okay.”'],
-    ],
-    goIn: 'Go in',
-    mapHeading: 'The Square',
-    mapHint: 'Tap the lit room to enter it.',
-    bossLocked: 'The boss room opens when the passage is whole.',
-    retreatConfirm: 'Retreat to town? This mission starts over.',
-    // the line you read in the corridor before each room
-    corridor: {
-      forge: 'Hammering, somewhere ahead. Steady, like someone who has been at it for a very long time.',
-      hothead: 'Someone ahead is shouting at the walls. Nobody is answering him.',
-      grudge: 'An old man sits on an overturned crate ahead, counting on his fingers and muttering names.',
-      brawler: 'The door ahead has been kicked off its hinges. From the inside.',
-      slanderer: 'Papers are nailed to every door on this street. A calm voice ahead is reading them aloud.',
-      villager: ['Someone ahead is kicking a door that isn’t even locked.', 'A woman ahead is shouting at an empty street.', 'Someone ahead is smashing crates, one at a time.'],
-      boss: 'The heat reaches you before the sound does. The stones under your feet are warm.',
-      shrine: 'Light under a door. Someone left a lamp burning.',
-      lock: 'A chest sits in an alcove. There are words carved around the lock.',
-      rest: 'Ashes, still warm. Whoever rested here left the fire going for the next person.',
+  // ---------- The caves: townsfolk who fled when the Furnace went out ----------
+  // One cave per building, opened in this order from the church.
+  caves: [
+    {
+      name: 'The Hollow',
+      blurb: 'Wendell the innkeeper ran here, still counting.',
+      intro: [
+        ['priest', '“The Hollow is just past the old mill. Wendell kept the inn. He kept a list, too, of every wrong anyone ever did him. It got heavy.”'],
+        ['you', '“How do I find him?”'],
+        ['priest', '“Follow the muttering. And bring back anyone you find on the way, son. They are all somebody’s.”'],
+      ],
+      bossLead: 'At the bottom of the cave an old man sits on a crate in the lamplight, counting on his fingers and muttering names. The anger on him is cold, not hot. It has been there a long time.',
+      done: [
+        [null, 'Wendell blinks at the cave around him like he has never seen it before.'],
+        ['innkeeper', '“Twelve years! Twelve years I carried that list.” He laughs, then wipes his eyes. “Come on, come on. I have an inn to open. Stew’s on the house.”'],
+      ],
+    },
+    {
+      name: 'The Old Quarry',
+      blurb: 'Hale the drill master is down here, fighting the walls.',
+      intro: [
+        ['priest', '“Hale ran the training yard. He taught half the young men in Emberford how to fight, and then he could not stop. He is somewhere in the old quarry.”'],
+        ['you', '“Is he dangerous?”'],
+        ['priest', 'Amos chuckles quietly. “He was dangerous before. Bring the lid.”'],
+      ],
+      bossLead: 'The tunnel opens onto the quarry floor. A broad, gray-haired man is throwing punches at the rock wall, his knuckles bleeding.',
+      done: [
+        [null, 'Hale lowers his fists and looks at them like they belong to someone else.'],
+        ['drill', '“Recruit.” He nods at you, slowly. “Good form. Come by the yard. I owe you a drill or two.”'],
+      ],
+    },
+    {
+      name: 'The Deep Cave',
+      blurb: 'Silas the scribe went in with a lamp and a stack of paper.',
+      intro: [
+        ['priest', '“Silas wrote things about his neighbors that were not true, and nailed them to every door. When the fire went out, he ran. Shame does that.”'],
+        ['you', '“Will he even want to come back?”'],
+        ['priest', '“Tell him the truth, son. The truth is the one thing he has not tried.”'],
+      ],
+      bossLead: 'Papers are nailed to the cave walls, every one in the same neat hand. At the end of the passage a thin man is reading them aloud to no one: calm, reasonable, and lying.',
+      done: [
+        [null, 'Silas lets the papers fall from his hands.'],
+        ['scribe', '“Every word I wrote was a lie, and I knew it.” He takes a long breath. “I would like to copy something true. Would you walk back with me?”'],
+      ],
+    },
+  ],
+  // the dive itself: what you see ahead and the choices at a fork
+  dive: {
+    enter: 'Go in',
+    depth: 'Depth {n} of {total}',
+    split: 'The tunnel splits in two.',
+    left: 'Go left',
+    right: 'Go right',
+    onward: 'Go on',
+    face: 'Step into the light',
+    leave: 'Leave',
+    leaveConfirm: 'Leave the cave? You will have to start it over.',
+    home: 'Walk back to Emberford',
+    hints: {
+      fight: 'Someone up ahead is shouting at the dark.',
+      fightMany: 'More than one voice up ahead, arguing.',
+      lock: 'Something glints in an alcove.',
+      rest: 'You smell woodsmoke. It is quiet that way.',
     },
   },
   // pronoun: 'he' or 'she' (fills {he} {him} {his} {He} in the fight log)
@@ -282,10 +322,9 @@ const TEXT = {
     grudge: { name: 'Grudge', pronoun: 'he' },
     brawler: { name: 'Brawler', pronoun: 'he' },
     slanderer: { name: 'Slanderer', pronoun: 'he' },
-    furnace: { name: 'The Furnace', pronoun: 'he' },
+    furnace: { name: 'The Furnace', pronoun: 'he' },   // Bram, burning
   },
-  // Townsfolk held by anger. Once a named person is freed, later fights (and retries) are
-  // against these instead. Order matches the six villager sprites.
+  // Townsfolk held by anger who fled into the caves. Order matches the six villager sprites.
   villagers: [
     { name: 'Tomas', pronoun: 'he', thanks: 'Tomas sits down on the curb and laughs, a little shaky. “I was going to put my fist through my own window.”' },
     { name: 'Abel', pronoun: 'he', thanks: 'Abel rubs his face like a man waking up. “How long was I standing here?”' },
@@ -334,7 +373,7 @@ const TEXT = {
     healed: 'You breathe. Healed {n}.',
     standsDazed: '{name} stands dazed.',
     vexBlocked: '{name} tries to provoke you. The Shield of Faith holds.',
-    vexed: '{name} provokes you. Your next verse costs more.',
+    vexed: '{name} provokes you. Verses cost 1 more focus this turn.',
     glances: '{name}’s blow glances off the Shield of Faith.',
     strikes: '{name} strikes for {n}{absorbed}.',
     slams: '{name} slams for {n}{absorbed}.',
@@ -356,11 +395,6 @@ const TEXT = {
     take: 'Take it',
   },
   rooms: {
-    shrineHeading: 'Shrine',
-    shrineNote: 'Read it slowly. It is also a verse you can use, and the Furnace will ask you for it in pieces.',
-    shrineTake: 'Take it as a spell and go on',
-    shrineLearned: 'Learned Galatians 5:22-23',
-    shrineKnown: 'You know this one. Read it again anyway, and go on.',
     restHeading: 'Rest',
     restBody: 'A quiet corner. Choose one.',
     sleep: 'Sleep — heal 12',
@@ -389,15 +423,6 @@ const TEXT = {
     creedGained: 'You carry a new piece of the Creed: {n} of {total}.',
   },
   boss: {
-    heading: 'The Furnace',
-    intro: [
-      [null, 'The heat is coming from a man so wrapped in fire you can barely see him. Bram’s anger was a spark. This is a furnace.'],
-      ['you', '“Amos, how do I even get close to him?”'],
-      ['priest', '“Three fires burn in him. Each time you wear one down, the room will go quiet. Use that quiet to say {passage}, piece by piece, in order.”'],
-      ['priest', '“Say it cleanly and the fire goes out. Stumble, and it flares back. When the last fire is out, say it once more without a mistake, and he will be free.”'],
-      ['you', '“Okay. I can do this.”'],
-    ],
-    face: 'Face him',
     fireOut: 'Fire {n} of 3 goes out',
     lastFire: 'The last fire',
     assemble: 'The room goes quiet. Tap the pieces in order.',
@@ -407,15 +432,17 @@ const TEXT = {
     fireDazed: 'Fire {n} of 3 goes out. He is dazed and burned for 8.',
     fireFlares: '{slips}. The fire flares back and he heals {n}.',
     lastFlares: '{slips}. The last fire flares back.',
+    amosHelps: 'You stumble over the words. Amos says them with you, steady and slow, and the last fire goes out.',
   },
   victory: {
     heading: 'The Furnace goes out',
-    story: 'The last fire goes out. Where the Furnace stood, a tired man sits down on the stones of the square, quieter than he has been in years. Somewhere behind you, someone opens a shutter. Then another.',
+    story: 'The last fire goes out. Where the Furnace stood is Bram, the blacksmith, blinking like a man stepping out of a dark room. Somewhere behind you, someone opens a shutter. Then another.',
     bell: 'That night, for the first time in a long time, the church bell rings. And people come.',
-    fruit: 'Fruit: Patience',
+    fruit: 'A clearer mind',
     fruitPerk: '+2 max focus, for good',
     newVerse: 'New verse',
-    button: 'Walk back to the church',
+    gift: 'From Bram',
+    button: 'Help Bram up',
   },
   defeat: {
     heading: 'You wake on a pew',
