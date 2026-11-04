@@ -36,10 +36,10 @@ function churchHTML(){
   const T = TEXT.church;
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('church'+(cleared?1:0),[cleared?T.lineAfter:T.lineBefore],'',false)}
     <h2>${T.missions}</h2>
-    <button class="primary wide" onclick="startMission()">${T.mission1}${cleared?fill(T.mission1Cleared,{n:cleared}):''}<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${T.mission1Blurb}</span></button>
+    <button class="primary wide" onclick="startMission()">${T.mission1}${cleared?fill(T.mission1Cleared,{n:cleared}):''}<br><span class="sub">${T.mission1Blurb}</span></button>
     <button class="wide" disabled>${cleared?T.nextOpen:T.nextLocked}</button>
     <h2 style="margin-top:12px">${T.pews}</h2>
-    <button class="wide" onclick="R.trainFrom='church';goto('training')">${T.pray}<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${T.prayBlurb}</span></button>
+    <button class="wide" onclick="R.trainFrom='church';goto('training')">${T.pray}<br><span class="sub">${T.prayBlurb}</span></button>
     ${R.hp<R.maxHp?`<button class="wide" ${R.talents<5?'disabled':''} onclick="R.talents-=5; R.hp=R.maxHp; saveHero(); toast(TEXT.church.restDone); render()">${T.rest}</button>`:''}
 `;
 }
@@ -53,7 +53,7 @@ function forgeHTML(){
   const np = nextPlain(); const stock = np ? [np] : [];
   const T = TEXT.forge;
   return `<h1>${T.heading}</h1>${talk('forge', R.firstVisit==='forge' ? T.firstVisit : [T.line],'',false)}
-    <h2>${T.forSale}</h2>${stock.length?stock.map(id=>`<button class="wide" ${R.talents<ITEMS[id].price?'disabled':''} onclick="buy('${id}')">${ITEMS[id].name} \u00b7 ${ITEMS[id].price} talents<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${ITEMS[id].perk}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
+    <h2>${T.forSale}</h2>${stock.length?stock.map(id=>`<button class="wide" ${R.talents<ITEMS[id].price?'disabled':''} onclick="buy('${id}')">${ITEMS[id].name} \u00b7 ${ITEMS[id].price} talents<br><span class="sub">${ITEMS[id].perk}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
     <h2 style="margin-top:12px">${T.consecrate}</h2>${consecrateList()}
     <button class="wide" onclick="R.gearFrom='forge';goto('gear')">${T.seeGear}</button>`;
 }
@@ -68,7 +68,7 @@ function trainingHTML(){
   const refs = [...new Set(R.deck.map(c=>c.ref))].sort((a,b)=>sp(b.ref||b).fails-sp(a.ref||a).fails || (sp(a).n*4+sp(a).tier)-(sp(b).n*4+sp(b).tier));
   return `<h1>${yard?T.yardHeading:T.pewsHeading}</h1>${yard?talk('yard', R.firstVisit==='training' ? T.firstVisit : [T.yardLine],'',false):talk('pews',[T.pewsLine],'',false)}
     <div class="panel small">${T.help}${yard?T.helpYard:''}</div>
-    ${refs.map(ref=>{ const s=sp(ref); return `<button class="wide" onclick="drill('${ref}',${yard})"><span class="t-${BY_REF[ref].type}">${spellLine(ref)}</span> \u00b7 ${TIER_NAME[s.tier]}<div class="bar mn" style="margin-top:6px"><i style="width:${Math.round(100*s.perf/3)}%"></i></div><span style="font-family:'Pixelify Sans',sans-serif;font-size:18px">${s.tier===3&&s.n>=maxN(ref)?'complete':fill(s.tier<3?T.toLevelUp:T.toGrow,{n:s.perf})}${s.fails?fill(T.slips,{n:s.fails}):''}</span></button>`; }).join('')}
+    ${refs.map(ref=>{ const s=sp(ref); return `<button class="wide" onclick="drill('${ref}',${yard})"><span class="t-${BY_REF[ref].type}">${spellLine(ref)}</span> \u00b7 ${TIER_NAME[s.tier]}<div class="bar mn" style="margin-top:6px"><i style="width:${Math.round(100*s.perf/3)}%"></i></div><span class="sub">${s.tier===3&&s.n>=maxN(ref)?'complete':fill(s.tier<3?T.toLevelUp:T.toGrow,{n:s.perf})}${s.fails?fill(T.slips,{n:s.fails}):''}</span></button>`; }).join('')}
     <button class="wide" onclick="goto(${yard?"'town'":"'church'"})">Back</button>`;
 }
 function drill(ref, yard){
@@ -86,7 +86,7 @@ function scriptoriumHTML(){
   const price = v=>10+5*v.cost;
   const T = TEXT.scriptorium;
   return `<h1>${T.heading}</h1>${talk('scriptorium', R.firstVisit==='scriptorium' ? T.firstVisit : [T.line],'',false)}
-    ${stock.length?stock.map(v=>`<button class="wide" ${R.talents<price(v)?'disabled':''} onclick="learn('${v.ref}')"><span class="t-${v.type}">${v.ref}</span> \u00b7 ${price(v)} talents<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${v.text}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
+    ${stock.length?stock.map(v=>`<button class="wide" ${R.talents<price(v)?'disabled':''} onclick="learn('${v.ref}')"><span class="t-${v.type}">${v.ref}</span> \u00b7 ${price(v)} talents<br><span class="sub">${v.text}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
 `;
 }
 function learn(ref){ const v=BY_REF[ref], c=10+5*v.cost; if(R.talents<c) return; R.talents-=c; addVerse(ref); saveHero(); toast(fill(TEXT.scriptorium.learned,{ref})); render(); }

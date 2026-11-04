@@ -44,7 +44,7 @@ function consecrateList(){
   const a = nextArmor(); if(!a) return `<div class="small t-Patience">${TEXT.gear.allDone}</div>`;
   const up = ITEMS[a.up], ready = owns(a.from), ref = passRef('ARMOR', a.n);
   if(!ready) return `<div class="small mute">${fill(TEXT.gear.needPlain,{up:up.name, from:ITEMS[a.from].name})}</div>`;
-  return `<button class="wide" ${R.talents<10?'disabled':''} onclick="consecrate()"><span class="t-Patience">${ITEMS[a.from].name} \u2192 ${up.name}</span><br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${fill(TEXT.gear.cost,{ref})}</span></button>`;
+  return `<button class="wide" ${R.talents<10?'disabled':''} onclick="consecrate()"><span class="t-Patience">${ITEMS[a.from].name} \u2192 ${up.name}</span><br><span class="sub">${fill(TEXT.gear.cost,{ref})}</span></button>`;
 }
 function consecrate(){
   const a = nextArmor(); if(!a || !owns(a.from) || R.talents<10) return;

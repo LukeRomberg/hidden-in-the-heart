@@ -492,8 +492,9 @@ const TEXT = {
   },
   codex: {
     creed: 'The Nicene Creed',
-    creedNone: 'Chests in the square hold pieces of it.',
-    creedSoFar: '{n} of {total} pieces.',
+    creedSoFar: '{n} of {total} recovered',
+    creedNote: 'The faded lines are still out there, carved around the locks of chests.',
+    creedDone: 'You have recovered the whole Creed.',
   },
   // the Move your save screen (title screen), for carrying a save to another browser or device
   saves: {

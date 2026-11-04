@@ -17,8 +17,12 @@ function titleHTML(){
     <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain. ${CREED.credit}</div>`;
 }
 function codexHTML(){
-  const C = TEXT.codex, have = CREED.sections.slice(0, P.creed||0);
-  return `<h1>Codex</h1><div class="panel"><div class="px">${C.creed}</div>${have.length?`<div class="verse" style="font-size:21px">${have.map(s=>s.join(' ')).join(' ')}</div><div class="small mute">${fill(C.creedSoFar,{n:have.length, total:CREED.sections.length})}</div>`:`<div class="small mute">${C.creedNone}</div>`}<div class="small mute" style="font-size:13px;margin-top:6px">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
+  // the whole Creed, so it can be studied; sections recovered from chests are full color, the rest faded
+  const C = TEXT.codex, got = P.creed||0, N = CREED.sections.length;
+  const creed = CREED.sections.map((sec,i)=>`<span class="${i<got?'':'faded'}">${sec.join(' ')}</span>`).join(' ');
+  return `<h1>Codex</h1><div class="panel"><div class="px">${C.creed} · ${fill(C.creedSoFar,{n:got, total:N})}</div>
+    <div class="verse creed">${creed}</div><div class="small mute">${got<N?C.creedNote:C.creedDone}</div>
+    <div class="small mute" style="font-size:13px;margin-top:6px">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
     <button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button>`;
 }
 function deckHTML(){
