@@ -90,17 +90,18 @@ with transparency; the hero's base row must stay pixel-identical across sheets.
 PixelLab MCP: `claude mcp add pixellab https://api.pixellab.ai/mcp -t http -H "Authorization: Bearer YOUR_SECRET"`.
 Tool reference: https://api.pixellab.ai/mcp/docs
 
+## Art in the game (assets/source/, listed in src/data/images.js)
+
+Scenes, battle backgrounds, town buildings (boarded/open), priest, portraits, hero poses,
+HUD icons, six fruit icons and six fruit card frames are wired in. The build inlines them
+as data URIs via `__IMG__('path')`.
+
 ## Art still wanted (exact specs agreed with Luke)
 
-- Town: church 96x128; forge, inn, training yard, scriptorium 96x96, each with a boarded
-  and an open version on the same canvas.
-- Priest 48x64 (idle, gesturing) and 48x48 portraits for priest + four shopkeepers.
-- Opening scenes 320x160: bedroom at night, asleep at desk, village square at dusk,
-  church interior, title view of Emberford. Hero 64x64: asleep at desk, waking on stone.
-- Battle backgrounds 320x180: the square at night, the Furnace's lair.
 - Spell effects, 6 frames x 32x32 strips per fruit; big-cast starburst 64x64 x6; freed
   smoke 64x64 x8; hit spark 32x32 x4; shield shimmer 48x64 x4; level up 64x64 x6.
-- Icons 16x16 (HP, mana, soul, talent, nine fruit), card frames 64x88 per fruit.
+- Icons 16x16 for Joy, Kindness, Faithfulness. Card frame 64x88 for Armor (Ephesians 6
+  cards still use the generated frame).
 
 ## Conventions
 

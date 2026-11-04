@@ -2,33 +2,19 @@
 const UNLOCKS = {hothead:['forge','The blacksmith goes home. His forge will be lit when you get back to town.'], grudge:['inn','The innkeeper goes home to unbar his doors.'], brawler:['training','The old drill master heads for the training yard.'], slanderer:['scriptorium','The scribe hurries back to the scriptorium to fix what he wrote.']};
 function townUnlock(id){ const u=UNLOCKS[id]; if(u && !P.town[u[0]]){ P.town[u[0]]=true; R.unlockMsg=u[1]; save(); } }
 const BUILD = {
-  church:{name:'Church', x:52, w:36, roof:'#5a4a6a', wall:'#8a7a6a', always:true},
-  forge:{name:'Forge', x:6, w:30, roof:'#4a3a30', wall:'#7a6050'},
-  inn:{name:'Inn', x:104, w:30, roof:'#6a3a2a', wall:'#9a7a5a'},
-  training:{name:'Training Yard', x:14, w:30, roof:'#3a4a30', wall:'#7a7a5a', row:2},
-  scriptorium:{name:'Scriptorium', x:96, w:30, roof:'#3a3a5a', wall:'#8a8aa0', row:2},
+  church:{name:'Church', always:true},
+  forge:{name:'Forge'},
+  inn:{name:'Inn'},
+  training:{name:'Training Yard'},
+  scriptorium:{name:'Scriptorium'},
 };
-function townSVG(){
-  let s = `<rect width="140" height="100" fill="#4a3448"/><rect width="140" height="22" fill="#6a4458"/><rect y="22" width="140" height="8" fill="#5a3c50"/>`;
-  s += `<rect x="0" y="60" width="140" height="40" fill="#3a2e28"/>`;
-  for(let x=0;x<140;x+=8) for(let y=62;y<100;y+=6) if((x+y)%3===0) s+=`<rect x="${x}" y="${y}" width="5" height="2" fill="#463830"/>`;
-  s += `<rect x="62" y="84" width="16" height="16" fill="#2b2320"/><rect x="66" y="96" width="8" height="4" fill="#4a3a2c"/>`;
-  Object.entries(BUILD).forEach(([id,b])=>{
-    const open = b.always || P.town[id]; const y = b.row===2 ? 66 : 30; const hgt = id==='church'?34:24;
-    const by = id==='church' ? 18 : y; const click = `class="roomclick" role="button" tabindex="0" onclick="enterBuilding('${id}')" onkeydown="if(event.key==='Enter')enterBuilding('${id}')"`;
-    s += `<g ${click}><rect x="${b.x}" y="${by}" width="${b.w}" height="${hgt}" fill="${b.wall}" opacity="${open?1:.55}"/>`;
-    s += `<polygon points="${b.x-3},${by} ${b.x+b.w/2},${by-10} ${b.x+b.w+3},${by}" fill="${b.roof}" opacity="${open?1:.55}"/>`;
-    if(id==='church') s += `<rect x="${b.x+b.w/2-1}" y="${by-18}" width="2" height="8" fill="#f2d25a"/><rect x="${b.x+b.w/2-4}" y="${by-15}" width="8" height="2" fill="#f2d25a"/>`;
-    const win = open ? '#f2c45a' : '#1a1210';
-    s += `<rect x="${b.x+4}" y="${by+5}" width="6" height="6" fill="${win}"/><rect x="${b.x+b.w-10}" y="${by+5}" width="6" height="6" fill="${win}"/>`;
-    s += `<rect x="${b.x+b.w/2-3}" y="${by+hgt-10}" width="6" height="10" fill="${open?'#3a2618':'#1a1210'}"/>`;
-    if(!open) s += `<rect x="${b.x+2}" y="${by+hgt/2-1}" width="${b.w-4}" height="2" fill="#5a4030"/><rect x="${b.x+2}" y="${by+hgt/2+4}" width="${b.w-4}" height="2" fill="#5a4030"/>`;
-    if(id==='forge' && open) s += `<rect x="${b.x+b.w-7}" y="${by-12}" width="4" height="8" fill="#4a3a30"/><rect x="${b.x+b.w-7}" y="${by-16}" width="4" height="3" fill="#e8903a" class="fa"/>`;
-    s += `<text x="${b.x+b.w/2}" y="${by+hgt+5}" font-size="3.2" font-family="'Pixelify Sans',sans-serif" fill="#e8dcc0" text-anchor="middle">${open?b.name:'Boarded'}</text></g>`;
-  });
-  s += `<g class="roomclick" role="button" tabindex="0" onclick="goto('world')" onkeydown="if(event.key==='Enter')goto('world')"><rect x="58" y="84" width="24" height="3" fill="#6e4a2a"/><text x="70" y="93" font-size="3.2" font-family="'Pixelify Sans',sans-serif" fill="#e8dcc0" text-anchor="middle">Road</text></g>`;
-  s += `<g>${heroRects('front',0,44,60,0.36)}</g>`;
-  return `<svg viewBox="0 0 140 100" width="100%" shape-rendering="crispEdges" role="img" aria-label="Emberford">${s}</svg>`;
+// The town square: forge, church, inn on top; training yard, you (and the road out), scriptorium below.
+// The church looks abandoned until the square is cleared the first time.
+function townMap(){
+  const tap = act => `role="button" tabindex="0" onclick="${act}" onkeydown="if(event.key==='Enter')${act}"`;
+  const bld = id => { const usable = BUILD[id].always || P.town[id]; const lit = id==='church' ? !!P.town.church : usable;
+    return `<div class="bld ${usable?'':'shut'}" ${tap(`enterBuilding('${id}')`)}><img src="${IMG.town[id][lit?1:0]}" alt="${BUILD[id].name}${usable?'':', boarded up'}"><span class="nm">${usable?BUILD[id].name:'Boarded'}</span></div>`; };
+  return `<div class="town">${bld('forge')}${bld('church')}${bld('inn')}${bld('training')}<div class="bld you" ${tap("goto('world')")}>${sprite('player',0,1)}<span class="nm">Road</span></div>${bld('scriptorium')}</div>`;
 }
 function enterBuilding(id){
   if(!(BUILD[id].always || P.town[id])){ toast({forge:'Boarded up. Someone in the square used to work here.', inn:'Boarded up. The innkeeper has not been seen in weeks.', training:'Boarded up. Whoever ran this yard left angry.', scriptorium:'Boarded up. A sign in the window has been scratched out.'}[id]); return; }
@@ -37,7 +23,7 @@ function enterBuilding(id){
 function townHTML(){
   saveHero();
   const open = ['forge','inn','training','scriptorium'].filter(k=>P.town[k]).length;
-  return `<h1>Emberford</h1><div class="panel" style="padding:0;overflow:hidden">${townSVG()}</div>${statusHTML()}
+  return `<h1>Emberford</h1><div class="panel scene">${townMap()}</div>${statusHTML()}
     <div class="small mute" style="margin-bottom:8px">${open<4?`${4-open} building${4-open>1?'s are':' is'} still boarded up. The people who ran them are still out in the square.`:'Every door in town is open.'}</div>
     <div class="row">${['forge','inn','training','scriptorium'].map(k=>`<button ${P.town[k]?'':'disabled'} onclick="enterBuilding('${k}')">${BUILD[k].name}</button>`).join('')}<button onclick="goto('world')">Road</button></div>
     <div class="row" style="margin-top:8px"><button onclick="R.codexFrom='town';goto('codex')">Codex</button><button onclick="goto('title')">Title</button></div>`;
@@ -46,7 +32,7 @@ function churchHTML(){
   const cleared = P.missions.wrath;
   const line = !cleared ? '\u201cThe anger is worst in the square. Start there. Free who you can.\u201d'
     : '\u201cThe bell rang last night. People are coming back.\u201d He nods at the road. \u201cOther towns are worse off than we were.\u201d';
-  return `<h1>The Church</h1>${talk('church'+(cleared?1:0),[['Priest',line]],'',false)}
+  return `<h1>The Church</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('church'+(cleared?1:0),[['Priest',line]],'',false)}
     <h2>Missions</h2>
     <button class="primary wide" onclick="startMission()">Anger in the Square${cleared?' \u00b7 cleared '+cleared+'\u00d7':''}<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">Mission 1. Free the people of Emberford from wrath.</span></button>
     <button class="wide" disabled>${cleared?'The Road to Ashby \u00b7 coming soon':'??? \u00b7 clear the square first'}</button>

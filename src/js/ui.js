@@ -8,7 +8,7 @@ function cardHTML(v, o={}){
 }
 function cardView(v){ return cardHTML(v,{full:true}); }
 function titleHTML(){
-  return `<h1>Hidden in the Heart</h1><div class="panel"><div class="row" style="justify-content:center;align-items:flex-end">${sprite('player',0,2)}${sprite('furnace',0,5)}</div>
+  return `<h1>Hidden in the Heart</h1>${sceneHTML(IMG.scene.title,[{src:IMG.hero.asleep, x:6, y:94, w:64}])}<div class="panel">
     <div class="small mute" style="text-align:center;margin:8px 0">\u201cI have hidden Your word in my heart that I might not sin against You.\u201d Psalm 119:11</div></div>
     ${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
     <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm('Start over? Your current journey will be erased.')) newGame()">New game</button>

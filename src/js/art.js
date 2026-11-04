@@ -41,14 +41,13 @@ function sprite(name, frame, scale, cls){
 }
 function pxg(rows,x,y,s){ let r=''; rows.forEach((row,yy)=>{ for(let xx=0;xx<row.length;xx++){ const c=row[xx]; if(c!=='.') r+=`<rect x="${x+xx*s}" y="${y+yy*s}" width="${s}" height="${s}" fill="var(${PAL[c]})"/>`; } }); return r; }
 function stoneBG(W,H){ let r=`<rect width="${W}" height="${H}" fill="var(--stone)"/>`; for(let y=0;y<H;y+=6) for(let x=0;x<W;x+=6){ const v=(x*7+y*13+x*y)%11; if(v<2) r+=`<rect x="${x}" y="${y}" width="6" height="6" fill="var(--stone2)"/>`; else if(v===5) r+=`<rect x="${x+1}" y="${y+1}" width="4" height="4" fill="var(--stone3)"/>`; } return r; }
-/* furnace-room backdrop, always dark */
-function arenaBG(){
-  let r = `<rect width="140" height="130" fill="#1a120d"/>`;
-  for(let y=0;y<90;y+=6) for(let x=0;x<140;x+=6){ const v=(x*7+y*13+x*y)%11; if(v<2) r+=`<rect x="${x}" y="${y}" width="6" height="6" fill="#211810"/>`; else if(v===5) r+=`<rect x="${x+1}" y="${y+1}" width="4" height="4" fill="#2a2016"/>`; }
-  r += `<rect x="50" y="20" width="40" height="60" fill="#0b0705"/><rect x="54" y="26" width="32" height="54" fill="#5a1e0a"/><rect x="58" y="34" width="24" height="46" fill="#c8502a"/><rect x="64" y="44" width="12" height="36" fill="#f2a040"/><rect x="50" y="14" width="40" height="6" fill="#2b2320"/><rect x="46" y="80" width="48" height="4" fill="#2b2320"/>`;
-  r += `<rect x="0" y="90" width="140" height="40" fill="#2b2320"/>`;
-  for(let x=0;x<140;x+=12) r += `<rect x="${x}" y="${90+((x/12)%2)*6}" width="6" height="2" fill="#3a2e24"/>`;
-  return `<svg viewBox="0 0 140 130" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+// Battle backdrop: the square at night, or the Furnace's lair for the boss.
+function arenaBG(boss){ return `<img class="abg" src="${boss?IMG.battle.lair:IMG.battle.square}" alt="">`; }
+// A framed 320-wide scene with sprites placed in the scene's own pixel coordinates,
+// so they scale with it: layers = [{src|html, x, y, w}].
+function sceneHTML(src, layers=[], H=160){
+  const W=320, pct=(v,of)=>`${(v/of*100).toFixed(3)}%`;
+  return `<div class="panel scene"><div class="scn"><img src="${src}" width="${W}" height="${H}" alt="">${layers.map(l=>`<div class="lay" style="left:${pct(l.x,W)};top:${pct(l.y,H)};width:${pct(l.w,W)}">${l.src?`<img src="${l.src}" alt="">`:l.html}</div>`).join('')}</div></div>`;
 }
 function pxgIcon(){ return `<svg class="ico" viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">${pxg(LOCK,0,0,1)}</svg>`; }
-function icon(n, s=2){ const rows=ICONS[n]; return `<svg class="ico" viewBox="0 0 10 10" width="${10*s}" height="${10*s}" shape-rendering="crispEdges" aria-hidden="true">${pxg(rows,0,0,1)}</svg>`; }
+function icon(n, s=2){ if(IMG.icon[n]){ const px=10*s<24?16:32; return `<img class="ico" src="${IMG.icon[n]}" width="${px}" height="${px}" alt="">`; } const rows=ICONS[n]; return `<svg class="ico" viewBox="0 0 10 10" width="${10*s}" height="${10*s}" shape-rendering="crispEdges" aria-hidden="true">${pxg(rows,0,0,1)}</svg>`; }

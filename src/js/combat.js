@@ -30,7 +30,7 @@ function arenaHTML(mini){
   const t = R.enemies[R.target] && !R.enemies[R.target].freed ? R.enemies[R.target] : live[0];
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${t&&t.boss&&R.boss?' · fires '+(3-R.boss.phase):''} ${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp"><i style="width:${t?100*Math.max(0,t.hp)/t.max:0}%"></i></div><div class="small">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp"><i style="width:${100*R.hp/R.maxHp}%"></i></div><div class="small">HP ${R.hp}/${R.maxHp}${R.shield?' · shield '+R.shield:''}</div><div class="bar mn"><i style="width:${100*R.mana/R.maxMana}%"></i></div><div class="small">Mana ${R.mana}/${R.maxMana}</div></div>`;
-  return `<div class="arena ${mini?'mini':''}" id="arena"><div class="bg">${arenaBG()}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
+  return `<div class="arena ${mini?'mini':''}" id="arena"><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
     ${R.shield&&!mini?'<div class="barrier"></div>':''}${R.vexed&&!mini?'<div class="vex">#!?</div>':''}
     <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2,'f0')}${sprite('back',1,mini?1:2.2,'f1')}</div>

@@ -46,4 +46,5 @@ Sheet layouts:
   rows are hothead, grudge, brawler, slanderer; `furnace_96x96.png` is one row.
 
 `assets/source/` also holds the scenes, battle backgrounds, town buildings, portraits, cards
-and icons. None of these are wired into the game yet.
+and icons. These need no tool: `src/data/images.js` lists them as `__IMG__('scenes/x.png')`
+and `npm run build` inlines the PNG bytes as-is. To swap art, replace the PNG and rebuild.

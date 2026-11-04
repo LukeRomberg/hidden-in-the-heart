@@ -74,7 +74,7 @@ try {
     await btn('Those two').click(); await waitScreen('town');
   });
   await step('town -> church', async () => {
-    await page.locator('svg g[onclick="enterBuilding(\'church\')"]').click(); await waitScreen('church');
+    await page.locator('.town [onclick="enterBuilding(\'church\')"]').click(); await waitScreen('church');
   });
   await step('start mission', async () => {
     await btn('Anger in the Square').click(); await waitScreen('mstory');

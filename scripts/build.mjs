@@ -8,29 +8,35 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
+const ASSETS = join(ROOT, 'assets/source');
 
 export const ORDER = [
-  'data/scripture.js', 'data/pixels.js',
+  'data/scripture.js', 'data/pixels.js', 'data/images.js',
   'js/state.js', 'js/save.js', 'js/spells.js', 'js/recall.js', 'js/art.js', 'js/fx.js',
   'js/gear.js', 'js/combat.js', 'js/map.js', 'js/tree.js', 'js/story.js', 'js/town.js',
   'js/ui.js', 'js/main.js',
 ];
 
 const read = p => readFileSync(join(SRC, p), 'utf8');
+// __IMG__('scenes/x.png') -> data URI of assets/source/scenes/x.png
+const img = p => {
+  if (!/\.png$/.test(p)) throw new Error(`__IMG__ only takes .png files: ${p}`);
+  return 'data:image/png;base64,' + readFileSync(join(ASSETS, p)).toString('base64');
+};
+const IMG_RE = /__IMG__\((['"]?)([\w./-]+)\1\)/g;
 
 export function build({ out = join(ROOT, 'dist/index.html') } = {}) {
   const frames = JSON.parse(read('data/ui-frames.json'));
   const styles = read('styles.css').trimEnd().replace(/__FRAME__\(([\w-]+)\)/g, (_, k) => {
     if (!frames[k]) throw new Error(`styles.css: unknown frame "${k}"`);
     return frames[k];
-  });
-  const scripts = ORDER.map(f => read(f).trimEnd().replace(/__DATA__\('([\w.-]+)'\)/g, (_, file) => {
-    const val = JSON.stringify(JSON.parse(read('data/' + file)));
-    return val;
-  })).join('\n');
+  }).replace(IMG_RE, (_, q, p) => img(p));
+  const scripts = ORDER.map(f => read(f).trimEnd()
+    .replace(/__DATA__\('([\w.-]+)'\)/g, (_, file) => JSON.stringify(JSON.parse(read('data/' + file))))
+    .replace(IMG_RE, (_, q, p) => JSON.stringify(img(p)))).join('\n');
 
   for (const [what, text] of [['styles', styles], ['scripts', scripts]]) {
-    const left = text.match(/__(DATA|FRAME)__\([^)]*\)/);
+    const left = text.match(/__(DATA|FRAME|IMG)__\([^)]*\)/);
     if (left) throw new Error(`${what}: unresolved placeholder ${left[0]}`);
   }
   if (/<\/script/i.test(scripts)) throw new Error('scripts contain "</script", which would end the inline script early');

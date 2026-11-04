@@ -39,4 +39,3 @@ const ICONS = {
   tree:["...ggg....","..ggggg...",".ggrgggg..",".gggggrg..","..ggggg...","....d.....","....d.....","....d.....","...ddd....",".........."],
   deck:[".kkkkk....",".kwwwkk...",".kwkwkwk..",".kwwwkwk..",".kwkwkwk..",".kwwwkwk..",".kkkkkwk..","..kwwwwk..","..kkkkkk..",".........."],
 };
-const PRIEST = ["....kkkk....","...kwwwwk...","..kwwwwwwk..","..kssssssk..","..ksksskssk.","..kssssssk..","..kwwsswwk..","...kwwwwk...","..kddddddk..",".kddddyddddk",".kdddyyydddk",".kddddyddddk"];

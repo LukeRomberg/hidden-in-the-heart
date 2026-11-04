@@ -25,22 +25,15 @@ function talkTap(total){
   if(TW.i < total-1){ TW.i++; render(); }
 }
 function portrait(who){
-  if(who==='Priest') return `<svg viewBox="0 0 12 12" width="54" height="54" shape-rendering="crispEdges">${pxg(PRIEST,0,0,1)}</svg>`;
+  if(IMG.portrait[who]) return `<img src="${IMG.portrait[who]}" width="48" height="48" alt="" style="image-rendering:pixelated">`;
   if(who==='You') return `<svg viewBox="17 1 30 30" width="54" height="54" shape-rendering="crispEdges">${heroRects('front',0,0,0,1)}</svg>`;
-  const map = {Blacksmith:'hothead_f', Innkeeper:'grudge_f', 'Drill master':'brawler_f', Scribe:'slanderer_f'};
-  const E = ENEMY_IMG[map[who]]; if(!E) return '';
-  return `<div style="width:54px;height:54px;background:url(${E.f[0]}) no-repeat;background-size:108px 144px;background-position:-27px -4px;image-rendering:pixelated"></div>`;
+  return '';
 }
-function prologueArt(kind){
-  let s = kind==='room'
-    ? `<rect width="140" height="70" fill="#1c1622"/><rect x="0" y="52" width="140" height="18" fill="#2a2018"/><rect x="88" y="10" width="26" height="20" fill="#3a3a5a"/><rect x="90" y="12" width="22" height="16" fill="#202040"/><rect x="100" y="12" width="2" height="16" fill="#3a3a5a"/><rect x="24" y="40" width="52" height="4" fill="#6e4a2a"/><rect x="28" y="44" width="4" height="10" fill="#4e341c"/><rect x="68" y="44" width="4" height="10" fill="#4e341c"/><rect x="34" y="34" width="10" height="6" fill="#e8dcc0"/><rect x="46" y="35" width="8" height="5" fill="#f4eee0"/><rect x="56" y="30" width="4" height="10" fill="#f2d25a"/><rect x="55" y="28" width="6" height="3" fill="#ffe08a" opacity=".6"/>`
-    : kind==='square'
-    ? `<rect width="140" height="70" fill="#3a2a3e"/><rect x="0" y="0" width="140" height="18" fill="#5a3a48"/><rect x="0" y="50" width="140" height="20" fill="#2b2320"/>`+[[4,22,30,28],[40,16,24,34],[76,24,26,26],[108,20,28,30]].map(([x,y,w,hh])=>`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="#241a1a"/><rect x="${x}" y="${y-4}" width="${w}" height="5" fill="#1a1212"/><rect x="${x+w/2-3}" y="${y+hh-10}" width="6" height="10" fill="#120c0c"/><rect x="${x+4}" y="${y+6}" width="5" height="5" fill="#0e0a08"/><rect x="${x+w-9}" y="${y+6}" width="5" height="5" fill="#0e0a08"/>`).join('')
-    : `<rect width="140" height="70" fill="#2a2420"/><rect x="0" y="54" width="140" height="16" fill="#3a2e24"/>`+[0,1,2,3].map(i=>`<rect x="${14+i*30}" y="44" width="22" height="3" fill="#5a4030"/><rect x="${14+i*30}" y="47" width="2" height="7" fill="#4a3424"/><rect x="${34+i*30}" y="47" width="2" height="7" fill="#4a3424"/>`).join('')+`<rect x="62" y="6" width="16" height="30" fill="#5a4a6a"/><rect x="64" y="8" width="12" height="26" fill="#8a7aa0" opacity=".5"/><rect x="69" y="10" width="2" height="18" fill="#f2d25a"/><rect x="65" y="15" width="10" height="2" fill="#f2d25a"/>`;
-  return `<div class="panel" style="padding:0;overflow:hidden"><svg viewBox="0 0 140 70" width="100%" shape-rendering="crispEdges" aria-hidden="true">${s}</svg></div>`;
-}
+// Which line of a conversation is showing (talk() resets TW only when it runs, after the art).
+function lineOf(key){ return TW.key===key ? TW.i : 0; }
+const AT_PRIEST = (pose,x=136)=>({src:IMG.priest[pose], x, y:86, w:48});
 function pro1HTML(){
-  return `${prologueArt('room')}${talk('pro1',[
+  return `${sceneHTML(lineOf('pro1')>=2 ? IMG.scene.asleep : IMG.scene.bedroom)}${talk('pro1',[
     [null,'Flashcards. A desk lamp. Your Bible open to the same page it has been open to for three nights.'],
     ['You','\u201cPsalm one nineteen, eleven. I have hidden\u2026 Your\u2026 in my\u2026\u201d'],
     [null,'Your eyes are very heavy.']],
@@ -48,21 +41,21 @@ function pro1HTML(){
 }
 function pro2HTML(){
   const got = R.proFrac===1;
-  return `${prologueArt('square')}${talk('pro2',[
+  return `${lineOf('pro2')===0 ? sceneHTML(IMG.scene.asleep) : sceneHTML(IMG.scene.square,[{src:IMG.hero.waking, x:204, y:94, w:64}])}${talk('pro2',[
     [null, got?'You get it right. You are so pleased with yourself that you put your head down for just a second.':'You get about half of it. Your head goes down on the open page.'],
     [null,'Cold stone under your cheek. A village square at dusk. Every door barred, every window dark.'],
     [null,'Somewhere a man is shouting at nobody. Nobody shouts back.']],
     `<button class="primary wide" onclick="goto('pro3')">Look for an open door</button>`)}`;
 }
 function pro3HTML(){
-  return `${prologueArt('church')}${talk('pro3',[
+  return `${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('pro3',[
     [null,'One door is open. Dusty pews, a cold altar, and an old priest sweeping a floor nobody walks on anymore.'],
     ['Priest','\u201cNobody comes now. Not since the anger got into the town. Then the grudges. Then worse.\u201d'],
     [null,'He sees the Bible still in your hand, and stops sweeping.']],
     `<button class="primary wide" onclick="goto('pro4')">Hold it up</button>`)}`;
 }
 function pro4HTML(){
-  return `<div class="panel row" style="justify-content:center">${sprite('player',0,2.5)}</div>${talk('pro4',[
+  return `${sceneHTML(IMG.scene.church,[AT_PRIEST('welcome',112), {html:sprite('player',0,1), x:156, y:88, w:64}])}${talk('pro4',[
     ['Priest','\u201cThe armor of God was kept here once.\u201d He hands you a dented trash-can lid. \u201cThis is what is left. That, and what you are holding. And the words.\u201d'],
     ['Priest','\u201cDo you know the words?\u201d'],
     [null,'You think about the flashcards.'],
@@ -79,7 +72,7 @@ function introHTML(){
 }
 function chooseOpener(ref, group){ R.chosen[group] = R.chosen[group]===ref ? null : ref; render(); }
 function mstoryHTML(){
-  return `${talk('mstory',[
+  return `${sceneHTML(IMG.battle.square,[],180)}${talk('mstory',[
     [null,'The square again, darker than before. Every door is barred except the ones that have been kicked in.'],
     [null,'\u201cFor our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world\u2019s darkness, and against the spiritual forces of evil in the heavenly realms.\u201d Ephesians 6:12'],
     ['Priest','\u201cThe people out there are not your enemies. They are the held. Say the true thing over them, and whatever has them lets go.\u201d']],
@@ -93,7 +86,7 @@ function corridorHTML(){
 }
 const THANKS = {hothead:'I don’t know what I was so angry about. It’s gone. Thank God, it’s gone.', grudge:'Twelve years I carried that. You said one sentence and I set it down. Praise God.', brawler:'My hands have stopped shaking. Nobody ever told me I could just stop. God is good.', slanderer:'I knew every word of it was a lie. I needed someone to say the true thing out loud. Glory to God.', furnace:'I burned so long I forgot I was a man. Thank you. Thank God.'};
 function bossintroHTML(){
-  return `<h1>The Furnace</h1>${talk('bossintro',[
+  return `<h1>The Furnace</h1>${sceneHTML(IMG.battle.lair,[],180)}${talk('bossintro',[
     [null,'He has three fires in him. Beat him down a third and one goes out, and the room goes quiet enough to speak.'],
     [null,`When it does, say ${PASSAGE_REF} in order, piece by piece. Say it clean and he is dazed and burned. Stumble and the fire flares back.`],
     [null,'When the last fire is out, say it once more without a mistake, and he is free.']],
@@ -116,14 +109,14 @@ function defeat(){
 }
 function retreat(){ R.hp=Math.max(1,R.hp); saveHero(); goto('town'); }
 function victoryHTML(){
-  return `<h1>The Furnace goes out</h1><div class="panel story"><p>He sits down on the stones of the square, quieter than he has been in years. Someone opens a shutter. Then another.</p>
+  return `<h1>The Furnace goes out</h1>${sceneHTML(IMG.scene.square)}<div class="panel story"><p>He sits down on the stones of the square, quieter than he has been in years. Someone opens a shutter. Then another.</p>
     ${R.firstClear?'<p>That night the church bell rings for the first time in a long time.</p>':''}</div>
     <div class="panel"><h2>Earned</h2><div class="stat"><span>Souls saved</span><span>+${R.firstClear?3:1}</span></div><div class="stat"><span>Talents</span><span>+${R.firstClear?30:15}</span></div>
     ${R.firstClear?'<div class="stat t-Patience"><span>Fruit: Patience</span><span>+1 max mana, for good</span></div><div class="stat t-Self-control"><span>New verse</span><span>Galatians 5:16</span></div>':''}</div>
     <button class="primary wide" onclick="goto('town')">Walk back to the church</button>`;
 }
 function defeatHTML(){
-  return `<h1>You wake on a pew</h1><div class="panel story"><p>The priest found you in the square and carried you back. \u201cThe words were right,\u201d he says. \u201cYou just ran out of breath to say them.\u201d</p></div>
+  return `<h1>You wake on a pew</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle',214), {src:IMG.hero.waking, x:132, y:96, w:64}])}<div class="panel story"><p>The priest found you in the square and carried you back. \u201cThe words were right,\u201d he says. \u201cYou just ran out of breath to say them.\u201d</p></div>
     <div class="panel small">You keep your level, gear, and verses. The mission starts over, and ${R.lostTalents} talents were lost in the square.</div>
     <button class="primary wide" onclick="goto('town')">Get up</button>`;
 }

@@ -47,6 +47,7 @@ function treeSVG(){
       s+=`<g class="roomclick" role="button" tabindex="0" aria-label="${f.b} ${t+1}${f.lock?', locked':''}" onclick="treeSel('${f.b}',${t})" onkeydown="if(event.key==='Enter')treeSel('${f.b}',${t})">`;
       if(sel) s+=`<rect x="${x-sz/2-3}" y="${y-sz/2-3}" width="${sz+6}" height="${sz+6}" fill="${open?c:'#9a8a70'}" opacity=".3"/><rect x="${x-sz/2-2}" y="${y-sz/2-2}" width="${sz+4}" height="${sz+4}" fill="none" stroke="${open?c:'#9a8a70'}" stroke-width="1.2"/>`;
       if(!open){ s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="#e2d2ac" stroke="#c0aa82" stroke-width="1"/>`; if(t===1) s+=pxg(LOCK,x-3.6,y-3.6,0.9); }
+      else if(on && IMG.icon[f.b]){ const z=sz+4; s+=`<image href="${IMG.icon[f.b]}" x="${x-z/2}" y="${y-z/2}" width="${z}" height="${z}" style="image-rendering:pixelated"/>`; }
       else if(on){ s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="${c}" stroke="#2a160c" stroke-width="1"/><rect x="${x-sz/2+1.5}" y="${y-sz/2+1.5}" width="3" height="3" fill="#fff" opacity=".7"/>`; }
       else s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="#3a2616" stroke="${next?c:'#6a4a2e'}" stroke-width="${next?1.8:1}"/>`;
       s+=`</g>`; }

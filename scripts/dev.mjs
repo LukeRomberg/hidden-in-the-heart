@@ -25,7 +25,7 @@ function rebuild(why) {
 
 rebuild();
 let timer;
-watch(join(ROOT, 'src'), { recursive: true }, (_, file) => {
+for (const dir of ['src', 'assets/source']) watch(join(ROOT, dir), { recursive: true }, (_, file) => {
   clearTimeout(timer); timer = setTimeout(() => rebuild(file), 80);
 });
 
@@ -47,5 +47,5 @@ createServer((req, res) => {
   const lan = Object.values(networkInterfaces()).flat().filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
   console.log(`\n  local:  http://localhost:${PORT}`);
   for (const ip of lan) console.log(`  phone:  http://${ip}:${PORT}   (same Wi-Fi)`);
-  console.log('\n  watching src/ ...\n');
+  console.log('\n  watching src/ and assets/source/ ...\n');
 });
