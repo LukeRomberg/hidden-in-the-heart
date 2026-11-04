@@ -10,6 +10,9 @@
      checked by `npm run verify`, so quote it exactly or not at all.
    - Short UI labels (Back, End turn, Talents, Gear…) are still in the code.
 
+   When characters talk about the Bible, use the names it gives itself: Scripture, the word of
+   God, truth, wisdom, His law, His commands, the sword of the Spirit. Not “the words.”
+
    Voices (so every character sounds like themselves):
    - Narration: plain and sincere, moves the story step by step. Senses over cleverness.
    - You: an ordinary guy in over his head. Modern, short, honest, uses contractions, asks the
@@ -75,13 +78,13 @@ const TEXT = {
         ['priest', '“Well. That changes things.” He leans the broom on a pew and chuckles to himself quietly. “I’m Amos. It seems that the Lord has answered my prayers. You are here to help, but I am afraid this is all I can offer in terms of protection at the moment.”'],
         [null, 'He hands you a dented trash-can lid. You look at it and give him a questioning look. “What about a weapon?”'],
         ['priest', '“This is to help shelter you from attacks. A weapon? Son, the word of God is in your hand there. Sharper than any double-edged sword, it pierces even to dividing soul and spirit, joints and marrow.”'],
-        [null, 'You look at the Bible in your hand, the words sound familiar but how could a Bible fight monsters?'],
+        [null, 'You look at the Bible in your hand, the Scripture sounds familiar but how could a Bible fight monsters?'],
         ['you', '“I am not sure where to begin.”'],
       ],
       button: 'Take the lid',
     },
     pickVerses: {
-      heading: 'The words you know',
+      heading: 'What you have hidden in your heart',
       line: ['priest', '“Let us start with two verses. One to say to the anger, and one to keep you from being overwhelmed with it yourself.”'],
       hint: 'Patience cuts through anger. Longer verses hit harder and cost more.',
       offense: 'Against anger',
@@ -104,7 +107,7 @@ const TEXT = {
     coach: {
       firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
       firstCard: 'Each card is a verse you know. The gem is how much focus it takes, and your focus only comes back after the fight. Tap a card to use that verse. It takes your whole turn.',
-      recall: 'Take your time, son. Fill in each blank. The more you get right, the stronger the words land.',
+      recall: 'Take your time, son. Fill in each blank. The more you get right, the sharper the sword of the Spirit cuts.',
       oneMove: 'Bram gets his turn after every verse you say. The line above your cards tells you what he means to do. If he is winding up for something big, Brace.',
       gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
       readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
@@ -175,13 +178,13 @@ const TEXT = {
       [null, 'The forge is roaring again. Bram is at the anvil like he never left it.'],
       ['blacksmith', '“There he is.” Bram sets the hammer down. “Didn’t thank you proper. Thank you.”'],
       ['you', '“You don’t have to—”'],
-      ['blacksmith', '“Do. Now listen. Amos says that lid and that Bible are the start of the armor of God. Plain things. Bring me plain gear, say the words over it, and I’ll forge it into the real thing.”'],
+      ['blacksmith', '“Do. Now listen. Amos says that lid and that Bible are the start of the armor of God. Plain things. Bring me plain gear, say Scripture over it, and I’ll forge it into the real thing.”'],
       ['you', '“You can do that?”'],
-      ['blacksmith', '“I can’t. The words can. I just hold the hammer.”'],
+      ['blacksmith', '“I can’t. The word of God can. I just hold the hammer.”'],
     ],
-    line: ['blacksmith', '“Back again. Good. Bring me plain things and the right words, and I’ll make them holy.”'],
+    line: ['blacksmith', '“Back again. Good. Bring me plain things and the right Scripture, and I’ll make them holy.”'],
     forSale: 'For sale',
-    soldOut: 'He has made you everything plain he can. The rest is up to the words.',
+    soldOut: 'He has made you everything plain he can. The rest is up to the word of God.',
     consecrate: 'Consecrate',
     seeGear: 'See your gear',
   },
@@ -203,7 +206,7 @@ const TEXT = {
     pewsHeading: 'The Pews',
     firstVisit: [
       [null, 'The practice dummies are back on their feet. So is the old drill master, though he moves like his knuckles still hurt.'],
-      ['drill', '“You. The one who talked me down.” He looks you over. “You fight with words, they tell me. Fine. Words need drilling, same as fists.”'],
+      ['drill', '“You. The one who talked me down.” He looks you over. “You fight with Scripture, they tell me. Fine. Wisdom needs drilling, same as fists.”'],
       ['you', '“I’ve been trying. They just don’t stick.”'],
       ['drill', '“They stick if you do. Every day. Out loud. A clean recital out here earns you two talents. A sloppy one earns you another try.”'],
       ['you', '“Yes, sir.”'],
@@ -416,7 +419,7 @@ const TEXT = {
   },
   defeat: {
     heading: 'You wake on a pew',
-    story: 'Amos found you in the square and carried you back. “The words were right, son,” he says gently. “You just ran out of breath to say them. Rest now. We will try again.”',
+    story: 'Amos found you in the square and carried you back. “The truth was on your lips, son,” he says gently. “You just ran out of breath to speak it. Rest now. We will try again.”',
     summary: 'You keep your level, gear, and verses. The mission starts over, and {n} talents were lost in the square.',
     button: 'Get up',
   },
@@ -444,7 +447,7 @@ const TEXT = {
     cost: '10 talents · recite {ref} perfectly',
     recallTitle: 'Consecrate',
     fits: '{name}. It fits.',
-    failed: 'The words slipped. The metal stays cold.',
+    failed: 'The Scripture slipped away from you. The metal stays cold.',
     bought: '{name} on.',
   },
 

@@ -11,7 +11,7 @@ not sin against You"), which is also the verse the hero falls asleep studying.
 A regular guy in a hoodie falls asleep trying to memorize verses (the game's whole premise:
 memorization is boring, so make it a game). He wakes in Emberford, a village where sin has
 become visible. The church is empty; the old priest, Amos, gives him a dented trash-can lid
-and asks if he knows the words. A guided tutorial fight frees Bram, the blacksmith, shouting
+and asks if he knows Scripture. A guided tutorial fight frees Bram, the blacksmith, shouting
 at his own forge (the Hothead), which opens the Forge before any dungeon. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
 and blood). Reciting truth over them frees them, and each freed person reopens part of town.
 
@@ -131,6 +131,8 @@ as data URIs via `__IMG__('path')`.
 
 - Phone-first. Test at ~430px wide. Safe-area insets are handled; keep them.
 - Typography uses curly quotes and apostrophes in all player-facing text.
+- When characters talk about the Bible, use the names it gives itself (Scripture, the word of
+  God, truth, wisdom, His law, the sword of the Spirit), never "the words."
 - Luke prefers short, direct replies with dry humor; no praise. Ask before saving anything
   to memory.
 
