@@ -41,7 +41,7 @@ function mapHTML(){
     <div class="small mute">${TEXT.mission1.mapHint}</div>
     <div class="panel"><h2>${PASSAGE_REF}</h2>${FRAGS.map((f,i)=>`<div class="frag ${R.frags.includes(i)?'have':''}">${R.frags.includes(i)?f:'· · · · · ·'}</div>`).join('')}
     <div class="small mute" style="margin-top:8px">${TEXT.mission1.bossLocked}</div></div>
-    <button onclick="R.gearFrom='map';goto('gear')">Gear</button><button onclick="R.treeFrom='map';R.treeSel=null;goto('tree')">Tree</button><button onclick="R.deckFrom='map';goto('deck')">Deck</button><button onclick="if(confirm(TEXT.mission1.retreatConfirm)) retreat()">Retreat</button>`;
+    <div class="dock row"><button onclick="R.gearFrom='map';goto('gear')">Gear</button><button onclick="R.treeFrom='map';R.treeSel=null;goto('tree')">Tree</button><button onclick="R.deckFrom='map';goto('deck')">Deck</button><button onclick="if(confirm(TEXT.mission1.retreatConfirm)) retreat()">Retreat</button></div>`;
 }
 function enterNode(s,i){
   const n0 = s===-1 ? {t:'boss'} : STEPS[s].rooms[i]; const n = n0.e ? {...n0, e:n0.e.map(standIn)} : n0;
@@ -52,15 +52,15 @@ function clearColumn(){ const st=STEPS[R.step]; if(st && st.frag!==undefined && 
 function proceed(){ const n=R.next.n; if(n.t==='fight'||n.t==='elite') startFight(n.e); else if(n.t==='boss') goto('bossintro'); else goto(n.t); }
 function rewardHTML(){
   return `<h1>${TEXT.rooms.chestHeading}</h1><h2>${TEXT.rooms.chestTake}</h2><div class="hand">${R.reward.map(ref=>`<div onclick="takeReward('${ref}')">${cardView(BY_REF[ref])}</div>`).join('')}</div>
-    <button class="wide" onclick="clearColumn()">${TEXT.rooms.chestLeave}</button>`;
+    <div class="dock"><button class="wide" onclick="clearColumn()">${TEXT.rooms.chestLeave}</button></div>`;
 }
 function takeReward(ref){ addVerse(ref); clearColumn(); }
 function shrineHTML(){
   return `<h1>${TEXT.rooms.shrineHeading}</h1><div class="panel"><h2>${PASSAGE_REF}</h2><div class="verse">${CHUNKS.join(' ')}</div>
     <div class="small mute">${TEXT.rooms.shrineNote}</div></div>
-    ${R.deck.some(c=>c.ref==='Galatians 5:22-23')
+    <div class="dock">${R.deck.some(c=>c.ref==='Galatians 5:22-23')
       ? `<button class="primary wide" onclick="R.hp=Math.min(R.maxHp,R.hp+5);clearColumn()">${TEXT.rooms.shrineKnown}</button>`
-      : `<button class="primary wide" onclick="addVerse('Galatians 5:22-23');R.hp=Math.min(R.maxHp,R.hp+5);toast(TEXT.rooms.shrineLearned);clearColumn()">${TEXT.rooms.shrineTake}</button>`}`;
+      : `<button class="primary wide" onclick="addVerse('Galatians 5:22-23');R.hp=Math.min(R.maxHp,R.hp+5);toast(TEXT.rooms.shrineLearned);clearColumn()">${TEXT.rooms.shrineTake}</button>`}</div>`;
 }
 function restHTML(){
   return `<h1>${TEXT.rooms.restHeading}</h1><div class="panel">${TEXT.rooms.restBody}</div>
@@ -94,7 +94,7 @@ function lockHTML(){
   const T = TEXT.rooms, spec = CHEST[R.node.tier||1];
   return `<h1>${T.lockHeading}</h1><div class="panel">${T.lockBody} <span class="mute">${spec.verse?T.lockBig:T.lockSmall}</span></div>
     <div class="small mute" style="margin-bottom:8px">${fill(spec.mistakes?T.lockRules:T.lockRulesNone,{pieces:spec.pieces, mistakes:spec.mistakes})}</div>
-    <button class="primary wide" onclick="pickLock()">${T.pickLock}</button>`;
+    <div class="dock"><button class="primary wide" onclick="pickLock()">${T.pickLock}</button></div>`;
 }
 function pickLock(){
   const tier = R.node.tier||1, spec = CHEST[tier], N = CREED.sections.length;

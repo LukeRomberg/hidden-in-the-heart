@@ -75,7 +75,7 @@ function treeHTML(){
   const grown = FRUIT.filter(f=>!f.lock).reduce((n,f)=>n+(R.tree[f.b]||0),0);
   return `<h1>${T.heading}</h1><div class="panel small">${fill(T.summary,{level:R.level, grown})}${due>0?`<b>${due>1?fill(T.waitingMany,{n:due}):T.waitingOne}</b>`:T.everyLevel}</div>
     <div class="panel" style="padding:0;overflow:hidden">${treeSVG()}</div><div class="panel">${detail}</div>
-    <button class="wide" onclick="saveHero(); goto(R.treeFrom||'town')">Back</button>`;
+    <div class="dock"><button class="wide" onclick="saveHero(); goto(R.treeFrom||'town')">Back</button></div>`;
 }
 function treeSel(b,t){ R.treeSel={b,t}; render(); }
 function pickBranch(b){ R.tree[b]++; R.rank++; if(b==='Peace' && R.tree.Peace===1) R.maxFocus+=2; R.treeSel={b, t:R.tree[b]-1}; render(); }

@@ -54,7 +54,7 @@ function savesHTML(){
     <div class="panel"><h2>${T.loadHeading}</h2><div class="small" style="margin-bottom:8px">${T.loadHelp}</div>
       <textarea id="loadcode" class="code" rows="3" placeholder="HITH1…" aria-label="${T.loadHeading}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
       <button class="wide" onclick="loadSaveCode()">${T.load}</button></div>
-    <button class="wide" onclick="goto('title')">Back</button>`;
+    <div class="dock"><button class="wide" onclick="goto('title')">Back</button></div>`;
 }
 function continueGame(){ loadHero();
   if(!P.tutorialDone){ goto('tutorial'); return; }

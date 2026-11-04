@@ -69,7 +69,7 @@ function trainingHTML(){
   return `<h1>${yard?T.yardHeading:T.pewsHeading}</h1>${yard?talk('yard', R.firstVisit==='training' ? T.firstVisit : [T.yardLine],'',false):talk('pews',[T.pewsLine],'',false)}
     <div class="panel small">${T.help}${yard?T.helpYard:''}</div>
     ${refs.map(ref=>{ const s=sp(ref); return `<button class="wide" onclick="drill('${ref}',${yard})"><span class="t-${BY_REF[ref].type}">${spellLine(ref)}</span> \u00b7 ${TIER_NAME[s.tier]}<div class="bar mn" style="margin-top:6px"><i style="width:${Math.round(100*s.perf/3)}%"></i></div><span class="sub">${s.tier===3&&s.n>=maxN(ref)?'complete':fill(s.tier<3?T.toLevelUp:T.toGrow,{n:s.perf})}${s.fails?fill(T.slips,{n:s.fails}):''}</span></button>`; }).join('')}
-    <button class="wide" onclick="goto(${yard?"'town'":"'church'"})">Back</button>`;
+    <div class="dock"><button class="wide" onclick="goto(${yard?"'town'":"'church'"})">Back</button></div>`;
 }
 function drill(ref, yard){
   openRecall(BY_REF[ref], frac=>{
@@ -102,5 +102,5 @@ function worldHTML(){
   const T = TEXT.world;
   return `<h1>${T.heading}</h1><div class="panel" style="padding:0;overflow:hidden"><svg viewBox="0 0 140 100" width="100%" shape-rendering="crispEdges" role="img" aria-label="World map">${s}</svg></div>
     <div class="panel small">${cleared?T.open:T.blocked}</div>
-    <button class="primary wide" onclick="goto('town')">${T.back}</button>`;
+    <div class="dock"><button class="primary wide" onclick="goto('town')">${T.back}</button></div>`;
 }

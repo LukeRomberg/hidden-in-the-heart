@@ -38,7 +38,7 @@ function gearHTML(){
   const chain = ARMOR_CHAIN.map(a=>{ const done=has(a.up), next=na&&na.up===a.up;
     return `<div class="stat small"><span class="${done?'t-Patience':next?'':'mute'}">${done?'\u2713':next?'\u2192':'\u00b7'} ${ITEMS[a.up].name}</span><span class="mute">${passRef('ARMOR',a.n)}</span></div>`; }).join('');
   return `<h1>Gear</h1><div class="panel row" style="justify-content:center;gap:24px">${sprite('player',0,3)}${sprite('back',0,3)}</div>
-    <div class="panel"><h2>${TEXT.gear.armorHeading}</h2>${chain}<div class="small mute" style="margin-top:6px">${TEXT.gear.armorNote}</div></div>${rows}<button class="wide" onclick="goto('${back}')">Back</button>`;
+    <div class="panel"><h2>${TEXT.gear.armorHeading}</h2>${chain}<div class="small mute" style="margin-top:6px">${TEXT.gear.armorNote}</div></div>${rows}<div class="dock"><button class="wide" onclick="goto('${back}')">Back</button></div>`;
 }
 function consecrateList(){
   const a = nextArmor(); if(!a) return `<div class="small t-Patience">${TEXT.gear.allDone}</div>`;

@@ -68,8 +68,8 @@ function fightHTML(){
   const intents = R.enemies.filter(e=>!e.freed).map(e=>`${e.name} ${intentText(e)}`).join('. ');
   const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}<div class="small mute" style="margin-bottom:8px">${intents}.${R.enemies.length>1?TEXT.fight.targetHint:''}</div>
     <div class="hand">${hand}</div>
-    <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
-    ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}`;
+    <div class="dock"><button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
+    ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}</div>`;
   return `${arenaHTML(false)}<div class="textbox" id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${bottom}`;
 }
 function afterHTML(){
@@ -86,7 +86,7 @@ function afterHTML(){
     ${R.gearDropped?`<button class="wide" onclick="R.gearFrom='fight';goto('gear')">See your gear</button>`:''}
     ${R.pendingDrop?`<button class="wide" onclick="addVerse(R.pendingDrop);R.pendingDrop=null;render()">Take ${R.pendingDrop}</button>`:''}
     ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${TEXT.afterFight.growTree}</button>`:''}
-    <button class="primary wide" onclick="${R.boss?'victory()':R.tutorial?'finishTutorial()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button>`;
+    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':R.tutorial?'finishTutorial()':'clearColumn()'}">${R.boss?TEXT.afterFight.leaveRoom:TEXT.afterFight.moveOn}</button></div>`;
 }
 function playCard(ref){
   if(R.busy || R.after) return;
@@ -159,7 +159,7 @@ function nextAfterFight(){
   if(R.pendingDrop){ screen='drop'; render(); return; }
   clearColumn();
 }
-function dropHTML(){ const v=BY_REF[R.pendingDrop]; return `<h1>${TEXT.drop.heading}</h1><div class="panel small">${fill(TEXT.drop.body,{name:R.dropFrom||''})}</div><div class="hand">${cardView(v)}</div><button class="primary wide" onclick="R.deck.push({ref:R.pendingDrop});R.pendingDrop=null;nextAfterFight()">${TEXT.drop.take}</button>`; }
+function dropHTML(){ const v=BY_REF[R.pendingDrop]; return `<h1>${TEXT.drop.heading}</h1><div class="panel small">${fill(TEXT.drop.body,{name:R.dropFrom||''})}</div><div class="hand">${cardView(v)}</div><div class="dock"><button class="primary wide" onclick="R.deck.push({ref:R.pendingDrop});R.pendingDrop=null;nextAfterFight()">${TEXT.drop.take}</button></div>`; }
 function enterBoss(){ startFight(['furnace'], true); }
 function checkBossPhase(t){
   const th = [Math.floor(t.max*0.66), Math.floor(t.max*0.33)];

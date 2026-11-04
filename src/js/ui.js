@@ -23,11 +23,11 @@ function codexHTML(){
   return `<h1>Codex</h1><div class="panel"><div class="px">${C.creed} · ${fill(C.creedSoFar,{n:got, total:N})}</div>
     <div class="verse creed">${creed}</div><div class="small mute">${got<N?C.creedNote:C.creedDone}</div>
     <div class="small mute" style="font-size:13px;margin-top:6px">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
-    <button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button>`;
+    <div class="dock"><button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button></div>`;
 }
 function deckHTML(){
   return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div>`;}).join('')}
-    <button class="wide" onclick="goto(R.deckFrom||'town')">Back</button>`;
+    <div class="dock"><button class="wide" onclick="goto(R.deckFrom||'town')">Back</button></div>`;
 }
 const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','map','codex','intro']);
 const TABS = [['town','Town','town'],['church','Church','church'],['gear','Gear','gear'],['tree','Tree','tree'],['deck','Deck','deck']];
@@ -51,6 +51,8 @@ function render(){
   if(!modal && levelUpDue()) modal = {kind:'levelup'};
   if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : assemblyHTML(); }
   document.getElementById('app').innerHTML = html;
+  // pinned buttons sit just above the tab bar when it shows
+  const nav = document.querySelector('.tabs'); document.body.style.setProperty('--dock-bottom', (tabs && nav ? nav.offsetHeight : 0) + 'px');
   const inp = document.getElementById('ans'); if(inp) inp.focus();
   if(document.getElementById('tw')) typeIt();
 }

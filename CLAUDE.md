@@ -131,6 +131,10 @@ as data URIs via `__IMG__('path')`.
 ## Conventions
 
 - Phone-first. Test at ~430px wide. Safe-area insets are handled; keep them.
+- A screen's main actions (Back, Next, Go in, Move on, Brace…) go in a `<div class="dock">` as the
+  last element: it pins to the bottom of the screen (above the tab bar) while content scrolls.
+  Dialogue actions get it automatically from `talk()`. Reading text is Nunito; game chrome is
+  Pixelify Sans.
 - Typography uses curly quotes and apostrophes in all player-facing text.
 - When characters talk about the Bible, use the names it gives itself (Scripture, the word of
   God, truth, wisdom, His law, the sword of the Spirit), never "the words."

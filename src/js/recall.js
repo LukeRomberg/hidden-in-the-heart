@@ -73,5 +73,5 @@ function recallHTML(){
   const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : (R && R.tutorial && !R.castRefs.length) ? TEXT.tutorial.coach.recall : '';
   return `<div class="overlay"><div class="panel"><h2>${modal.title}</h2>
     <div class="small mute">${glyphs(c.verse.ref)} \u00b7 ${TIER_NAME[c.tier]} \u00b7 <span id="rp">${progressText()}</span></div>
-    <div class="verse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}${controls}</div></div>`;
+    <div class="verse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}<div class="dock">${controls}</div></div></div>`;
 }

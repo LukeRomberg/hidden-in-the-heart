@@ -8,7 +8,7 @@ function talk(key, lines, actions, gate=true){
   return `<div class="dlg ${who?'':'narr'}" onclick="talkTap(${lines.length})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')talkTap(${lines.length})" aria-label="Continue">
     ${who?`<div class="pt">${portrait(who)}</div>`:''}<div class="body">${who?`<div class="who">${TEXT.speakers[who]}</div>`:''}<div class="tw" id="tw" data-full="${text.replace(/"/g,'&quot;')}"></div></div>
     ${lines.length>1?`<span class="step">${TW.i+1}/${lines.length}</span>`:''}<span class="more" id="twmore" style="display:none">\u25BC</span></div>
-    <div class="acts ${gate&&!last?'hide':''}" id="acts">${actions||''}</div>`;
+    <div class="acts ${actions?'dock':''} ${gate&&!last?'hide':''}" id="acts">${actions||''}</div>`;
 }
 function typeIt(){
   const el=document.getElementById('tw'); if(!el) return; clearInterval(TW.timer);
@@ -59,7 +59,7 @@ function introHTML(){
   return `<h1>${T.heading}</h1>${talk('intro',[T.line],'',false)}<div class="small mute" style="margin-bottom:8px">${T.hint}</div>
     <h2>${T.offense}</h2><div class="hand">${R.pick.map(ref=>cardPick(ref,'off')).join('')}</div>
     <h2>${T.defense}</h2><div class="hand">${DEFENSE.map(ref=>cardPick(ref,'def')).join('')}</div>
-    <button class="primary wide" ${ready?'':'disabled'} onclick="R.deck.push({ref:R.chosen.off},{ref:R.chosen.def}); R.hp=R.maxHp; saveHero(); goto('tutorial')">${T.button}</button>`;
+    <div class="dock"><button class="primary wide" ${ready?'':'disabled'} onclick="R.deck.push({ref:R.chosen.off},{ref:R.chosen.def}); R.hp=R.maxHp; saveHero(); goto('tutorial')">${T.button}</button></div>`;
 }
 function chooseOpener(ref, group){ R.chosen[group] = R.chosen[group]===ref ? null : ref; render(); }
 // ---- Tutorial: one guided fight in the square before any dungeon ----
@@ -93,7 +93,7 @@ const LINES = TEXT.mission1.corridor;
 function corridorHTML(){
   const n=R.next.n; const key=n.e?n.e[0].replace('_strong',''):n.t;
   return `${sceneHTML(n.t==='boss'?IMG.battle.lair:IMG.battle.square,[{html:sprite('back',0,1), x:128, y:110, w:64}],180)}
-    <div class="story"><p>${Array.isArray(LINES[key]) ? LINES[key][R.step % LINES[key].length] : LINES[key]}</p></div><button class="primary wide" onclick="proceed()">${TEXT.mission1.goIn}</button>`;
+    <div class="story"><p>${Array.isArray(LINES[key]) ? LINES[key][R.step % LINES[key].length] : LINES[key]}</p></div><div class="dock"><button class="primary wide" onclick="proceed()">${TEXT.mission1.goIn}</button></div>`;
 }
 const THANKS = TEXT.thanks;
 function bossintroHTML(){
@@ -122,11 +122,11 @@ function victoryHTML(){
     ${R.firstClear?`<p>${T.bell}</p>`:''}</div>
     <div class="panel"><h2>Earned</h2><div class="stat"><span>Souls saved</span><span>+${R.firstClear?3:1}</span></div><div class="stat"><span>Talents</span><span>+${R.firstClear?30:15}</span></div>
     ${R.firstClear?`<div class="stat t-Patience"><span>${T.fruit}</span><span>${T.fruitPerk}</span></div><div class="stat t-Self-control"><span>${T.newVerse}</span><span>Galatians 5:16</span></div>`:''}</div>
-    <button class="primary wide" onclick="goto('town')">${T.button}</button>`;
+    <div class="dock"><button class="primary wide" onclick="goto('town')">${T.button}</button></div>`;
 }
 function defeatHTML(){
   const T = TEXT.defeat;
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle',214), {src:IMG.hero.waking, x:132, y:96, w:64}])}<div class="panel story"><p>${T.story}</p></div>
     <div class="panel small">${fill(T.summary,{n:R.lostTalents})}</div>
-    <button class="primary wide" onclick="goto('town')">${T.button}</button>`;
+    <div class="dock"><button class="primary wide" onclick="goto('town')">${T.button}</button></div>`;
 }
