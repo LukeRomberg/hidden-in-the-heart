@@ -34,7 +34,7 @@ function makeChallenge(verse, tierOverride, nOverride, priorTier){
   const order = toks.map((o,i)=>i).filter(i=>toks[i].mode);
   return {verse, toks, order, cur:0, n, tier, done:false, label:passRef(verse.ref,n)};
 }
-function openRecall(verse, onDone, tierOverride, title, nOverride, priorTier){ modal = {kind:'recall', c:makeChallenge(verse,tierOverride,nOverride,priorTier), onDone, title: title||'Cast'}; render(); }
+function openRecall(verse, onDone, tierOverride, title, nOverride, priorTier){ modal = {kind:'recall', c:makeChallenge(verse,tierOverride,nOverride,priorTier), onDone, title: title||TEXT.recall.castTitle}; render(); }
 function curTok(){ const c=modal.c; return c.toks[c.order[c.cur]]; }
 function advance(){ const c=modal.c; if(c.cur < c.order.length-1) c.cur++; else c.done=true; }
 function answer(val){ const o=curTok(); o.given = o.kind==='word' ? core(val) : String(val).trim().toLowerCase(); advance(); render(); }
@@ -64,11 +64,11 @@ function recallHTML(){
   const c = modal.c; const KIND = {word:'word', book:'book', ch:'chapter', vs:'verse'};
   let controls = '';
   if(c.done){ const right = c.order.filter(i=>c.toks[i].given===c.toks[i].ans).length;
-    controls = `<div class="small mute">${right} of ${c.order.length} right${right===c.order.length?' \u2014 full power':''}</div><button class="primary wide" onclick="finishRecall()">Continue</button>`;
+    controls = `<div class="small mute">${fill(TEXT.recall.score,{right, total:c.order.length})}${right===c.order.length?TEXT.recall.fullPower:''}</div><button class="primary wide" onclick="finishRecall()">Continue</button>`;
   } else if(curTok().mode==='letter'){
-    controls = `<div class="small mute">From memory: type the first letter of each word.</div>
+    controls = `<div class="small mute">${TEXT.recall.typeHint}</div>
       <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="letterInput(this)" style="text-align:center;font-size:28px;letter-spacing:.3em">`;
-  } else { const o=curTok(); controls = `<div class="small mute">Missing ${KIND[o.kind]}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${x}</button>`).join('')}</div>`; }
+  } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${x}</button>`).join('')}</div>`; }
   const s=sp(c.verse.ref);
   return `<div class="overlay"><div class="panel"><h2>${modal.title}</h2>
     <div class="small mute">${glyphs(c.verse.ref)} \u00b7 ${TIER_NAME[c.tier]} \u00b7 <span id="rp">${progressText()}</span></div>

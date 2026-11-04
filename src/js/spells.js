@@ -4,7 +4,7 @@ const OFFENSE = ['Proverbs 15:1','James 1:19','Proverbs 14:29','Proverbs 16:32',
 const DEFENSE = ['Psalm 37:8','Philippians 4:7'];
 const STARTER = [];
 const PASS = __DATA__('pass.json');   // generated from the BSB by tools/build_passages.mjs; includes PASS.ARMOR (Ephesians 6:14-17)
-const TIER_PCT = [0.25,0.5,0.75,1], TIER_MULT = [1,1.25,1.5,2], TIER_NAME = ['Glimpsed','Familiar','Known','By heart'], TIER_GLYPH = ['\u25D4','\u25D1','\u25D5','\u25CF'];
+const TIER_PCT = [0.25,0.5,0.75,1], TIER_MULT = [1,1.25,1.5,2], TIER_NAME = TEXT.tiers, TIER_GLYPH = ['\u25D4','\u25D1','\u25D5','\u25CF'];
 function sp(ref){ return P.spell && P.spell[ref] ? P.spell[ref] : {n:1, tier:0, perf:0, fails:0}; }
 function setSp(ref,s){ if(!P.spell) P.spell={}; P.spell[ref]=s; save(); }
 function maxN(ref){ return PASS[ref] ? PASS[ref].vs.length : 1; }
@@ -20,14 +20,14 @@ function recordResult(ref, frac){
   if(frac===1){
     s.fails=0; s.perf++;
     if(s.perf>=3){ s.perf=0;
-      if(s.tier<3){ s.tier++; toast(`${name()}: ${TIER_NAME[s.tier]}.`); }
-      else if(s.n<maxN(ref)){ s.n++; s.tier=0; toast(`It grows. ${name()}.`); }
+      if(s.tier<3){ s.tier++; toast(fill(TEXT.spells.promoted,{spell:name(), tier:TIER_NAME[s.tier]})); }
+      else if(s.n<maxN(ref)){ s.n++; s.tier=0; toast(fill(TEXT.spells.grew,{spell:name()})); }
     }
   } else {
     s.fails++;
     if(s.fails>=3){ s.fails=0; s.perf=0;
-      if(s.tier>0){ s.tier--; toast(`${name()} slips back to ${TIER_NAME[s.tier]}.`); }
-      else if(s.n>1){ s.n--; s.tier=3; toast(`The newest verse slips away. ${name()}.`); }
+      if(s.tier>0){ s.tier--; toast(fill(TEXT.spells.slipped,{spell:name(), tier:TIER_NAME[s.tier]})); }
+      else if(s.n>1){ s.n--; s.tier=3; toast(fill(TEXT.spells.lostVerse,{spell:name()})); }
     }
   }
   setSp(ref, s);

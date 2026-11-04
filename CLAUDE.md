@@ -32,6 +32,10 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 - `src/data/`: scripture (`scripture.js`, `pass.json`), art (`hero.json`, `hero-alpha.json`,
   `enemies.json`, `freed.json`, `ui-frames.json`, `pixels.js`). Logic files pull JSON in with
   `__DATA__('file.json')`; `styles.css` pulls frames in with `__FRAME__(name)`.
+- `src/data/text.js` (`TEXT`) holds every line of story, dialogue and flavor text, grouped by
+  scene. Luke writes it; never put player-facing sentences in `src/js/`. Dialogue is
+  `[speaker id, line]`; `{placeholders}` are filled with `fill()`. Short UI labels (Back,
+  End turn…) are still inline.
 
 ## Core systems
 

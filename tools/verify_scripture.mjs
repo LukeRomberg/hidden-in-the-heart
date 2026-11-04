@@ -39,7 +39,7 @@ if (passFile !== await buildPassages()) fails.push('src/data/pass.json differs f
 // 4. inline quotations: “text” Book C:V  (source may write the quotes as “ / ”)
 const REF = String.raw`((?:[123] )?[A-Z][a-z]+(?: of [A-Z][a-z]+)? \d+:\d+(?:[-–]\d+)?)`;
 const QUOTE = new RegExp(String.raw`“([^“”]+)”\s+` + REF, 'g');
-const files = ['index.html', ...readdirSync(join(ROOT, 'src/js')).map(f => 'js/' + f)];
+const files = ['index.html', 'data/text.js', ...readdirSync(join(ROOT, 'src/js')).map(f => 'js/' + f)];
 let inline = 0;
 for (const f of files) {
   const src = readFileSync(join(ROOT, 'src', f), 'utf8').replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));

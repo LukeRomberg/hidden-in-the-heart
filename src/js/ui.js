@@ -11,7 +11,7 @@ function titleHTML(){
   return `<h1>Hidden in the Heart</h1>${sceneHTML(IMG.scene.title,[{src:IMG.hero.asleep, x:6, y:94, w:64}])}<div class="panel">
     <div class="small mute" style="text-align:center;margin:8px 0">\u201cI have hidden Your word in my heart that I might not sin against You.\u201d Psalm 119:11</div></div>
     ${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
-    <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm('Start over? Your current journey will be erased.')) newGame()">New game</button>
+    <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm(TEXT.title.newGameConfirm)) newGame()">New game</button>
     <button class="wide" onclick="R=R||Object.assign(transient(),blankHero()); R.codexFrom='title'; goto('codex')">Codex</button>
     <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain.</div>`;
 }

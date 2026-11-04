@@ -2,24 +2,20 @@
 function xpNeed(l){ return l+1; }
 function gainXP(n){ R.souls+=n; R.xp+=n; if(R.earned) R.earned.souls=(R.earned.souls||0)+n; let up=false;
   while(R.xp>=xpNeed(R.level)){ R.xp-=xpNeed(R.level); R.level++; R.maxHp+=4; R.hp+=4; up=true; }
-  if(up){ toast('Level '+R.level+'. A new fruit can grow.'); if(R.earned) R.earned.leveled=true; } }
+  if(up){ toast(fill(TEXT.tree.levelUp,{n:R.level})); if(R.earned) R.earned.leveled=true; } }
 function treeDue(){ return (R.level-1) - R.rank; }
-const TREE = {
-  Patience:['+1 damage on Patience verses','Charge: skip a turn to double your next verse','A perfect Patience cast dazes a wrath enemy for a turn'],
-  Gentleness:['Every attack also shields you for 2','Freed enemies leave 5 extra talents','The first Gentleness verse each fight costs nothing'],
-  Peace:['+1 max mana','Your first stumble each fight still casts at full power','Start every fight with a shield of 5'],
-};
+const TREE = TEXT.tree.perks;
 // All nine fruit of the Spirit, grown from the ground up: the three from Emberford first, then one branch per mission.
 const FRUIT = [
   {b:'Patience',     col:'#c8961a'},
   {b:'Gentleness',   col:'#4f8a2a'},
   {b:'Peace',        col:'#4a9ad8'},
-  {b:'Love',         col:'#c8507a', lock:'Mission 2, Hatred'},
-  {b:'Joy',          col:'#e8903a', lock:'Mission 3, Envy'},
-  {b:'Kindness',     col:'#2e9a8a', lock:'Mission 4, Rivalry'},
-  {b:'Goodness',     col:'#c8502a', lock:'Mission 5, Impurity'},
-  {b:'Faithfulness', col:'#7a4d9a', lock:'Mission 6, Idolatry'},
-  {b:'Self-control', col:'#2e5a8a', lock:'Mission 7, Drunkenness'},
+  {b:'Love',         col:'#c8507a', lock:TEXT.tree.locks.Love},
+  {b:'Joy',          col:'#e8903a', lock:TEXT.tree.locks.Joy},
+  {b:'Kindness',     col:'#2e9a8a', lock:TEXT.tree.locks.Kindness},
+  {b:'Goodness',     col:'#c8502a', lock:TEXT.tree.locks.Goodness},
+  {b:'Faithfulness', col:'#7a4d9a', lock:TEXT.tree.locks.Faithfulness},
+  {b:'Self-control', col:'#2e5a8a', lock:TEXT.tree.locks['Self-control']},
 ];
 const TW_=176, TH_=270, TX=88;
 function branchY(k){ return 236 - k*25; }
@@ -57,13 +53,13 @@ function treeSVG(){
   return `<svg viewBox="0 0 ${TW_} ${TH_}" width="100%" shape-rendering="crispEdges" role="img" aria-label="The fruit of the Spirit">${s}</svg>`;
 }
 function treeHTML(){
-  const due = treeDue(); const sel=R.treeSel; let detail = '<div class="mute">Tap a fruit to see what it does.</div>';
+  const due = treeDue(); const sel=R.treeSel; const T = TEXT.tree; let detail = `<div class="mute">${T.tapHint}</div>`;
   if(sel){ const f=FRUIT.find(x=>x.b===sel.b);
-    if(f.lock) detail = `<div class="px" style="color:${f.col}">${f.b}</div><div style="margin:6px 0">${pxgIcon()} Unlocked after ${f.lock}.</div><div class="small mute">This branch can\u2019t grow until then.</div>`;
+    if(f.lock) detail = `<div class="px" style="color:${f.col}">${f.b}</div><div style="margin:6px 0">${pxgIcon()} ${fill(T.lockedUntil,{lock:f.lock})}</div><div class="small mute">${T.lockedNote}</div>`;
     else { const g=R.tree[f.b]||0, on=g>sel.t, next=g===sel.t;
-      detail = `<div class="px" style="color:${f.col}">${f.b} ${sel.t+1}${on?' \u00b7 grown':''}</div><div style="margin:6px 0">${TREE[f.b][sel.t]}</div>${next&&due>0?`<button class="primary wide" onclick="pickBranch('${f.b}')">Grow here</button>`: next?'<div class="small mute">Next to grow on this branch.</div>': on?'':'<div class="small mute">Grow the fruit below it first.</div>'}`; } }
+      detail = `<div class="px" style="color:${f.col}">${f.b} ${sel.t+1}${on?T.grown:''}</div><div style="margin:6px 0">${TREE[f.b][sel.t]}</div>${next&&due>0?`<button class="primary wide" onclick="pickBranch('${f.b}')">${T.growHere}</button>`: next?`<div class="small mute">${T.nextHere}</div>`: on?'':`<div class="small mute">${T.growBelowFirst}</div>`}`; } }
   const grown = FRUIT.filter(f=>!f.lock).reduce((n,f)=>n+(R.tree[f.b]||0),0);
-  return `<h1>The tree</h1><div class="panel small">Level ${R.level} \u00b7 ${grown} of 27 fruit grown. ${due>0?`<b>${due} growth${due>1?'s':''} waiting.</b>`:'Every level grows one fruit.'}</div>
+  return `<h1>${T.heading}</h1><div class="panel small">${fill(T.summary,{level:R.level, grown})}${due>0?`<b>${due>1?fill(T.waitingMany,{n:due}):T.waitingOne}</b>`:T.everyLevel}</div>
     <div class="panel" style="padding:0;overflow:hidden">${treeSVG()}</div><div class="panel">${detail}</div>
     <button class="wide" onclick="saveHero(); goto(R.treeFrom||'town')">Back</button>`;
 }

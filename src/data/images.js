@@ -28,11 +28,12 @@ const IMG = {
     scriptorium: [__IMG__('town/scriptorium_closed.png'), __IMG__('town/scriptorium_open.png')],
   },
   portrait: {
-    Priest: __IMG__('portraits/priest.png'),
-    Blacksmith: __IMG__('portraits/blacksmith.png'),
-    Innkeeper: __IMG__('portraits/innkeeper.png'),
-    'Drill master': __IMG__('portraits/drill.png'),
-    Scribe: __IMG__('portraits/scribe.png'),
+    // keyed by speaker id (see TEXT.speakers)
+    priest: __IMG__('portraits/priest.png'),
+    blacksmith: __IMG__('portraits/blacksmith.png'),
+    innkeeper: __IMG__('portraits/innkeeper.png'),
+    drill: __IMG__('portraits/drill.png'),
+    scribe: __IMG__('portraits/scribe.png'),
   },
   icon: {
     heart: __IMG__('icons/hp_heart.png'),
