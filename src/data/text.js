@@ -56,7 +56,7 @@ const TEXT = {
       lines: [
         ['priest', '“Well. That changes things.” He leans the broom on a pew. “I’m Amos. The armor of God was kept here once. I’m afraid this is what’s left of it.”'],
         [null, 'He hands you a dented trash-can lid. He does it with great dignity.'],
-        ['priest', '“This is to help shelter you from attacks. A weapon? Son, you have a weapon that can sever bone from marrow in your hand there.”'],
+        ['priest', '“This is to help shelter you from attacks. A weapon? Son, the word of God is in your hand there. Sharper than any double-edged sword, it pierces even to dividing soul and spirit, joints and marrow.”'],
         [null, 'You look at the Bible in your hand, the words sound familiar but how could a Bible fight monsters?'],
         ['you', '“I am not sure where to begin.”'],
       ],
