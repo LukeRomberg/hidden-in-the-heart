@@ -18,10 +18,13 @@ function townMap(){
 }
 function enterBuilding(id){
   if(!(BUILD[id].always || P.town[id])){ toast(TEXT.town.boarded[id]); return; }
+  // the first time you walk into a building you get its introduction (TEXT.<building>.firstVisit)
+  R.firstVisit = (!P.met[id] && TEXT[id] && TEXT[id].firstVisit) ? id : null; P.met[id] = true; save();
+  if(id==='training') R.trainFrom='yard';
   goto(id==='forge'?'forge':id);
 }
 function townHTML(){
-  saveHero();
+  saveHero(); R.firstVisit = null;
   const open = ['forge','inn','training','scriptorium'].filter(k=>P.town[k]).length;
   return `<h1>${TEXT.town.heading}</h1><div class="panel scene">${townMap()}</div>
     <div class="small mute" style="margin-bottom:8px">${open===4?TEXT.town.allOpen: open===3?TEXT.town.stillBoardedOne: fill(TEXT.town.stillBoardedMany,{n:4-open})}</div>
@@ -49,21 +52,21 @@ function startMission(){
 function forgeHTML(){
   const np = nextPlain(); const stock = np ? [np] : [];
   const T = TEXT.forge;
-  return `<h1>${T.heading}</h1>${talk('forge',[T.line],'',false)}
+  return `<h1>${T.heading}</h1>${talk('forge', R.firstVisit==='forge' ? T.firstVisit : [T.line],'',false)}
     <h2>${T.forSale}</h2>${stock.length?stock.map(id=>`<button class="wide" ${R.talents<ITEMS[id].price?'disabled':''} onclick="buy('${id}')">${ITEMS[id].name} \u00b7 ${ITEMS[id].price} talents<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${ITEMS[id].perk}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
     <h2 style="margin-top:12px">${T.consecrate}</h2>${consecrateList()}
     <button class="wide" onclick="R.gearFrom='forge';goto('gear')">${T.seeGear}</button>`;
 }
 function innHTML(){
   const T = TEXT.inn;
-  return `<h1>${T.heading}</h1>${talk('inn',[T.line],'',false)}
+  return `<h1>${T.heading}</h1>${talk('inn', R.firstVisit==='inn' ? T.firstVisit : [T.line],'',false)}
     <button class="primary wide" ${R.hp>=R.maxHp?'disabled':''} onclick="R.hp=R.maxHp; saveHero(); toast(TEXT.inn.ate); render()">${R.hp>=R.maxHp?T.rested:T.eat}</button>
 `;
 }
 function trainingHTML(){
   const yard = R.trainFrom!=='church', T = TEXT.training;
   const refs = [...new Set(R.deck.map(c=>c.ref))].sort((a,b)=>sp(b.ref||b).fails-sp(a.ref||a).fails || (sp(a).n*4+sp(a).tier)-(sp(b).n*4+sp(b).tier));
-  return `<h1>${yard?T.yardHeading:T.pewsHeading}</h1>${yard?talk('yard',[T.yardLine],'',false):talk('pews',[T.pewsLine],'',false)}
+  return `<h1>${yard?T.yardHeading:T.pewsHeading}</h1>${yard?talk('yard', R.firstVisit==='training' ? T.firstVisit : [T.yardLine],'',false):talk('pews',[T.pewsLine],'',false)}
     <div class="panel small">${T.help}${yard?T.helpYard:''}</div>
     ${refs.map(ref=>{ const s=sp(ref); return `<button class="wide" onclick="drill('${ref}',${yard})"><span class="t-${BY_REF[ref].type}">${spellLine(ref)}</span> \u00b7 ${TIER_NAME[s.tier]}<div class="bar mn" style="margin-top:6px"><i style="width:${Math.round(100*s.perf/3)}%"></i></div><span style="font-family:'Pixelify Sans',sans-serif;font-size:18px">${s.tier===3&&s.n>=maxN(ref)?'complete':fill(s.tier<3?T.toLevelUp:T.toGrow,{n:s.perf})}${s.fails?fill(T.slips,{n:s.fails}):''}</span></button>`; }).join('')}
     <button class="wide" onclick="goto(${yard?"'town'":"'church'"})">Back</button>`;
@@ -82,7 +85,7 @@ function scriptoriumHTML(){
   const stock = VERSES.filter(v=>!R.deck.some(c=>c.ref===v.ref) && !v.ref.startsWith('Galatians'));
   const price = v=>10+5*v.cost;
   const T = TEXT.scriptorium;
-  return `<h1>${T.heading}</h1>${talk('scriptorium',[T.line],'',false)}
+  return `<h1>${T.heading}</h1>${talk('scriptorium', R.firstVisit==='scriptorium' ? T.firstVisit : [T.line],'',false)}
     ${stock.length?stock.map(v=>`<button class="wide" ${R.talents<price(v)?'disabled':''} onclick="learn('${v.ref}')"><span class="t-${v.type}">${v.ref}</span> \u00b7 ${price(v)} talents<br><span style="font-family:'Pixelify Sans',sans-serif;font-size:20px">${v.text}</span></button>`).join(''):`<div class="small mute">${T.soldOut}</div>`}
 `;
 }

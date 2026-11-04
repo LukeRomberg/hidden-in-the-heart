@@ -33,7 +33,9 @@ scene('11. The freed', Object.entries(T.thanks).map(([k, v]) => `- **${T.enemies
 scene('12. The Furnace', conv(T.boss.intro.map(([w, t]) => [w, t.replace('{passage}', 'Galatians 5:22–23')])), button(T.boss.face));
 scene(`13. ${T.victory.heading}`, `*${T.victory.story}*`, `*${T.victory.bell}*`, button(T.victory.button));
 scene(`14. ${T.defeat.heading}`, `*${T.defeat.story}*`, button(T.defeat.button));
-scene('15. Town', ['forge', 'inn', 'scriptorium'].map(k => conv([T[k].line])).join('\n\n'), conv([T.training.yardLine]), conv([T.church.lineAfter]));
+scene('15. First visits', ...[['The Forge', 'forge'], ['The Inn', 'inn'], ['The Training Yard', 'training'], ['The Scriptorium', 'scriptorium']]
+  .map(([h, k]) => `**${h}**\n\n${conv(T[k].firstVisit)}`));
+scene('16. Town, later visits', ['forge', 'inn', 'scriptorium'].map(k => conv([T[k].line])).join('\n\n'), conv([T.training.yardLine]), conv([T.church.lineAfter]));
 
 mkdirSync(join(ROOT, 'tools/out'), { recursive: true });
 const file = join(ROOT, 'tools/out/script.md');

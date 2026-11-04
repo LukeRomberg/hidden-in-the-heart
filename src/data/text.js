@@ -8,16 +8,32 @@
    - Scripture is NOT here. Verse text lives in scripture.js and is checked against the BSB.
      A quotation followed by its reference (like Ephesians 6:12 in mission1.intro) is also
      checked by `npm run verify`, so quote it exactly or not at all.
-   - Short UI labels (Back, End turn, Talents, Gear…) are still in the code. */
+   - Short UI labels (Back, End turn, Talents, Gear…) are still in the code.
+
+   Voices (so every character sounds like themselves):
+   - Narration: plain and sincere, moves the story step by step. Senses over cleverness.
+   - You: an ordinary guy in over his head. Modern, short, honest, uses contractions, asks the
+     practical question. Kind. Not a wisecracker.
+   - Amos: a gentle, grandfatherly pastor. Unhurried, a little formal, few contractions. Calls you
+     “son” or “young man.” Speaks of the Lord plainly. Chuckles quietly. Sees the town’s trouble
+     as people pulling away from each other.
+   - Bram (blacksmith): gruff and clipped. Drops words. Talks in heat, iron and hammers.
+     Grudging warmth; would rather do something for you than say something nice.
+   - Wendell (innkeeper): chatty and warm, a little exclamatory. Thinks in ledgers and accounts,
+     because he kept a list of grudges for twelve years. Feeds everyone.
+   - Hale (drill master): barks. Short imperatives, calls you “recruit.” Tough, fair, and quietly
+     proud of you.
+   - Silas (scribe): careful and exact. Full sentences, measured, slightly formal. Ashamed of the
+     lies he wrote and determined to copy only true things now. */
 const TEXT = {
   speakers: {
     priest: 'Amos',
     oldPriest: 'Old priest',   // Amos, before he introduces himself
     you: 'You',
     blacksmith: 'Bram',
-    innkeeper: 'Innkeeper',
-    drill: 'Drill master',
-    scribe: 'Scribe',
+    innkeeper: 'Wendell',
+    drill: 'Hale',
+    scribe: 'Silas',
   },
 
   // ---------- Prologue ----------
@@ -77,30 +93,33 @@ const TEXT = {
   // ---------- Tutorial: one guided fight with Bram ----------
   tutorial: {
     lead: [
-      ['priest', '“Good. Now, Bram.” Amos nods out the door. “He’s the blacksmith. He has been shouting at his own forge for three weeks.”'],
-      ['priest', '“The anger isn’t him. Remember that. It’s sitting on him. Say the true thing, and it has to let go.”'],
+      ['priest', '“Good. Now, let us go and see about Bram.” Amos takes his coat from the peg by the door. “He is the town’s blacksmith. He has been out by that well for three weeks, shouting at a door that will not answer him.”'],
+      ['you', '“Three weeks? Hasn’t anyone tried to help him?”'],
+      ['priest', '“They are all behind their own doors, son. That is the trouble.” He sighs. “Remember this: the anger is not Bram. It is sitting on him. Speak the truth over him, and it has to let go.”'],
       ['you', '“And if he swings at me?”'],
-      ['priest', '“He will. That’s what the lid is for.”'],
+      ['priest', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
     ],
-    start: 'Walk over to Bram',
+    start: 'Walk out to the well with Amos',
     // Amos talking you through your first fight
     coach: {
       firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
       firstCard: 'Each card is a verse you know. The gem is how much focus it takes, and your focus only comes back after the fight. Tap a card to use that verse. It takes your whole turn.',
-      recall: 'Fill each blank. The more you get right, the harder it lands. Get them all for full power.',
-      oneMove: 'He gets a turn after every verse you say. The line above your cards tells you what he’ll do next. If it’s a big one, Brace.',
-      gift: '“Out of focus? Here.” Amos presses a card into your hand. “Romans 12:2. It costs nothing to say, and it gives your mind back what the fight took.”',
-      readIntent: 'Each verse works once. When you’ve said all the ones you can afford, they all come back.',
+      recall: 'Take your time, son. Fill in each blank. The more you get right, the stronger the words land.',
+      oneMove: 'Bram gets his turn after every verse you say. The line above your cards tells you what he means to do. If he is winding up for something big, Brace.',
+      gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
+      readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
     },
     giftLog: 'Amos hands you Romans 12:2.',
-    groggy: 'It is 2 a.m. somewhere. Your focus is already thin.',
+    groggy: 'You have been awake since yesterday. Your focus is already thin.',
     after: [
-      [null, 'The red smoke thins, flickers, and goes out. Bram sits down hard on the edge of the well.'],
-      ['blacksmith', '“Three weeks. I’ve been yelling at a door for three weeks.” He looks at his hands. “I let the forge go cold.”'],
-      ['priest', '“Then go light it.” Amos helps him up. “And the next time this one needs something hammered, you’ll do it for free.”'],
-      ['blacksmith', '“For a start.” Bram looks at you properly for the first time. “You have more of those words?”'],
-      ['you', '“Some of them.”'],
-      ['priest', '“There are more people out there like Bram. Come by the church when you’re ready. We’ll start with the square.”'],
+      [null, 'The red smoke thins, flickers, and goes out. The fire on his skin dies with it. Bram sits down hard on the edge of the well.'],
+      ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks, yelling at a door. Let the forge go cold.”'],
+      ['you', '“Are you okay?”'],
+      ['blacksmith', '“Don’t know yet.” He looks at you properly for the first time. “Who are you?”'],
+      ['you', '“Honestly? I’m not sure. I fell asleep studying, and I woke up here.”'],
+      ['priest', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
+      ['blacksmith', '“Right.” Bram nods at you. “You come by. Whatever you need hammered, it’s yours.”'],
+      ['priest', '“There are many more out there like Bram. Rest a while, then come and see me at the church. We will start with the square.”'],
     ],
     toTown: 'Walk back into town',
   },
@@ -119,39 +138,48 @@ const TEXT = {
     allOpen: 'Every door in town is open.',
     // shown when you tap a building that is still boarded up
     boarded: {
-      forge: 'Boarded up. Someone in the square used to work here.',
-      inn: 'Boarded up. The innkeeper has not been seen in weeks.',
-      training: 'Boarded up. Whoever ran this yard left angry.',
-      scriptorium: 'Boarded up. A sign in the window has been scratched out.',
+      forge: 'Boarded up. Soot on the door, but no smoke from the chimney.',
+      inn: 'Boarded up. A hand-painted sign in the window reads “Closed until further notice.”',
+      training: 'Boarded up. Through the slats you can see practice dummies, knocked flat.',
+      scriptorium: 'Boarded up. Someone has scratched the name off the sign.',
     },
     // shown after a fight when you free the person who ran each building
     unlocked: {
-      hothead: 'Bram goes home. His forge will be lit when you get back to town.',
-      grudge: 'The innkeeper goes home to unbar his doors.',
-      brawler: 'The old drill master heads for the training yard.',
-      slanderer: 'The scribe hurries back to the scriptorium to fix what he wrote.',
+      hothead: 'Bram heads home. The forge will be lit when you get back to town.',
+      grudge: 'The innkeeper heads home to unbar his doors.',
+      brawler: 'The drill master heads back to the training yard.',
+      slanderer: 'The scribe hurries back to the scriptorium to set right what he wrote.',
     },
   },
   church: {
     heading: 'The Church',
-    lineBefore: ['priest', '“It’s worst in the square after dark. Start there. Free who you can, and come back when you can’t.”'],
-    lineAfter: ['priest', '“The bell rang last night. People are coming back.” He nods at the road. “Other towns are worse off than we were.”'],
+    lineBefore: ['priest', '“The square is the worst of it, especially after dark. Start there. Free whoever you can, and come back here when you need rest. The Lord goes with you, son.”'],
+    lineAfter: ['priest', '“Did you hear the bell last night? People are coming back to service.” He smiles, then nods toward the road. “I have heard there are other towns, though. Worse off than we were.”'],
     missions: 'Missions',
     mission1: 'Anger in the Square',
     mission1Cleared: ' · cleared {n}×',
-    mission1Blurb: 'Mission 1. Free the people of Emberford from wrath.',
+    mission1Blurb: 'Mission 1. Free the people of Emberford from their anger.',
     nextLocked: '??? · clear the square first',
     nextOpen: 'The Road to Ashby · coming soon',
     pews: 'The pews',
     pray: 'Pray over your verses',
     prayBlurb: 'Level your spells in quiet. The training yard pays 2 talents a drill.',
     rest: 'Rest on a pew · 5 talents, heal fully',
-    restDone: 'Amos binds your wounds.',
+    restDone: 'Amos binds your wounds and says a quiet prayer over you.',
     tooHurt: 'You can barely stand. Rest first.',
   },
   forge: {
     heading: 'The Forge',
-    line: ['blacksmith', '“You gave me my hands back. Bring me plain things and the right words, and I’ll make them holy.”'],
+    // the first time you walk in; after that, `line`
+    firstVisit: [
+      [null, 'The forge is roaring again. Bram is at the anvil like he never left it.'],
+      ['blacksmith', '“There he is.” Bram sets the hammer down. “Didn’t thank you proper. Thank you.”'],
+      ['you', '“You don’t have to—”'],
+      ['blacksmith', '“Do. Now listen. Amos says that lid and that Bible are the start of the armor of God. Plain things. Bring me plain gear, say the words over it, and I’ll forge it into the real thing.”'],
+      ['you', '“You can do that?”'],
+      ['blacksmith', '“I can’t. The words can. I just hold the hammer.”'],
+    ],
+    line: ['blacksmith', '“Back again. Good. Bring me plain things and the right words, and I’ll make them holy.”'],
     forSale: 'For sale',
     soldOut: 'He has made you everything plain he can. The rest is up to the words.',
     consecrate: 'Consecrate',
@@ -159,16 +187,30 @@ const TEXT = {
   },
   inn: {
     heading: 'The Inn',
-    line: ['innkeeper', '“Stew’s on the house. Every time. I stopped keeping that kind of ledger.”'],
+    firstVisit: [
+      [null, 'The inn smells like bread and woodsmoke. An old man in an apron is wiping down tables that are already clean.'],
+      ['innkeeper', '“You! You’re the one who found me out there, counting!” He laughs and shakes his head. “Twelve years I kept a list of every man who ever did me wrong. Had it down to the penny.”'],
+      ['you', '“What happened to the list?”'],
+      ['innkeeper', '“Burned it in the stove this morning. Best fire I ever lit.” He pulls out a chair for you. “Now you sit. You eat. Nobody in this town pays for a bed tonight, and you least of all.”'],
+    ],
+    line: ['innkeeper', '“Well, look who it is! Sit, sit. Stew’s on the house. Always will be, for you.”'],
     rested: 'You are already rested',
     eat: 'Eat and sleep · heal fully, free',
-    ate: 'Fed, warm, and healed.',
+    ate: 'Wendell refills your bowl twice. You sleep like a stone.',
   },
   training: {
     yardHeading: 'The Training Yard',
     pewsHeading: 'The Pews',
-    yardLine: ['drill', '“Again. Until you can say it in your sleep. Which, I hear, is a problem for you.”'],
-    pewsLine: [null, 'Quiet. Candles. Nobody watching.'],
+    firstVisit: [
+      [null, 'The practice dummies are back on their feet. So is the old drill master, though he moves like his knuckles still hurt.'],
+      ['drill', '“You. The one who talked me down.” He looks you over. “You fight with words, they tell me. Fine. Words need drilling, same as fists.”'],
+      ['you', '“I’ve been trying. They just don’t stick.”'],
+      ['drill', '“They stick if you do. Every day. Out loud. A clean recital out here earns you two talents. A sloppy one earns you another try.”'],
+      ['you', '“Yes, sir.”'],
+      ['drill', '“Better.”'],
+    ],
+    yardLine: ['drill', '“On your feet, recruit. Again. Until you can say it in your sleep.”'],
+    pewsLine: [null, 'Quiet. Candles. Nobody watching. A good place to practice.'],
     help: 'Three perfect recitals level a spell up. Two shaky ones in a row (under 75%) knock it back down. A spell known fully by heart grows by adding the next verse. ',
     helpYard: 'A clean drill here also earns 2 talents.',
     toLevelUp: '{n}/3 perfect to level up',
@@ -176,7 +218,7 @@ const TEXT = {
     slips: ' · {n}/2 shaky',
     drillTitle: 'Drill',
     prayTitle: 'Pray',
-    cleanYard: 'Clean. +2 talents.',
+    cleanYard: 'Clean. Hale grunts. +2 talents.',
     clean: 'Clean.',
     close: 'Close enough. It holds.',
     shaky: 'Shaky. {n}/2 before it drops.',
@@ -184,8 +226,14 @@ const TEXT = {
   },
   scriptorium: {
     heading: 'The Scriptorium',
-    line: ['scribe', '“True words, this time. They cost something to copy.”'],
-    soldOut: 'You have every verse he has copied so far.',
+    firstVisit: [
+      [null, 'Ink pots, stacks of paper, and a thin man scraping a page clean with a knife.'],
+      ['scribe', '“Ah. You.” He sets the knife down carefully. “I owe you an apology, and this town several hundred. I wrote things about my neighbors that were not true, and I nailed them to every door.”'],
+      ['you', '“You’re taking them down?”'],
+      ['scribe', '“Each one. And I am copying something true in their place.” He gestures at the shelves. “Scripture, copied carefully. It costs something, because care costs something. It is worth it.”'],
+    ],
+    line: ['scribe', '“Welcome back. Everything on these shelves is true. I have checked every word twice.”'],
+    soldOut: 'You have every verse Silas has copied so far.',
     learned: '{ref} is yours.',
   },
   world: {
@@ -199,9 +247,12 @@ const TEXT = {
   // ---------- Mission 1: Anger in the Square ----------
   mission1: {
     intro: [
-      [null, 'The square again, after dark. Every door is barred, except the ones that have been kicked in. Somewhere ahead, someone is breaking something slowly.'],
+      [null, 'The square again, after dark. Every door is barred, except the ones that have been kicked in. Somewhere ahead, someone is smashing something, slowly.'],
+      ['you', '“There are so many of them.”'],
+      ['priest', '“Then remember who they are.” Amos opens his worn Bible and reads aloud.'],
       [null, '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
-      ['priest', '“The people out there are not your enemies. They are the held. Say the true thing over them, and whatever has them lets go.”'],
+      ['priest', '“The people out there are not your enemies, son. They are held. Speak the truth over them, and whatever has hold of them must let go.”'],
+      ['you', '“Okay.” You take a breath. “Okay.”'],
     ],
     goIn: 'Go in',
     mapHeading: 'The Square',
@@ -212,14 +263,14 @@ const TEXT = {
     corridor: {
       forge: 'Hammering, somewhere ahead. Steady, like someone who has been at it for a very long time.',
       hothead: 'Someone ahead is shouting at the walls. Nobody is answering him.',
-      grudge: 'A man sits counting on his fingers. Old debts, by the look of it.',
-      brawler: 'The door has been kicked off its hinges. From the inside.',
-      slanderer: 'The voice ahead is calm, reasonable, and lying.',
-      villager: ['Someone ahead is kicking a door that isn’t locked.', 'A woman is arguing with an empty street. She is winning.', 'Somebody is breaking crates, one at a time, with care.'],
-      boss: 'The heat reaches you before the sound does.',
-      shrine: 'Light under a door. Someone left a lamp burning for you.',
-      lock: 'A chest with no key. There are words carved around the lock.',
-      rest: 'Ashes, still warm. Whoever rested here left the fire for the next one.',
+      grudge: 'An old man sits on an overturned crate ahead, counting on his fingers and muttering names.',
+      brawler: 'The door ahead has been kicked off its hinges. From the inside.',
+      slanderer: 'Papers are nailed to every door on this street. A calm voice ahead is reading them aloud.',
+      villager: ['Someone ahead is kicking a door that isn’t even locked.', 'A woman ahead is shouting at an empty street.', 'Someone ahead is smashing crates, one at a time.'],
+      boss: 'The heat reaches you before the sound does. The stones under your feet are warm.',
+      shrine: 'Light under a door. Someone left a lamp burning.',
+      lock: 'A chest sits in an alcove. There are words carved around the lock.',
+      rest: 'Ashes, still warm. Whoever rested here left the fire going for the next person.',
     },
   },
   // pronoun: 'he' or 'she' (fills {he} {him} {his} {He} in the fight log)
@@ -237,15 +288,15 @@ const TEXT = {
     { name: 'Abel', pronoun: 'he', thanks: 'Abel rubs his face like a man waking up. “How long was I standing here?”' },
     { name: 'Ezra', pronoun: 'he', thanks: 'Ezra looks at his hands. “I said things to my brother I can’t take back. I’m going to try anyway.”' },
     { name: 'Ruth', pronoun: 'she', thanks: 'Ruth lets out a breath she seems to have been holding for a month. “Thank you. Thank God.”' },
-    { name: 'Mara', pronoun: 'she', thanks: 'Mara wipes her eyes. “It felt like being right. It was only being angry.”' },
+    { name: 'Mara', pronoun: 'she', thanks: 'Mara wipes her eyes. “I thought I was right. I was only angry. I need to go find my sister.”' },
     { name: 'Lydia', pronoun: 'she', thanks: 'Lydia unclenches her fists one finger at a time. “I’m going home. I think I remember where it is.”' },
   ],
   // what each person says once they are freed
   thanks: {
     hothead: 'I don’t know what I was so angry about. It’s gone. Thank God, it’s gone.',
-    grudge: 'Twelve years I carried that. You said one sentence and I set it down. Praise God.',
+    grudge: 'Twelve years I carried that list! You said one sentence and I set it down. Praise God!',
     brawler: 'My hands have stopped shaking. Nobody ever told me I could just stop. God is good.',
-    slanderer: 'I knew every word of it was a lie. I needed someone to say the true thing out loud. Glory to God.',
+    slanderer: 'Every word I wrote was a lie, and I knew it. Thank you for saying something true. Glory to God.',
     furnace: 'I burned so long I forgot I was a man. Thank you. Thank God.',
   },
   // the fight log
@@ -273,7 +324,7 @@ const TEXT = {
     chargedLands: 'The charged word lands.',
     dazed: '{name} is dazed.',
     takes: '{name} takes {n}.',
-    takesType: '{name} takes {n} — {type} cuts through wrath.',
+    takesType: '{name} takes {n} — {type} cuts through the anger.',
     givesUp: '{name} lowers {his} fists. {He} doesn’t want this anymore.',
     freed: '{name} goes still. Something lets go of {him}.',
     barrier: 'A barrier of {n} rises.',
@@ -303,7 +354,7 @@ const TEXT = {
   },
   rooms: {
     shrineHeading: 'Shrine',
-    shrineNote: 'Read it twice. It is also a spell, and the boss will ask for it in pieces.',
+    shrineNote: 'Read it slowly. It is also a verse you can use, and the Furnace will ask you for it in pieces.',
     shrineTake: 'Take it as a spell and go on',
     shrineLearned: 'Learned Galatians 5:22-23',
     shrineKnown: 'You know this one. Read it again anyway, and go on.',
@@ -323,7 +374,7 @@ const TEXT = {
     lockRules: '{pieces} pieces. {mistakes} mistakes allowed.',
     lockRulesNone: '{pieces} pieces. No mistakes allowed.',
     pickLock: 'Open it',
-    lockHeld: 'It holds. You go around.',
+    lockHeld: 'The lock holds. You leave it and go on.',
     chestHeading: 'The chest opens',
     chestTake: 'Take one verse',
     chestLeave: 'Leave it',
@@ -337,9 +388,11 @@ const TEXT = {
   boss: {
     heading: 'The Furnace',
     intro: [
-      [null, 'He has three fires in him. Beat him down a third and one goes out, and the room goes quiet enough to speak.'],
-      [null, 'When it does, say {passage} in order, piece by piece. Say it clean and he is dazed and burned. Stumble and the fire flares back.'],
-      [null, 'When the last fire is out, say it once more without a mistake, and he is free.'],
+      [null, 'The heat is coming from a man so wrapped in fire you can barely see him. Bram’s anger was a spark. This is a furnace.'],
+      ['you', '“Amos, how do I even get close to him?”'],
+      ['priest', '“Three fires burn in him. Each time you wear one down, the room will go quiet. Use that quiet to say {passage}, piece by piece, in order.”'],
+      ['priest', '“Say it cleanly and the fire goes out. Stumble, and it flares back. When the last fire is out, say it once more without a mistake, and he will be free.”'],
+      ['you', '“Okay. I can do this.”'],
     ],
     face: 'Face him',
     fireOut: 'Fire {n} of 3 goes out',
@@ -354,8 +407,8 @@ const TEXT = {
   },
   victory: {
     heading: 'The Furnace goes out',
-    story: 'He sits down on the stones of the square, quieter than he has been in years. Someone opens a shutter. Then another.',
-    bell: 'That night the church bell rings for the first time in a long time.',
+    story: 'The last fire goes out. Where the Furnace stood, a tired man sits down on the stones of the square, quieter than he has been in years. Somewhere behind you, someone opens a shutter. Then another.',
+    bell: 'That night, for the first time in a long time, the church bell rings. And people come.',
     fruit: 'Fruit: Patience',
     fruitPerk: '+2 max focus, for good',
     newVerse: 'New verse',
@@ -363,7 +416,7 @@ const TEXT = {
   },
   defeat: {
     heading: 'You wake on a pew',
-    story: 'Amos found you in the square and carried you back. “The words were right,” he says. “You just ran out of breath to say them.”',
+    story: 'Amos found you in the square and carried you back. “The words were right, son,” he says gently. “You just ran out of breath to say them. Rest now. We will try again.”',
     summary: 'You keep your level, gear, and verses. The mission starts over, and {n} talents were lost in the square.',
     button: 'Get up',
   },
@@ -413,7 +466,7 @@ const TEXT = {
   tree: {
     heading: 'The tree',
     perks: {
-      Patience: ['+1 damage on Patience verses', 'Charge: skip a turn to double your next verse', 'A perfect Patience cast dazes a wrath enemy for a turn'],
+      Patience: ['+1 damage on Patience verses', 'Charge: skip a turn to double your next verse', 'A perfect Patience cast dazes an angry enemy for a turn'],
       Gentleness: ['Every attack also shields you for 2', 'Freed enemies leave 5 extra talents', 'The first Gentleness verse each fight costs nothing'],
       Peace: ['+2 max focus', 'Your first stumble each fight still casts at full power', 'Start every fight with a shield of 5'],
     },
