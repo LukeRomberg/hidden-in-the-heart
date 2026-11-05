@@ -128,15 +128,21 @@ Tool reference: https://api.pixellab.ai/mcp/docs
 
 Scenes, battle backgrounds, cave scenes and the cave battle background (PixelLab, in
 `assets/source/caves/` and `battle/cave.png`), town buildings (boarded/open), priest, portraits, hero poses,
-HUD icons, six fruit icons and six fruit card frames are wired in. The build inlines them
-as data URIs via `__IMG__('path')`.
+HUD icons, all nine fruit icons (Joy, Kindness, Faithfulness from PixelLab, cut to 16x16)
+and seven card frames (six fruit plus Armor, PixelLab, recolored to steel) are wired in.
+The build inlines them as data URIs via `__IMG__('path')`.
 
-## Art still wanted (exact specs agreed with Luke)
+Effects (`assets/source/fx/`, `IMG.fx` = {src, w, h, n}) are one-row sprite sheets from
+PixelLab's free vfx_workbench, padded to fixed cells: per-fruit impacts 32x32 x6
+(patience, gentleness, selfcontrol, love, peace, goodness x5), bigcast 64x64 x6, freed
+64x64 x8, hit 32x32 x4, shield 48x64 x4, levelup 64x64 x6. `fx.js` plays them with CSS
+`steps()` (`sheetFX`, `sheetHTML`) on a fixed `#fxtop` layer so a render() mid-effect
+doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 
-- Spell effects, 6 frames x 32x32 strips per fruit; big-cast starburst 64x64 x6; freed
-  smoke 64x64 x8; hit spark 32x32 x4; shield shimmer 48x64 x4; level up 64x64 x6.
-- Icons 16x16 for Joy, Kindness, Faithfulness. Card frame 64x88 for Armor (Ephesians 6
-  cards still use the generated frame).
+## Art still wanted
+
+- Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
+- Held-villager sprites (today the villagers are tinted townsfolk).
 
 ## Conventions
 

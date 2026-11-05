@@ -54,5 +54,22 @@ const IMG = {
     Love: __IMG__('icons/fruit_love.png'),
     Peace: __IMG__('icons/fruit_peace.png'),
     Goodness: __IMG__('icons/fruit_goodness.png'),
+    Joy: __IMG__('icons/fruit_joy.png'),
+    Kindness: __IMG__('icons/fruit_kindness.png'),
+    Faithfulness: __IMG__('icons/fruit_faithfulness.png'),
+  },
+  // effect sprite sheets (PixelLab vfx_workbench): one row of n frames, each w x h
+  fx: {
+    patience:    {src:__IMG__('fx/patience.png'),    w:32, h:32, n:6},
+    gentleness:  {src:__IMG__('fx/gentleness.png'),  w:32, h:32, n:6},
+    selfcontrol: {src:__IMG__('fx/selfcontrol.png'), w:32, h:32, n:6},
+    love:        {src:__IMG__('fx/love.png'),        w:32, h:32, n:6},
+    peace:       {src:__IMG__('fx/peace.png'),       w:32, h:32, n:6},
+    goodness:    {src:__IMG__('fx/goodness.png'),    w:32, h:32, n:5},
+    bigcast:     {src:__IMG__('fx/bigcast.png'),     w:64, h:64, n:6},
+    freed:       {src:__IMG__('fx/freed.png'),       w:64, h:64, n:8},
+    hit:         {src:__IMG__('fx/hit.png'),         w:32, h:32, n:4},
+    shield:      {src:__IMG__('fx/shield.png'),      w:48, h:64, n:4},
+    levelup:     {src:__IMG__('fx/levelup.png'),     w:64, h:64, n:6},
   },
 };

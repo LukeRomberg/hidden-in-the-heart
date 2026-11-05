@@ -135,7 +135,7 @@ function playCard(ref){
     enemyTurn();
   });
 }
-function brace(){ if(R.busy || R.after) return; R.brace=true; log(TEXT.fight.braceLog); enemyTurn(); }
+function brace(){ if(R.busy || R.after) return; R.brace=true; log(TEXT.fight.braceLog); shieldFX(); enemyTurn(); }
 async function enemyTurn(){
   if(R.busy || R.after) return; R.busy=true;
   R.vexed = false;   // being provoked lasts one turn: it wears off whatever you did with it (or you could be stuck at 0 focus)
@@ -147,7 +147,7 @@ async function enemyTurn(){
     if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,{name:e.name})); else { R.vexed=true; log(fill(TEXT.fight.vexed,{name:e.name})); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,{name:e.name})); }
     else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); if(R.brace) d=Math.ceil(d/2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
-      const pl=document.getElementById('pl'); if(pl){ pl.classList.add('hit'); setTimeout(()=>pl.classList.remove('hit'),320); }
+      const pl=document.getElementById('pl'); if(pl){ pl.classList.add('hit'); setTimeout(()=>pl.classList.remove('hit'),320); } if(d>0) hitFX();
       log(fill(a==='big'?TEXT.fight.slams:TEXT.fight.strikes,{name:e.name, n:d, absorbed:absorbed?fill(TEXT.fight.absorbed,{n:absorbed}):''})); }
     await sleep(300); if(el) el.classList.remove('lunge');
     if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); }

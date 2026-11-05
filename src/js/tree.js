@@ -10,7 +10,7 @@ function levelUpHTML(){
   const opts = FRUIT.filter(f=>!f.lock && (R.tree[f.b]||0)<3).map(f=>{ const g=R.tree[f.b]||0;
     return `<button class="wide lvopt" onclick="growFromPopup('${f.b}')">${IMG.icon[f.b]?`<img class="ico" src="${IMG.icon[f.b]}" width="32" height="32" alt="">`:''}<span><b>${fill(T.grow,{branch:f.b})} · ${g+1}/3</b><br><span class="sub">${TREE[f.b][g]}</span></span></button>`; }).join('');
   const locked = FRUIT.filter(f=>f.lock).map(f=>f.b);
-  return `<div class="overlay levelup"><div class="panel"><div class="lvglow"></div><h2>${fill(T.heading,{n:R.level})}</h2>
+  return `<div class="overlay levelup"><div class="panel"><div class="lvglow"></div><div class="lvfx">${sheetHTML('levelup', 0, 64, 2.4)}</div><h2>${fill(T.heading,{n:R.level})}</h2>
     <div class="lvbody">${due>1?fill(T.bodyMany,{hp:R.levelHp, n:due}):fill(T.body,{hp:R.levelHp})}</div>${opts}
     <div class="small mute" style="margin:6px 0 10px">${fill(T.locked,{branches:locked.join(', ')})}</div>
     <button class="wide" onclick="closeLevelUp()">${T.later}</button></div></div>`;
