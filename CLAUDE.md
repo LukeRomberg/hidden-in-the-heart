@@ -129,7 +129,9 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   to put back in order. Tier comes from the cave's `marks`: deeper chests have more pieces, fewer
   allowed mistakes and better loot (`CHEST` in dive.js). Fail and you get nothing. Progress is
   `P.creed`; the Codex shows the Creed so far.
-- **The tree**: all nine fruit of the Spirit, bottom-up. Patience, Gentleness, Peace are
+- **The tree**: all nine fruit of the Spirit, bottom-up, hung on a painted PixelLab tree
+  (`assets/source/tree/tree.png`, positions in `SOCKET` in tree.js); tapping a fruit opens a sheet
+  with its three perks. Patience, Gentleness, Peace are
   open; the rest unlock one per mission going up the trunk. Only those three have perks
   defined (`TREE`); the rest need designing.
 - **Gear** follows Ephesians 6:14-17. Plain gear (belt, vest, cap) is bought at the Forge;
@@ -187,7 +189,9 @@ Tool reference: https://api.pixellab.ai/mcp/docs
 Scenes, battle backgrounds, cave scenes and the cave battle background (PixelLab, in
 `assets/source/caves/` and `battle/cave.png`), town buildings (boarded/open), priest, portraits, hero poses,
 HUD icons, all nine fruit icons (Joy, Kindness, Faithfulness from PixelLab, cut to 16x16)
-and seven card frames (six fruit plus Armor, PixelLab, recolored to steel) are wired in.
+seven card frames (six fruit plus Armor, PixelLab, recolored to steel), the fruit tree, and
+one icon per gear item (`IMG.gear`, cut from `icons/gear_sheet.png`, shown in the Forge and on the
+gear screen) are wired in.
 The build inlines them as data URIs via `__IMG__('path')`.
 
 Effects (`assets/source/fx/`, `IMG.fx` = {src, w, h, n}) are one-row sprite sheets from

@@ -519,3 +519,44 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .overlay.tip .tiphead img{ border:3px solid #f2c84a; image-rendering:pixelated; }
 .overlay.tip h2{ margin:0; }
 .overlay.tip .tipbody{ font-size:19px; line-height:1.4; margin:0 0 12px; }
+
+/* the tree: the painted tree, fruit hung in its canopy, a sheet slides up for the one you tap */
+.treebox{ background:linear-gradient(#cfe3e8, #f3e2b6 80%); border:4px solid #7a5232; box-shadow:0 0 0 3px #3a2414; padding:6px 6px 8px; margin:10px 0; }
+.treeart{ position:relative; width:100%; max-width:400px; margin:0 auto; aspect-ratio:1; }
+.treeimg{ width:100%; height:100%; image-rendering:pixelated; display:block; pointer-events:none; }
+.fruit{ position:absolute; z-index:1; width:11.5%; aspect-ratio:1; padding:0; min-height:0; margin:0; border-image:none;
+  background:rgba(255,248,220,.55); border:2px solid #3a2414; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 0 rgba(0,0,0,.25); }
+.fruit img{ width:88%; image-rendering:pixelated; filter:grayscale(1) brightness(.8) opacity(.55); }
+.fruit.grown img{ filter:none; }
+.fruit.grown{ background:rgba(255,248,220,.85); border-color:var(--c); }
+.fruit.locked{ background:rgba(40,60,30,.28); border:2px dashed rgba(40,30,20,.45); box-shadow:none; }
+.fruit.locked .lockb{ opacity:.7; }
+.fruit:active{ transform:scale(.94); }
+.fruit.sel{ outline:3px solid #fff3c4; outline-offset:2px; }
+.fruit.due{ animation:fruitDue 1.6s ease-in-out infinite; }
+@keyframes fruitDue{ 50%{ box-shadow:0 0 0 4px rgba(255,236,150,.8), 0 2px 0 rgba(0,0,0,.25); } }
+.fruit .pips{ position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); display:flex; gap:2px; }
+.fruit .pips i{ width:7px; height:7px; background:#3a2414; border:1px solid #f3e2b6; }
+.fruit .pips i.on{ background:var(--c); }
+.treehint{ text-align:center; margin-top:6px; }
+.treesheet{ position:fixed; inset:0; z-index:41; overflow:auto; background:rgba(20,12,6,.55); display:flex; align-items:flex-end; justify-content:center;
+  padding:0 8px calc(8px + env(safe-area-inset-bottom)); animation:sheetFade .15s ease-out; }
+.treesheet .panel{ width:100%; max-width:560px; margin:0; animation:sheetUp .2s ease-out; }
+.treesheet .sheethead{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.treesheet .sheethead img, .treesheet .sheethead svg{ image-rendering:pixelated; width:32px; height:32px; }
+.treesheet h2{ margin:0; }
+.treesheet .perk{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:2px dashed rgba(122,82,50,.3); }
+.treesheet .perk .pip{ flex:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-weight:900; border:2px solid #3a2414; background:#e8d6aa; }
+.treesheet .perk.on .pip{ background:var(--c); color:#fff; }
+.treesheet .perk.later{ opacity:.6; }
+.treesheet .perk .primary{ margin-top:6px; }
+@keyframes sheetUp{ from{ transform:translateY(40px); opacity:0; } }
+@keyframes sheetFade{ from{ opacity:0; } }
+@media (prefers-reduced-motion: reduce){ .fruit.due, .treesheet, .treesheet .panel{ animation:none; } }
+
+/* gear icons (IMG.gear): beside each line of Forge stock and each slot on the gear screen */
+.ware.hasico{ display:flex; gap:10px; align-items:flex-start; }
+.ware.hasico .wbody{ flex:1; min-width:0; }
+.wico{ flex:none; width:54px; height:54px; image-rendering:pixelated; background:#e8d6aa; border:2px solid #c8a26a; padding:3px; box-sizing:border-box; }
+.ware.locked .wico{ filter:grayscale(.7) opacity(.6); }
+.gearrow{ display:flex; gap:10px; align-items:center; }

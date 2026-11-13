@@ -51,9 +51,11 @@ const DRILL_PAY = 2;                   // a clean drill at the yard, once per ve
 function versePrice(v){ return VERSE_PRICE[Math.min(v.cost, VERSE_PRICE.length-1)]; }
 // one line of stock: name and price on top, what it does, an optional detail, then its state or a buy button
 function ware(o){
-  return `<div class="ware ${o.state||''}"><div class="wtop"><span class="wname ${o.cls||''}">${o.name}</span>${o.price!=null?`<span class="wprice">${icon('coin',1.6)} ${o.price}</span>`:''}</div>
+  const inner = `<div class="wtop"><span class="wname ${o.cls||''}">${o.name}</span>${o.price!=null?`<span class="wprice">${icon('coin',1.6)} ${o.price}</span>`:''}</div>
     <div class="wdo">${o.does}</div>${o.extra?`<div class="wx">${o.extra}</div>`:''}
-    <div class="wfoot"><span class="wnote">${o.note||''}</span>${o.btn||''}</div></div>`;
+    <div class="wfoot"><span class="wnote">${o.note||''}</span>${o.btn||''}</div>`;
+  return o.img ? `<div class="ware hasico ${o.state||''}"><img class="wico" src="${o.img}" alt=""><div class="wbody">${inner}</div></div>`
+               : `<div class="ware ${o.state||''}">${inner}</div>`;
 }
 const shortBy = n => fill(TEXT.forge.short, {n});
 function forgeStock(){
@@ -61,7 +63,7 @@ function forgeStock(){
   return PLAIN_ORDER.map(id=>{ const it = ITEMS[id], mine = owns(id);
     const gift = !it.price, poor = !gift && R.talents<it.price;   // gifts are never for sale
     const note = mine ? (has(it.up) ? T.ownedUp : T.gifts[id] || T.owned) : gift ? T.notForSale : poor ? shortBy(it.price-R.talents) : '';
-    return ware({name:it.name, price:it.price, does:it.perk, state:mine?'own':gift?'locked':poor?'short':'', note,
+    return ware({name:it.name, img:IMG.gear[id], price:it.price, does:it.perk, state:mine?'own':gift?'locked':poor?'short':'', note,
       btn: mine||gift||poor ? '' : `<button class="wbuy" onclick="buy('${id}')">${T.buy}</button>`}); }).join('');
 }
 function consecrateStock(){
@@ -73,7 +75,7 @@ function consecrateStock(){
     else if(!owns(a.from)){ state = 'locked'; note = fill(T.needPlain,{from:from.name}); }
     else if(R.talents<a.price){ state = 'short'; note = shortBy(a.price-R.talents); }
     else btn = `<button class="wbuy" onclick="consecrate()">${T.reciteBtn}</button>`;
-    return ware({name:up.name, cls:'t-Patience', price:a.price, does:up.perk, state, note, btn,
+    return ware({name:up.name, img:IMG.gear[a.up], cls:'t-Patience', price:a.price, does:up.perk, state, note, btn,
       extra:fill(T.recite,{from:from.name, ref:passRef('ARMOR',a.n)})}); }).join('');
 }
 function forgeHTML(){

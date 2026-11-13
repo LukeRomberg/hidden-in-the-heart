@@ -37,7 +37,7 @@ function nextArmor(){ return ARMOR_CHAIN.find(a=>!has(a.up)) || null; }
 function gearDrop(){ return null; }   // combat.js still asks after every fight; gear is the Forge's now
 function gearHTML(){
   const rows = Object.keys(SLOTS).map(sl=>{ const id=R.gear[sl]; const it=id?ITEMS[id]:null;
-    return `<div class="panel"><div class="px ${it&&it.verse?'t-Patience':''}">${SLOTS[sl]} \u00b7 ${it?it.name:'empty'}</div>${it?`<div class="small">${it.perk}</div>`:''}</div>`; }).join('');
+    return `<div class="panel gearrow">${it?`<img class="wico" src="${IMG.gear[id]}" alt="">`:'<span class="wico"></span>'}<div><div class="px ${it&&it.verse?'t-Patience':''}">${SLOTS[sl]} \u00b7 ${it?it.name:'empty'}</div>${it?`<div class="small">${it.perk}</div>`:''}</div></div>`; }).join('');
   const back = R.gearFrom||'town'; const na = nextArmor();
   const chain = ARMOR_CHAIN.map(a=>{ const done=has(a.up), next=na&&na.up===a.up;
     return `<div class="stat small"><span class="${done?'t-Patience':next?'':'mute'}">${done?'\u2713':next?'\u2192':'\u00b7'} ${ITEMS[a.up].name}</span><span class="mute">${passRef('ARMOR',a.n)}</span></div>`; }).join('');

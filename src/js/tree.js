@@ -31,51 +31,32 @@ const FRUIT = [
   {b:'Faithfulness', col:'#7a4d9a', lock:TEXT.tree.locks.Faithfulness},
   {b:'Self-control', col:'#2e5a8a', lock:TEXT.tree.locks['Self-control']},
 ];
-const TW_=176, TH_=270, TX=88;
-function branchY(k){ return 236 - k*25; }
-function side(k){ return k%2 ? 1 : -1; }
-function fruitPos(k,t){ const s=side(k); return [TX + s*(26 + t*21), branchY(k) - 4 - t*4]; }
-function treeSVG(){
-  let s = `<rect width="${TW_}" height="${TH_}" fill="#f3e2b6"/>`;
-  // ground and roots
-  s += `<rect y="${TH_-14}" width="${TW_}" height="14" fill="#b89a6a"/><rect y="${TH_-14}" width="${TW_}" height="2" fill="#8a6a48"/>`;
-  s += `<polygon points="${TX-16},${TH_-12} ${TX-5},${TH_-26} ${TX+5},${TH_-26} ${TX+16},${TH_-12}" fill="#5a3c22"/>`;
-  // canopy glow behind the grown part of the tree
-  const top = FRUIT.findIndex(f=>f.lock); const reach = top<0 ? FRUIT.length : top;
-  for(let k=0;k<reach;k++){ const y=branchY(k); s+=`<ellipse cx="${TX+side(k)*44}" cy="${y-8}" rx="44" ry="15" fill="#9cc46e" opacity=".22"/>`; }
-  // trunk, tapering as it rises
-  for(let y=TH_-26; y>branchY(8)-14; y-=2){ const w = 4 + (y-(branchY(8)-14))/(TH_-26-(branchY(8)-14))*7; s+=`<rect x="${TX-w}" y="${y-2}" width="${w*2}" height="2.2" fill="#6a4a2e"/><rect x="${TX-w}" y="${y-2}" width="1.4" height="2.2" fill="#8a6440"/>`; }
-  // boughs
-  FRUIT.forEach((f,k)=>{ const open=!f.lock; const g=open?(R.tree[f.b]||0):0; const sd=side(k); const y=branchY(k);
-    const tip=fruitPos(k,2); s+=`<line x1="${TX}" y1="${y}" x2="${tip[0]+sd*8}" y2="${tip[1]-3}" stroke="${open?'#6a4a2e':'#b8a07a'}" stroke-width="${open?3:2}"/>`;
-    for(let t=0;t<3;t++){ const [x,yy]=fruitPos(k,t); s+=`<line x1="${x}" y1="${yy+2}" x2="${x}" y2="${yy+5}" stroke="${open?'#6a4a2e':'#b8a07a'}" stroke-width="1"/>`; }
-    if(open) for(let t=0;t<3;t++){ const [x,yy]=fruitPos(k,t); s+=`<ellipse cx="${x+sd*7}" cy="${yy-1}" rx="4" ry="2.4" fill="#5a8a3a"/><ellipse cx="${x-sd*7}" cy="${yy+1}" rx="3" ry="2" fill="#6e9a48"/>`; }
-  });
-  // fruit
-  FRUIT.forEach((f,k)=>{ const open=!f.lock; const g=open?(R.tree[f.b]||0):0;
-    for(let t=0;t<3;t++){ const [x,y]=fruitPos(k,t); const on=open&&g>t, next=open&&g===t, sel=R.treeSel&&R.treeSel.b===f.b&&R.treeSel.t===t; const c=f.col, sz=10;
-      s+=`<g class="roomclick" role="button" tabindex="0" aria-label="${f.b} ${t+1}${f.lock?', locked':''}" onclick="treeSel('${f.b}',${t})" onkeydown="if(event.key==='Enter')treeSel('${f.b}',${t})">`;
-      if(sel) s+=`<rect x="${x-sz/2-3}" y="${y-sz/2-3}" width="${sz+6}" height="${sz+6}" fill="${open?c:'#9a8a70'}" opacity=".3"/><rect x="${x-sz/2-2}" y="${y-sz/2-2}" width="${sz+4}" height="${sz+4}" fill="none" stroke="${open?c:'#9a8a70'}" stroke-width="1.2"/>`;
-      if(!open){ s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="#e2d2ac" stroke="#c0aa82" stroke-width="1"/>`; if(t===1) s+=pxg(LOCK,x-3.6,y-3.6,0.9); }
-      else if(on && IMG.icon[f.b]){ const z=sz+4; s+=`<image href="${IMG.icon[f.b]}" x="${x-z/2}" y="${y-z/2}" width="${z}" height="${z}" style="image-rendering:pixelated"/>`; }
-      else if(on){ s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="${c}" stroke="#2a160c" stroke-width="1"/><rect x="${x-sz/2+1.5}" y="${y-sz/2+1.5}" width="3" height="3" fill="#fff" opacity=".7"/>`; }
-      else s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="#3a2616" stroke="${next?c:'#6a4a2e'}" stroke-width="${next?1.8:1}"/>`;
-      s+=`</g>`; }
-    const sd=side(k); const lx = TX + sd*46, ly = branchY(k) - 17;
-    s+=`<text x="${lx}" y="${ly}" font-size="6" font-weight="700" font-family="'Nunito',sans-serif" fill="${f.lock?'#a8987a':f.col}" text-anchor="middle">${f.b}${open?` <tspan font-weight="500" fill="#8a6a48">${R.tree[f.b]||0}/3</tspan>`:''}</text>`;
-  });
-  return `<svg viewBox="0 0 ${TW_} ${TH_}" width="100%" shape-rendering="crispEdges" role="img" aria-label="The fruit of the Spirit">${s}</svg>`;
-}
+// Where each fruit hangs on the painted tree (assets/source/tree/tree.png, 104x104), in tree pixels:
+// three tiers of canopy, bottom-up in FRUIT order, so the tree fills in from the ground as missions open.
+const SOCKET = [[30,68],[64,60],[98,66], [32,46],[64,42],[94,44], [40,26],[64,18],[88,28]].map(([x,y])=>[x-12,y-12]);
+function fruitHTML(f,k){ const g=f.lock?0:(R.tree[f.b]||0), [x,y]=SOCKET[k], sel=R.treeSel&&R.treeSel.b===f.b, due=!f.lock&&g<3&&treeDue()>0;
+  const pips = f.lock ? '' : `<span class="pips">${[0,1,2].map(t=>`<i class="${t<g?'on':''}" style="--c:${f.col}"></i>`).join('')}</span>`;
+  const ico = f.lock ? `<span class="lockb">${pxgIcon()}</span>` : `<img src="${IMG.icon[f.b]}" alt="">`;
+  return `<button class="fruit ${f.lock?'locked':''} ${g?'grown':''} ${sel?'sel':''} ${due?'due':''}" style="left:${(x/104*100-5.75).toFixed(2)}%;top:${(y/104*100-5.75).toFixed(2)}%;--c:${f.col}"
+    onclick="treeSel('${f.b}')" aria-label="${f.b}${f.lock?', locked':`, ${g} of 3`}">${ico}${pips}</button>`; }
+function treeSheet(){ const sel=R.treeSel; if(!sel) return ''; const f=FRUIT.find(x=>x.b===sel.b), T=TEXT.tree, due=treeDue();
+  let body;
+  if(f.lock) body = `<p>${fill(T.lockedUntil,{lock:f.lock})}</p><p class="small mute">${T.lockedNote}</p>`;
+  else { const g=R.tree[f.b]||0;
+    body = TREE[f.b].map((perk,t)=>{ const on=t<g, next=t===g;
+      return `<div class="perk ${on?'on':next?'next':'later'}" style="--c:${f.col}"><span class="pip">${on?'✓':t+1}</span><div><div>${perk}</div>
+        ${next&&due>0?`<button class="primary wide" onclick="pickBranch('${f.b}')">${T.growHere}</button>`: next?`<div class="small mute">${T.nextHere}</div>`: on?'':`<div class="small mute">${T.growBelowFirst}</div>`}</div></div>`; }).join(''); }
+  const g = f.lock ? '' : ` <span class="mute">${R.tree[f.b]||0}/3</span>`;
+  return `<div class="treesheet" onclick="if(event.target===this)treeSel(null)"><div class="panel">
+    <div class="sheethead">${f.lock?pxgIcon():`<img src="${IMG.icon[f.b]}" width="32" height="32" alt="">`}<h2 style="color:${f.col}">${f.b}${g}</h2></div>${body}
+    <button class="wide" onclick="treeSel(null)">Close</button></div></div>`; }
 function treeHTML(){
-  const due = treeDue(); const sel=R.treeSel; const T = TEXT.tree; let detail = `<div class="mute">${T.tapHint}</div>`;
-  if(sel){ const f=FRUIT.find(x=>x.b===sel.b);
-    if(f.lock) detail = `<div class="px" style="color:${f.col}">${f.b}</div><div style="margin:6px 0">${pxgIcon()} ${fill(T.lockedUntil,{lock:f.lock})}</div><div class="small mute">${T.lockedNote}</div>`;
-    else { const g=R.tree[f.b]||0, on=g>sel.t, next=g===sel.t;
-      detail = `<div class="px" style="color:${f.col}">${f.b} ${sel.t+1}${on?T.grown:''}</div><div style="margin:6px 0">${TREE[f.b][sel.t]}</div>${next&&due>0?`<button class="primary wide" onclick="pickBranch('${f.b}')">${T.growHere}</button>`: next?`<div class="small mute">${T.nextHere}</div>`: on?'':`<div class="small mute">${T.growBelowFirst}</div>`}`; } }
+  const due = treeDue(), T = TEXT.tree;
   const grown = FRUIT.filter(f=>!f.lock).reduce((n,f)=>n+(R.tree[f.b]||0),0);
   return `<h1>${T.heading}</h1><div class="panel small">${fill(T.summary,{level:R.level, grown})}${due>0?`<b>${due>1?fill(T.waitingMany,{n:due}):T.waitingOne}</b>`:T.everyLevel}</div>
-    <div class="panel" style="padding:0;overflow:hidden">${treeSVG()}</div><div class="panel">${detail}</div>
+    <div class="treebox"><div class="treeart"><img class="treeimg" src="${IMG.tree}" alt="The fruit of the Spirit">${FRUIT.map(fruitHTML).join('')}</div>
+    <div class="small mute treehint">${T.tapHint}</div></div>${treeSheet()}
     <div class="dock"><button class="wide" onclick="saveHero(); goto(R.treeFrom||'town')">Back</button></div>`;
 }
-function treeSel(b,t){ R.treeSel={b,t}; render(); }
-function pickBranch(b){ R.tree[b]++; R.rank++; if(b==='Peace' && R.tree.Peace===1) R.maxFocus+=2; R.treeSel={b, t:R.tree[b]-1}; render(); }
+function treeSel(b){ R.treeSel = b ? {b} : null; render(); }
+function pickBranch(b){ R.tree[b]++; R.rank++; if(b==='Peace' && R.tree.Peace===1) R.maxFocus+=2; R.treeSel={b}; render(); }

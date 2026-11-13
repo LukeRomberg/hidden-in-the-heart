@@ -43,6 +43,9 @@ const IMG = {
     drill: __IMG__('portraits/drill.png'),
     scribe: __IMG__('portraits/scribe.png'),
   },
+  tree: __IMG__('tree/tree.png'),
+  // gear: one icon per item in ITEMS (gear.js), cut from icons/gear_sheet.png
+  gear: {belt: __IMG__('icons/gear_belt.png'), vest: __IMG__('icons/gear_vest.png'), cap: __IMG__('icons/gear_cap.png'), boots: __IMG__('icons/gear_boots.png'), lid: __IMG__('icons/gear_lid.png'), bible: __IMG__('icons/gear_bible.png'), truth: __IMG__('icons/gear_truth.png'), breast: __IMG__('icons/gear_breast.png'), sabatons: __IMG__('icons/gear_sabatons.png'), faith: __IMG__('icons/gear_faith.png'), helm: __IMG__('icons/gear_helm.png'), sword: __IMG__('icons/gear_sword.png')},
   icon: {
     heart: __IMG__('icons/hp_heart.png'),
     mana: __IMG__('icons/mana_droplet.png'),
