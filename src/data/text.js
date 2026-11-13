@@ -233,6 +233,16 @@ const TEXT = {
     needPlain: 'Buy the {from} first.',
     after: 'After the {prev}.',
     seeGear: 'See your gear',
+    // popup, once, after Bram's first line at the Forge: how consecration works
+    tip: {
+      who: 'blacksmith',
+      title: 'Making the armor of God',
+      body: [
+        'Every plain piece can become armor. Bring it here, tap Recite, and say the passage perfectly.',
+        'It goes in the order Ephesians gives: the Belt of Truth first, with 6:14. Each piece after it adds a verse.',
+        'A slip costs nothing. You only pay when the metal takes.',
+      ],
+    },
   },
   inn: {
     heading: 'The Inn',

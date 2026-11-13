@@ -26,7 +26,7 @@ function typeIt(){
 }
 function doneTyping(){ TW.typing=false; const m=document.getElementById('twmore'); const acts=document.getElementById('acts'); const step=document.querySelector('.dlg .step');
   const total = step? +step.textContent.split('/')[1] : 1;
-  if(TW.i < total-1){ if(m) m.style.display='block'; } else if(acts) acts.classList.remove('hide'); }
+  if(TW.i < total-1){ if(m) m.style.display='block'; } else { if(acts) acts.classList.remove('hide'); onceTip(); } }
 function talkTap(total){
   if(TW.typing){ stopTyping(); const el=document.getElementById('tw'); el.innerHTML=el.dataset.full; doneTyping(); return; }
   if(TW.i < total-1){ TW.i++; render(); }
@@ -96,10 +96,20 @@ function tutorialTip(){
   const due = TIP_ORDER.find(([k,when])=>!R.tipsSeen.includes(k) && when());
   return due ? due[0] : null;
 }
-function tipHTML(){ const k = modal.key, T = TEXT.tutorial;
-  return `<div class="overlay tip"><div class="panel"><div class="tiphead">${portrait('priest')}<h2>${T.tips[k]}</h2></div>
-    <p class="tipbody">${T.coach[k]}</p><button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
-function closeTip(){ R.tipsSeen.push(modal.key); modal=null; render(); }
+// A popup that stops everything to teach one rule. Tutorial tips come from TEXT.tutorial (Amos); others
+// (modal.once) carry their own speaker, title and paragraphs and are shown once per save (P.tips).
+function tipHTML(){ const k = modal.key, T = TEXT.tutorial, o = modal.once;
+  const body = o ? o.body.map(p=>`<p class="tipbody">${p}</p>`).join('') : `<p class="tipbody">${T.coach[k]}</p>`;
+  return `<div class="overlay tip" id="tipov"><div class="panel"><div class="tiphead">${portrait(o?o.who:'priest')}<h2>${o?o.title:T.tips[k]}</h2></div>
+    ${body}<button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
+function closeTip(){
+  if(modal.once){ (P.tips=P.tips||{})[modal.key]=true; save(); modal=null; const ov=document.getElementById('tipov'); if(ov) ov.remove(); return; }   // nothing under it changed: leave the screen as it is
+  R.tipsSeen.push(modal.key); modal=null; render(); }
+// one-time popups that wait for a scene's last line to finish typing: {screen: tip key}
+const ONCE_TIPS = {forge:'forge'};
+function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.tips[k])) return;
+  const t = TEXT[k].tip; modal = {kind:'tip', key:k, once:{who:t.who, title:t.title, body:t.body}};
+  document.getElementById('app').insertAdjacentHTML('beforeend', tipHTML()); }
 function coachLine(){
   const C = TEXT.tutorial.coach;
   if(R.gift) return C.gift;
