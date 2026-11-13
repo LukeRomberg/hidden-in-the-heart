@@ -181,7 +181,7 @@ function afterHTML(){
     ${R.gearDropped?`<button class="wide" onclick="R.gearFrom='fight';goto('gear')">See your gear</button>`:''}
     ${R.pendingDrop?`<button class="wide" onclick="addVerse(R.pendingDrop);R.pendingDrop=null;render()">Take ${R.pendingDrop}</button>`:''}
     ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${A.growTree}</button>`:''}
-    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?A.leaveRoom:A.moveOn}</button></div>`;
+    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?A.afterBoss:A.moveOn}</button></div>`;
 }
 function playCard(ref){
   if(R.busy || R.after) return;

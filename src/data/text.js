@@ -609,7 +609,7 @@ const TEXT = {
     bootsHeal: 'Your boots carry you on. Healed 4.',
     slipsWarning: '{n}/2 shaky casts before it drops a level',
     growTree: 'Grow the tree',
-    leaveRoom: 'Leave the room',
+    afterBoss: 'Continue',   // after the Furnace
     moveOn: 'Move on',
   },
   drop: {
