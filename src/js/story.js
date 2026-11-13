@@ -119,6 +119,34 @@ function victoryHTML(){
     ${R.firstClear?`<div class="stat t-Patience"><span>${T.fruit}</span><span>${T.fruitPerk}</span></div><div class="stat t-Self-control"><span>${T.newVerse}</span><span>Galatians 5:16</span></div><div class="stat t-Gentleness"><span>${T.gift}</span><span>${ITEMS[BRAM_GIFT].name}</span></div>`:''}</div>
     <div class="dock"><button class="primary wide" onclick="goto(R.firstClear?'tutend':'town')">${T.button}</button></div>`;
 }
+// ---- The end of the Philadelphia chapter: once, when the last cave is cleared for the first time ----
+// (caveDoneHTML in dive.js sends you here.) A full church, then what you carried home, then the road east.
+const HOME = ['blacksmith','innkeeper','drill','scribe'];   // Bram, Wendell, Hale, Silas: speaker ids
+function chapterEndHTML(){
+  const T = TEXT.chapterEnd;
+  if(!R.endStats){
+    const at = (spr,x)=>({src:ENEMY_IMG[spr].f[0], x, y:92, w:40});
+    return `${sceneHTML(IMG.scene.church,[at('hothead_f',14), at('grudge_f',58), AT_PRIEST(lineOf('chapterend')>=6?'welcome':'idle'), at('brawler_f',222), at('slanderer_f',266)])}${talk('chapterend', T.lines,
+      `<button class="primary wide" onclick="R.endStats=true;goto('chapterend')">${T.toStats}</button>`)}`;
+  }
+  const row = (label, val, cls='')=>`<div class="stat ${cls}"><span>${label}</span><span>${val}</span></div>`;
+  const list = names=>`<div class="chnames">${names.join(', ')}</div>`;
+  // truths: sermon scraps you read, plus questions you answered right (P.truthsRight, encounters.js)
+  const truths = new Set([...(P.notes||[]), ...(P.truthsRight||[])]).size;
+  const helped = (P.helpedAll||[]).map(id=>(TEXT.living.people.find(p=>p.id===id)||{}).name).filter(Boolean);
+  const refs = [...new Set(R.deck.map(c=>c.ref))], byHeart = refs.filter(r=>sp(r).tier===3).length;
+  return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.square,[{html:sprite('back',0,1), x:128, y:94, w:64}])}
+    <div class="panel chend"><div class="px chsub">${T.sub}</div>
+      ${row(T.souls, R.souls)}
+      ${row(T.home, HOME.length)}${list(HOME.map(id=>TEXT.speakers[id]))}
+      ${row(T.truths, fill(T.truthsOf,{n:truths, total:TEXT.truths.list.length}))}
+      ${row(T.helped, helped.length)}${list(helped.length?helped:[T.helpedNone])}
+      ${row(T.creed, fill(T.creedOf,{n:P.creed||0, total:CREED.sections.length}))}
+      ${row(T.mastered, fill(T.masteredOf,{n:byHeart, total:refs.length}))}
+      ${row(T.talents, R.talents)}</div>
+    <div class="panel story chroad"><p>${T.road}</p><p class="px">${T.continued}</p></div>
+    <div class="dock"><button class="primary wide" onclick="R.endStats=false;R.cave=null;P.chapters=Object.assign(P.chapters||{},{philadelphia:1});saveHero();goto('town')">${T.button}</button></div>`;
+}
 function defeatHTML(){
   const T = TEXT.defeat;
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle',214), {src:IMG.hero.waking, x:132, y:96, w:64}])}<div class="panel story"><p>${T.story}</p></div>

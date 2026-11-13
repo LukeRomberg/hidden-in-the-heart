@@ -48,7 +48,8 @@ function truthDock(){
   return go(T.freeThem, 'truthFight()');
 }
 function answerTruth(a){ const tf = R.tf, t = TRUTHS[tf.q];
-  if(a===t.answer){ tf.result='right'; tf.phase='result'; P.retry = (P.retry||[]).filter(id=>id!==t.id); }
+  if(a===t.answer){ tf.result='right'; tf.phase='result'; P.retry = (P.retry||[]).filter(id=>id!==t.id);
+    if(!(P.truthsRight=P.truthsRight||[]).includes(t.id)) P.truthsRight.push(t.id); }   // chapter-end hook: truths answered right, for the stats (story.js)
   else if(tf.first){ tf.tries++; render(); return; }   // with Amos there you can't fail: he points you back to it
   else { tf.result='wrong'; tf.phase='result'; P.retry = P.retry||[]; if(!P.retry.includes(t.id)) P.retry.push(t.id); }
   save(); render();
@@ -67,7 +68,9 @@ function hurtDock(){ const L = TEXT.living, h = R.hurt||{};
   if(h.phase==='helped') return `<button class="primary wide" onclick="endHurt()">${TEXT.truths.goOn}</button>`;
   return `<button class="primary wide" ${R.hp<=HURT_COST?'disabled':''} onclick="helpHurt()">${fill(L.help,{cost:HURT_COST})}</button><button class="wide" onclick="walkOn()">${L.walkOn}</button>`; }
 function startHurt(){ R.hurt = {phase: P.firstHurt ? 'ask' : 'amos'}; }
-function helpHurt(){ if(R.hp<=HURT_COST) return; R.hp -= HURT_COST; R.map.helped = R.map.helped||[]; R.map.helped.push(R.node.who); R.hurt.phase='helped'; saveRun(); render(); }
+function helpHurt(){ if(R.hp<=HURT_COST) return; R.hp -= HURT_COST; R.map.helped = R.map.helped||[]; R.map.helped.push(R.node.who);
+  if(!(P.helpedAll=P.helpedAll||[]).includes(R.node.who)) P.helpedAll.push(R.node.who);   // chapter-end hook: everyone you ever helped, kept for the stats (story.js)
+  R.hurt.phase='helped'; saveRun(); render(); }
 function walkOn(){ toast(TEXT.living.walkedOn); endHurt(); }
 function endHurt(){ P.firstHurt = true; save(); R.hurt = null; clearColumn(); }
 // at the boss, everyone you helped on the way down stands with you

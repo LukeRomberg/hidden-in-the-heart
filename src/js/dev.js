@@ -37,7 +37,18 @@ const TEST_JUMPS = [
   ['Villager fight', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
   ['Level-up popup', ()=>{ testHero(true); goto('town', ()=>gainXP(xpNeed(R.level))); }],
   ['The Forge', ()=>{ testHero(true); equip('belt'); R.talents = 40; enterBuilding('forge'); }],
+  ['Chapter ending', testChapterEnd],
 ];
+// Silas has just been freed: all three caves cleared for the first time, so the Deep Cave's goodbye leads to the ending
+function testChapterEnd(){
+  testHero(true); R.level = 7; R.souls = 31; R.maxHp = R.hp = 64; R.talents = 87;
+  ['Proverbs 16:32','Romans 12:19'].forEach(addVerse);
+  ['Proverbs 14:29','Galatians 5:22-23','Romans 12:2'].forEach(r=>setSp(r,{n:1, tier:3, perf:0, fails:0}));
+  P.town = {church:true, forge:true, inn:true, training:true, scriptorium:true};
+  CAVES.forEach(c=>P.caves[c.id] = 1); P.creed = 5;
+  P.notes = TEXT.truths.list.slice(0,4).map(t=>t.id); P.truthsRight = TEXT.truths.list.slice(2,6).map(t=>t.id); P.helpedAll = ['tobias'];
+  R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero(); goto('cavedone');
+}
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
   startCave(i); setTimeout(()=>{ R.node = {t:'elite', caveBoss:true}; startFight([CAVES[i].boss], false); }, 400);

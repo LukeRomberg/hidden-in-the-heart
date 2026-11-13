@@ -486,3 +486,10 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .verse.truthverse{ margin:6px 0 8px; } .verse.truthverse .ref{ display:block; margin-top:4px; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:13px; opacity:.8; }
 .panel.scrap{ background:#efe2bf; color:#3a2414; } .panel.scrap .scraptext{ font-style:italic; }
 .tfbtns{ gap:8px; } .tfbtns button{ flex:1; margin:0; }
+
+/* chapter end */
+.panel.chend .chsub{ text-align:center; color:var(--gold); margin-bottom:8px; }
+.panel.chend .stat{ margin-top:6px; }
+.panel.chend .chnames{ font-size:14px; opacity:.75; text-align:right; margin-bottom:2px; }
+.panel.chroad{ text-align:center; }
+.panel.chroad p.px{ color:var(--gold); font-size:22px; margin:0; }
