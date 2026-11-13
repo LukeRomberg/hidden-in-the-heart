@@ -61,6 +61,19 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   dry in the tutorial (you start that fight groggy, at 3). Each verse works once; when nothing
   unsaid is affordable, they all come back. A card never costs more than max focus. Damage = verse value x tier multipliers x accuracy. Type advantage:
   Patience x1.5 and Gentleness x1.25 vs wrath.
+- **How a fight reads** (presentation only; numbers live in combat.js). The held talk back:
+  `TEXT.foes` gives each kind (villagers share one) taunts in the voice of its sin, `waver`
+  lines below half HP, `crack` lines near the end, and named moves (`atk`/`big`/`vex`) shown
+  in the intent line and again in the log. Taunts are a speech bubble over the speaker
+  (`speak()`, kept in `R.say`). The log is one short prose line per action, picked from
+  pools (`TEXT.fight.cast`, `openers`, `thoughts`) without repeats (`vary()`); numbers float
+  over the target instead (`floatText`). Each turn: a “Your turn” / “Their turn” banner,
+  enemies lunge then the hit lands, HP bars drain (`barsSync`), big hits and tier-3 casts
+  hit-stop. Freeing is a beat: smoke, freed sprite, their thanks big over the arena
+  (`thanksBeat`, tap to skip), then the log. The after-fight panel lists who was freed and
+  each cast as perfect / steady / slipped; the level-up popup opens over it. Effects
+  live in `#fxtop` so a render() doesn't cut them off. `prefers-reduced-motion` drops the
+  lunge, knockback, hit-stop and slides. Styles are in the `/* battle feel */` block.
 - **The Furnace** (tutorial boss): three fires; at each third of HP the player assembles
   Galatians 5:22-23 in order (Amos hands it over before the fight). In the tutorial slips
   don't heal him and Amos says the last passage with you, so nobody can get stuck.

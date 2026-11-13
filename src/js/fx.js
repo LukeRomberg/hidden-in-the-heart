@@ -14,8 +14,7 @@ function sheetHTML(name, x, y, scale, opts={}){
 // so a render() in the middle (a freed sprite swapping in) doesn't cut it off.
 function sheetFX(name, at, scale, opts={}){
   const a=document.getElementById('arena'), f=IMG.fx[name]; if(!a||!f) return Promise.resolve();
-  let top=document.getElementById('fxtop'); if(!top){ top=document.createElement('div'); top.id='fxtop'; document.body.appendChild(top); }
-  const r=a.getBoundingClientRect();
+  const top=fxTop(), r=a.getBoundingClientRect();
   const tmp=document.createElement('div'); tmp.innerHTML=sheetHTML(name, r.left+at.x, r.top+at.y, scale, opts); const d=tmp.firstChild; top.appendChild(d);
   const total=(opts.delay||0)+(opts.ms||FRAME_MS)*f.n*(opts.loops||1);
   return new Promise(res=>setTimeout(()=>{ d.remove(); res(); }, total));
@@ -41,4 +40,45 @@ async function freedFX(i){
   const smoke=sheetFX('freed', c, 2.6*arenaK(), {ms:90});
   el.classList.remove('windup'); await sleep(360); const t=R.enemies[i]; if(t && t.fk===undefined) t.fk=pickFreed(); render();
   await smoke; await sleep(150);
+}
+// ---- Battle feel: floating numbers, turn banners, hit-stop, the freeing beat ----
+// All of these live in #fxtop (fixed, over everything) so a render() underneath doesn't cut them off.
+const CALM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function fxTop(){ let top=document.getElementById('fxtop'); if(!top){ top=document.createElement('div'); top.id='fxtop'; document.body.appendChild(top); } return top; }
+// a number or short label that pops up over element `id` in the arena, rises and fades
+function floatText(id, text, cls='', dy=0){
+  const a=document.getElementById('arena'); if(!a || !document.getElementById(id)) return;
+  if(id==='pl') dy -= 34;   // above the hero's head, clear of the hit flash
+  const r=a.getBoundingClientRect(), c=center(id), d=document.createElement('div');
+  d.className='float '+cls; d.textContent=text; d.style.left=(r.left+c.x)+'px'; d.style.top=(r.top+c.y-24+dy)+'px';
+  fxTop().appendChild(d); setTimeout(()=>d.remove(), 1100);
+}
+// freeze the arena for a beat on a big hit, so it lands
+async function hitStop(ms=120){ if(CALM()) return; const a=document.getElementById('arena'); if(!a) return; a.classList.add('stop'); await sleep(ms); a.classList.remove('stop'); }
+// a hit landing on `id` ('pl' or 'en0'…): flash and knock back, the number, the bars drain; big ones hit-stop
+async function strike(id, text, cls, big){
+  const el=document.getElementById(id); if(el) el.classList.add('hit');
+  floatText(id, text, 'dmg '+(cls||'')+(big?' big':'')); barsSync();
+  if(big) await hitStop();
+  setTimeout(()=>{ if(el) el.classList.remove('hit'); }, 320);
+}
+// “Your turn” / “Their turn”, across the middle of the arena
+function turnBanner(text, mine){
+  const a=document.getElementById('arena'); if(!a) return; const r=a.getBoundingClientRect();
+  const d=document.createElement('div'); d.className='turnban '+(mine?'mine':'theirs'); d.innerHTML=`<span>${text}</span>`;
+  d.style.left=r.left+'px'; d.style.width=r.width+'px'; d.style.top=(r.top+r.height*0.4)+'px';
+  fxTop().appendChild(d); setTimeout(()=>d.remove(), 950);
+}
+// the freed person's first words, big, over the arena; tap to go on, or it goes on by itself
+function thanksBeat(e, text){
+  return new Promise(res=>{
+    const a=document.getElementById('arena'); if(!a){ res(); return; } const r=a.getBoundingClientRect();
+    const who=FREED_AS[e.id], spr=FREED_IMG['freed'+e.fk];   // a portrait for the named, the freed sprite for villagers
+    const pic=!e.villager && IMG.portrait[who] ? `<img src="${IMG.portrait[who]}" width="40" height="40" alt="">` : e.villager && spr ? `<img class="spr" src="${spr.f[0]}" width="40" height="40" alt="">` : '';
+    const d=document.createElement('div'); d.className='beat'; d.setAttribute('role','status');
+    d.style.left=(r.left+10)+'px'; d.style.width=(r.width-20)+'px'; d.style.top=(r.top+r.height*0.14)+'px';
+    d.innerHTML=`<div class="bwho">${pic}<span>${freedName(e)}</span></div><div class="bline">${text}</div>`;
+    let done=false; const end=()=>{ if(done) return; done=true; d.classList.add('out'); setTimeout(()=>{ d.remove(); res(); }, CALM()?0:220); };
+    d.onclick=end; fxTop().appendChild(d); setTimeout(end, Math.min(4200, 1500+text.length*28));
+  });
 }
