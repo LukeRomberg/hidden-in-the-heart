@@ -43,9 +43,9 @@ const TEXT = {
   prologue: {
     bedroom: {
       lines: [
-        [null, '2:14 a.m. A desk lamp, a stack of flashcards, and your Bible, open to the same page it has been open to for three nights.'],
+        [null, '2:14 a.m. A desk lamp, a stack of flashcards, and your Bible, open to the same page it has been open to for three hours.'],
         [null, 'Psalm 119:11. Fifteen words. You have read them dozens of times and they still are not memorized.'],
-        ['you', '“I have hidden… Your… something. In my heart. I have hidden Your something in my heart.”'],
+        ['you', '“I have hidden… Your… something. In my heart. Why is this so hard?”'],
         [null, 'The lamp hums. The page swims. One more try, and then bed.'],
       ],
       recallTitle: 'One more try',
@@ -66,7 +66,7 @@ const TEXT = {
       lines: [
         [null, 'You walk for a bit and see an old church, the door is unlocked. Inside you are greeted with dusty pews, a cold altar, and an old man sweeping a floor nobody walks on anymore.'],
         ['oldPriest', 'He looks up at you, surprised. “Oh, hello. What brings you in, young man?”'],
-        [null, 'You point towards the door. “I am not sure where I am and there is a strange man yelling out there.”'],
+        ['you', 'You point towards the door. “I am not sure where I am and there is a strange man yelling out there.”'],
         ['oldPriest', '“That is Bram, by the well.” He gives you a sad look. “He used to be a kind man, showed up every Sunday for service.”'],
         ['oldPriest', '“The town started skipping morning service and distancing themselves from one another, then they started to change. Anger first. Then the grudges. Then worse. In isolation there is no one to pull them out of the darkness.”'],
         [null, 'He looks at the Bible still in your hand.'],
@@ -75,8 +75,10 @@ const TEXT = {
     },
     lid: {
       lines: [
-        ['priest', '“Well. That changes things.” He leans the broom on a pew and chuckles to himself quietly. “I’m Amos. It seems that the Lord has answered my prayers. You are here to help, but I am afraid this is all I can offer in terms of protection at the moment.”'],
-        [null, 'He hands you a dented trash-can lid. You look at it and give him a questioning look. “What about a weapon?”'],
+        ['priest', '“Well. Look at that.” He leans the broom on a pew and chuckles to himself quietly. “I’m Amos. It seems that the Lord has answered my prayers. You are here to help.”'],
+        ['priest','“You will need to battle in order to free the oppressed, but I am afraid this is all I can offer in terms of protection at the moment.”'],
+        [null, 'He hands you a dented trash-can lid. You look at it and give him a questioning look.'],
+        ['you','“What about a weapon?”'],
         ['priest', '“This is to help shelter you from attacks. A weapon? Son, the word of God is in your hand there. Sharper than any double-edged sword, it pierces even to dividing soul and spirit, joints and marrow.”'],
         [null, 'You look at the Bible in your hand, the Scripture sounds familiar but how could a Bible fight monsters?'],
         ['you', '“I am not sure where to begin.”'],
@@ -98,8 +100,8 @@ const TEXT = {
     lead: [
       ['priest', '“Good. Now, about Bram.” Amos takes his coat from the peg by the door. “The anger has burned in him so long that it has become a furnace. You saw it.”'],
       ['you', '“The fire on his skin. I thought I was dreaming.”'],
-      ['priest', '“Perhaps you are. It is real all the same.” He opens his worn Bible and reads aloud.'],
-      [null, '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
+      ['priest', '“Perhaps you are.” He opens his worn Bible and reads aloud.'],
+      ['priest', '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
       ['priest', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire burns low, say it, piece by piece, in order.”'],
       ['you', '“And if he swings at me?”'],
       ['priest', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
@@ -108,9 +110,9 @@ const TEXT = {
     // Amos talking you through your first fight
     coach: {
       firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
-      firstCard: 'Each card is a verse you know. The gem is how much focus it takes, and your focus only comes back after the fight. Tap a card to use that verse. It takes your whole turn.',
+      firstCard: 'Each card is a verse you know. The number in the top left is how much focus it takes. You can regain focus between fights or by using certain scriptures. Tap a card to use that verse. You can use one verse per turn.',
       recall: 'Take your time, son. Fill in each blank. The more you get right, the sharper the sword of the Spirit cuts.',
-      oneMove: 'Bram gets his turn after every verse you say. The box under the fight tells you what he means to do next. If he is winding up for something big, Brace: say nothing and take half the hurt.',
+      oneMove: 'Bram gets his turn after every verse you say, you can forego saying a verse and instead Brace: say nothing and take half the hurt.',
       gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
       readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
       assembly: 'His fire is burning low. Now, son: Galatians 5:22–23, piece by piece, in order. Tap the pieces.',
@@ -126,12 +128,12 @@ const TEXT = {
       ok: 'Got it',
     },
     giftLog: 'Amos hands you Romans 12:2.',
-    groggy: 'You have been awake since yesterday. Your focus is already thin.',
+    groggy: 'It is hard to focus with the heat coming off Bram, you start the fight with less focus than normal.',
     after: [
-      [null, 'The last of the fire goes out. Where the Furnace stood, Bram sits down hard on the edge of the well, smoke still rising off his sleeves.'],
+      [null, 'The last of the fire goes out. Where the Furnace stood, Bram slowly sits down on the edge of the well, smoke still rising off his sleeves.'],
       ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks, burning. Let the forge go cold.”'],
       ['you', '“Are you okay?”'],
-      ['blacksmith', '“Don’t know yet.” He looks at you properly for the first time. “Who are you?”'],
+      ['blacksmith', '“Don’t know yet.” He looks at you properly for the first time. “Why did you help me?”'],
       ['you', '“Honestly? I’m not sure. I fell asleep studying, and I woke up here.”'],
       ['priest', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
       ['blacksmith', 'Bram looks down at your sneakers and shakes his head. He unlaces his own work boots and pushes them into your arms. “Here. Where you’re going, you’ll want real boots.”'],
@@ -144,15 +146,17 @@ const TEXT = {
   // ---------- Amos walks you through town, once, after the Furnace (and again from the church) ----------
   tour: {
     lines: [
-      [null, 'Amos walks you up the main street. Half the shutters are still nailed shut, but there is smoke coming from the forge chimney.'],
+      [null, 'Amos walks you up the main street. Most of the shutters are still nailed shut, but there is smoke coming from the forge chimney.'],
       ['priest', '“Before you go anywhere, son, a word. Nobody walks into a fire in his slippers. Paul told the church in Ephesus: ‘Put on the full armor of God, so that you can make your stand against the devil’s schemes.’ You get equipped here, in town. Then you go out.”'],
       ['you', '“So I get ready here, before every cave.”'],
       ['priest', '“Every time.” He nods at the forge. “Bram makes plain gear, for talents. Bring a piece back and say the right passage over it, and it becomes something more than leather.”'],
       ['priest', '“The inn, the training yard, the scriptorium: all boarded. The people who kept them are out in the caves. Every one you bring home opens a door, and every door has something for you behind it.”'],
       ['priest', '“And the church is always open. Come back hurt, come back tired, come back with nothing to say. That is what it is there for.”'],
       ['you', '“What do I need to know about the caves?”'],
-      ['priest', '“Walk the whole cave before you face the one at the bottom. I preached a long time to those people, and some of them took my notes with them when they ran. You will find scraps. Read them.”'],
-      ['priest', '“The ones down there are held by things that sound true and are not. My notes will help you tell the difference. ‘It is the glory of God to conceal a matter and the glory of kings to search it out.’”'],
+      ['priest', '“Walk the whole cave before you face the one at the end. I preached a long time to those people, and some of them took my notes with them when they ran. You will find scraps that may give insight into their troubles.”'],
+      ['priest', '“The ones down there are held by things that sound true and are not.”'],
+      ['you','“Why did God choose me?”'],
+      ['priest',"‘It is the glory of God to conceal a matter and the glory of kings to search it out.’"],
       ['priest', '“This town has only a little strength, son. But it kept His word. That is enough to start with.”'],
     ],
     button: 'Walk into town',
@@ -419,9 +423,8 @@ const TEXT = {
   },
   // What the held say in a fight. The sin talks, not the person (Ephesians 6:12). Each kind has:
   //   taunts: most turns, in the voice of its sin. waver: below half health. crack: nearly free.
-  //   atk / big / vex: what each move is called. Shown in the intent line (“Grudge reads out
-  //   your failures 3”) and again in the log when it lands (“Grudge reads out your failures.”),
-  //   so each one has to read both ways. One is picked at random.
+  //   atk / big / vex: what each move is called, said in the log when it lands (“Grudge reads
+  //   out your failures.”). One is picked at random.
   // Villagers and the stronger villagers share `villager`.
   foes: {
     furnace: {
@@ -520,10 +523,6 @@ const TEXT = {
     },
     yourTurn: 'Your turn',
     theirTurn: 'Their turn',
-    // the line above your cards: {move} is from `foes`, the number is shown next to it
-    intentAttack: '{move}',
-    intentBig: '{move}',
-    intentVex: '{move}',
     vexTag: '+1 cost',
     // what you say, one picked at random. {ref} is the verse, {name} {he} {him} {his} the target.
     cast: {
@@ -564,7 +563,7 @@ const TEXT = {
       waver: ['It’s working. {name} is listening.', 'Keep going. {He}’s slowing down.'],
       perfect: ['Every word. Huh.', 'I actually know that one.'],
     },
-    targetHint: ' Tap an enemy to target it.',
+    targetHint: 'Tap an enemy to target it.',
     focus: 'Focus',
     notEnoughFocus: 'Not enough focus',
     alreadySaid: 'You’ve said that one. It comes back once you’ve said the others.',

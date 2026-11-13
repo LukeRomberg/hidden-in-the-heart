@@ -379,7 +379,6 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .vex{ left:calc(52px * var(--k,1)); bottom:calc(104px * var(--k,1)); }
 .textbox{ font-size:15px; line-height:1.3; min-height:3.9em; }
 .fightdock{ padding-top:4px; }
-.textbox .intents{ font-size:15px; color:#e8d2a8; margin:2px 0 0; }
 .hand.hscroll{ display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
   padding:16px 2px 4px 16px; margin:0 -12px 0 -4px; scrollbar-width:none; }
 .hand.hscroll::-webkit-scrollbar{ display:none; }
@@ -431,12 +430,7 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 /* the log: your own thoughts in italics */
 .textbox .thought{ font-style:italic; color:#bcd8ec; }
 .textbox #log div:not(:last-child) .thought{ color:#8aa4b8; }
-/* the intent line: one enemy per line, the move by name, the number as a badge */
-.textbox .intents .intent{ display:block; }
-.textbox .intents b{ color:#f6e6c0; font-weight:700; }
-.textbox .intents em{ font-style:normal; font-family:'Nunito',system-ui,sans-serif; font-size:14px; color:#fff; background:#b4401c; padding:0 6px; margin-left:4px; border:2px solid #17110d; }
-.textbox .intents .i-big em{ background:#e0683a; } .textbox .intents .i-vex em{ background:#6a4d80; }
-.textbox .intents .hint{ display:block; font-size:13px; color:#c8ac84; }
+.textbox .hint{ display:block; font-size:13px; color:#c8ac84; border-top:2px dashed rgba(232,210,168,.28); padding-top:5px; margin-top:6px; }
 /* after the fight: who was freed and how each verse went */
 .afterfight .freed span:last-child{ color:var(--leaf); font-weight:700; text-align:right; }
 .afterfight .verse-res{ margin-bottom:6px; }
@@ -519,7 +513,6 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 
 /* the box under the battle: the log, then what's coming next */
 .textbox #log div{ color:#b89a70; } .textbox #log div:last-child{ color:#fff0d0; }
-.textbox .intents{ border-top:2px dashed rgba(232,210,168,.28); padding-top:5px; margin-top:6px; color:#e8d2a8; }
 /* tutorial popups: Amos stops the fight to teach one rule */
 .overlay.tip .panel{ text-align:left; }
 .overlay.tip .tiphead{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }

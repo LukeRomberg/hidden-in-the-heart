@@ -36,7 +36,7 @@ function vary(pool){
   VARY.set(pool, [...recent, i]); return pool[i];
 }
 function pickLine(pool, vars){ return fill(vary(pool), vars); }
-// what the enemy's next move is called (shown in the intent line, then in the log when it lands)
+// what the enemy's next move is called, said in the log when it lands
 function moveFor(e){ const f = foe(e); return vary(f[e.pattern[e.step]] || f.atk); }
 // the sin speaks in its own voice, and changes its tune as it loses its grip
 function moodOf(e){ return e.hp<=e.max*0.2 ? 'crack' : e.hp<=e.max*0.5 ? 'waver' : null; }
@@ -108,10 +108,6 @@ function newTurn(){
 function verseRefs(){ return [...new Set(R.deck.map(c=>c.ref))]; }
 function unsaid(){ return verseRefs().filter(ref=>!R.spent.includes(ref)); }
 function affordable(ref){ return cardCost(BY_REF[ref]) <= R.focus; }
-// what each enemy means to do next: its move, by name, and how hard (or that it provokes)
-function intentHTML(e){ const a=e.pattern[e.step], F=TEXT.fight;
-  const text = fill(a==='atk'?F.intentAttack: a==='big'?F.intentBig: F.intentVex, {move:e.move});
-  return `<span class="intent i-${a}"><b>${e.name}</b> ${text} <em>${a==='vex'?F.vexTag: a==='big'?e.atk+3: e.atk}</em></span>`; }
 function infoTarget(){ const t = R.enemies[R.target]; return t && !t.freed ? t : R.enemies.find(e=>!e.freed); }
 function playerHPText(){ return `HP ${Math.max(0,R.hp)}/${R.maxHp}${R.shield?' \u00b7 shield '+R.shield:''}`; }
 // two layers per bar: the colour drains first, a pale trail follows it down (see /* battle feel */)
@@ -155,7 +151,6 @@ function fightHTML(){
   const rank = ref => R.spent.includes(ref) ? 2 : cardCost(BY_REF[ref])>R.focus ? 1 : 0;
   const hand = verseRefs().map((ref,i)=>[ref,i]).sort((a,b)=>rank(a[0])-rank(b[0]) || a[1]-b[1]).map(([ref])=>{ const v=BY_REF[ref]; const cost=cardCost(v);
     return cardHTML(v,{cost, cls:R.spent.includes(ref)?'spent':cost>R.focus?'dim':'', click:`playCard('${ref}')`}); }).join('');
-  const intents = R.enemies.filter(e=>!e.freed).map(intentHTML).join('');
   if(R.say) queueMicrotask(placeSay);   // once the arena is on screen
   // the cards ride in the pinned bottom bar as a side-scrolling row, so the battle stays in view
   // the tutorial teaches with popups (tutorialTip, below), not a box in the way
@@ -163,8 +158,8 @@ function fightHTML(){
     <div class="hand hscroll">${hand}</div>
     <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}</div>`;
-  // everything that happens, back and forth, in one box under the battle: what was said and done, then what's coming
-  const next = R.after ? '' : `<div class="intents">${intents}${R.enemies.length>1?`<span class="hint">${TEXT.fight.targetHint}</span>`:''}</div>`;
+  // everything that happens, back and forth, in one box under the battle. What they'll do next isn't shown (Luke's call).
+  const next = R.after || R.enemies.filter(e=>!e.freed).length<2 ? '' : `<div class="hint">${TEXT.fight.targetHint}</div>`;
   return `${arenaHTML(false)}<div class="textbox"><div id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${next}</div>${bottom}`;
 }
 // how a cast went, for the after-fight panel

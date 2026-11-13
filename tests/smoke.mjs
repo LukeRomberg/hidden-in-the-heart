@@ -33,7 +33,7 @@ const act = () => page.locator('#acts button').first();
 
 // Tap through a dialogue box until its action buttons are revealed.
 async function finishDialogue() {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 60; i++) {   // two taps a line (finish typing, then next), so this covers ~30 lines
     if (!(await page.locator('#acts.hide').count()) && !(await page.evaluate(() => TW.typing))) return;
     await page.locator('.dlg').first().click(); await page.waitForTimeout(60);
   }
