@@ -1,5 +1,7 @@
 // Headless click-through: title -> New game -> prologue -> pick two verses -> the Furnace (tutorial) ->
-// Bram -> town -> church -> first cave -> first fight -> deeper -> move the save to a fresh browser. Fails on any console error or page error.
+// Bram -> town -> church -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
+// verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
+// Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -77,6 +79,37 @@ async function winFight() {
   await page.evaluate(() => { if (modal && modal.kind === 'levelup') closeLevelUp(); });
 }
 
+// ---- Cave map: walking is done by tapping the screen, like a player ----
+// tile [x,y] of the first map glyph g (S, D, V, L, a marker digit…) in the current cave
+const findGlyph = g => page.evaluate(g => { const m = caveMap(R.cave); for (let y = 0; y < m.H; y++) { const x = m.rows[y].indexOf(g); if (x >= 0) return [x, y]; } return null; }, g);
+const mapIdle = () => page.waitForFunction(() => !document.getElementById('wipe').className && !(R.map && R.map.walking), null, { timeout: 15000 });
+// Walk to a tile (or up to a closed door, which also taps it). Each tap goes to the furthest tile of the real route
+// that is already lit or remembered and on screen, so fog and the tap-to-walk path are exercised for real.
+async function walkTo(goal) {
+  for (let i = 0; i < 80; i++) {
+    await mapIdle();
+    const s = await page.evaluate(([gx, gy]) => {
+      if (screen !== 'dive' || R.room || modal) return { stop: true };
+      const [hx, hy] = R.map.pos; if (hx === gx && hy === gy) return { stop: true };
+      const m = caveMap(R.cave), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
+      while (q.length) { const [x, y] = q.shift(); if (x === gx && y === gy) break; if ((x !== hx || y !== hy) && !walkable(x, y)) continue;
+        for (const [a, b] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) { if (prev.has(a + ',' + b) || (!walkable(a, b) && !(a === gx && b === gy) && !markAt(a, b))) continue; prev.set(a + ',' + b, [x, y]); q.push([a, b]); } }
+      if (!prev.has(gx + ',' + gy)) return { err: 'no route' };
+      const path = []; for (let p = [gx, gy]; p; p = prev.get(p.join(','))) path.unshift(p);
+      const r = document.getElementById('cmap').getBoundingClientRect(), v = document.querySelector('.cave-view').getBoundingClientRect();
+      let best = null;
+      path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
+        if (R.map.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
+      return best ? { best } : { err: 'nothing on the route is lit' };
+    }, goal);
+    if (s.stop) return;
+    if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
+    await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
+    if (s.best.x === goal[0] && s.best.y === goal[1] && await page.evaluate(([x, y]) => closedAt(x, y), goal)) { await mapIdle(); return; }   // tapped a shut door
+  }
+  throw new Error(`never got to ${goal}`);
+}
+
 let result = 'pass';
 try {
   await step('load title', async () => {
@@ -116,15 +149,52 @@ try {
     await page.locator('#app button[onclick="startCave(0)"]').click(); await waitScreen('caveintro');
     await finishDialogue(); await act().click(); await waitScreen('dive');
   });
-  await step('first room', async () => {
-    await page.locator('.dock button').first().click(); await waitScreen('fight');
+  await step('walk to the first fight', async () => {
+    const start = await page.evaluate(() => R.map.pos.join(','));
+    await walkTo(await findGlyph('1')); await waitScreen('fight');
+    const hero = await page.evaluate(() => R.map.pos.join(','));
+    if (hero === start) throw new Error('never left the start');
   });
   await step('fight', async () => {
     await winFight();
     const who = await page.evaluate(() => R.enemies.map(e => e.villager ? 'villager' : e.id));
     if (!who.every(w => w === 'villager')) throw new Error('expected rescued villagers, got ' + who);
-    await btn('Move on').click(); await waitScreen('dive');
-    if (await page.evaluate(() => R.step) !== 1) throw new Error('did not move deeper into the cave');
+    await page.locator('#app button[onclick*="clearColumn"]').click(); await waitScreen('dive');
+    const f = await findGlyph('1');
+    if (await page.evaluate(f => !!markAt(...f), f)) throw new Error('the fight is still on the map');
+  });
+  await step('open a chest', async () => {
+    const creed = await page.evaluate(() => P.creed);
+    await walkTo(await findGlyph('3')); await page.waitForFunction(() => R.room === 'lock');
+    await btn('Open it').click();
+    while (await page.evaluate(() => modal && modal.kind === 'assembly')) {
+      const i = await page.evaluate(() => modal.order.indexOf(modal.next)); await page.locator('.overlay .chip').nth(i).click();
+    }
+    await waitScreen('dive');
+    const after = await page.evaluate(([c, x, y]) => ({ creed: P.creed === c + 1, gone: !markAt(x, y) }), [creed, ...await findGlyph('3')]);
+    if (!after.creed || !after.gone) throw new Error('after the chest: ' + JSON.stringify(after));
+  });
+  await step('verse door', async () => {
+    const v = await findGlyph('V');
+    await walkTo(v); await page.waitForFunction(() => R.room === 'verse');
+    await page.locator('#app .panel button').first().click(); await solveRecall(); await mapIdle();
+    if (!(await page.evaluate(v => isOpen(...v), v))) throw new Error('the verse door stayed shut after a perfect recital');
+  });
+  await step('lever opens the gate', async () => {
+    await walkTo(await findGlyph('L'));
+    if (await page.evaluate(g => closedAt(...g), await findGlyph('G'))) throw new Error('the gate is still shut');
+  });
+  await step('boss door stays barred', async () => {
+    const d = await findGlyph('D');
+    await walkTo(d);
+    const s = await page.evaluate(d => ({ shut: closedAt(...d), msg: R.map.msg, want: fill(TEXT.dive.bossDoorShut, { n: fightsLeft() }), left: fightsLeft() }), d);
+    if (!s.shut || s.msg !== s.want || !s.left) throw new Error('boss door with fights left: ' + JSON.stringify(s));
+  });
+  await step('reload resumes on the map', async () => {
+    const before = await page.evaluate(() => JSON.stringify({ pos: R.map.pos, done: R.map.done, open: R.map.open, seen: R.map.seen.join('') }));
+    await page.reload(); await btn('Continue').click(); await waitScreen('dive');
+    const after = await page.evaluate(() => JSON.stringify({ pos: R.map.pos, done: R.map.done, open: R.map.open, seen: R.map.seen.join('') }));
+    if (after !== before) throw new Error('the map changed across a reload');
   });
   await step('move save to a fresh browser', async () => {
     const before = await page.evaluate(() => { saveHero(); return { deck: R.deck.length, forge: !!P.town.forge, level: R.level }; });
