@@ -238,9 +238,12 @@ function playCard(ref){
   });
 }
 function brace(){ if(R.busy || R.after) return; R.brace=true; R.say=null; log(TEXT.fight.braceLog); shieldFX(); enemyTurn(); }
+// A full beat each way between turns, so a fight reads as back and forth (Luke, 2026-11).
+const TURN_BEAT = 1000;
 async function enemyTurn(){
   if(R.busy || R.after) return; R.busy=true;
   R.vexed = false;   // being provoked lasts one turn: it wears off whatever you did with it (or you could be stuck at 0 focus)
+  await sleep(TURN_BEAT);   // let your verse land before he answers
   turnBanner(TEXT.fight.theirTurn, false); await sleep(CALM()?250:450);
   for(const e of R.enemies){ if(e.freed) continue;
     const i=R.enemies.indexOf(e);
@@ -261,6 +264,7 @@ async function enemyTurn(){
     if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); barsSync(); }
     if(R.hp<=0){ R.busy=false; defeat(); return; }
   }
+  await sleep(TURN_BEAT);   // and his, before it's your turn again
   newTurn(); R.busy=false;
   if(R.hp < R.maxHp*0.4 && !R.hurtSaid){ R.hurtSaid=true; think('hurt', {}, true); }
   render(); turnBanner(TEXT.fight.yourTurn, true);

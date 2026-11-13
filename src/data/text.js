@@ -102,7 +102,7 @@ const TEXT = {
       ['you', '“The fire on his skin. I thought I was dreaming.”'],
       ['priest', '“Perhaps you are.” He opens his worn Bible and reads aloud.'],
       ['priest', '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
-      ['priest', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire goes out, say it over him, piece by piece, in order.”'],
+      ['priest', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire goes out, speak it over him.”'],
       ['you', '“And if he swings at me?”'],
       ['priest', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
     ],
