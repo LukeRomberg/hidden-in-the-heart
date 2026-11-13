@@ -398,3 +398,55 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 #testpanel .testlist{ display:none; margin-top:6px; padding:8px; max-height:60vh; overflow:auto; background:#1d1410; border:2px solid var(--gold); }
 #testpanel.open .testlist{ display:flex; flex-direction:column; gap:6px; }
 #testpanel .testlist button{ font-size:13px; padding:4px 8px; min-height:0; }
+/* battle feel */
+/* bars drain: the colour first, then a pale trail behind it */
+.info .bar i{ position:relative; z-index:1; transition:width .3s steps(8); }
+.info .bar b.lag{ position:absolute; left:0; top:0; height:100%; background:#f6e6c0; opacity:.5; transition:width .35s .28s steps(8); }
+/* hit-stop: the whole arena holds still for a beat */
+.arena.stop, .arena.stop *{ animation-play-state:paused !important; }
+/* what the held say: a speech bubble over (or beside) the speaker */
+.say{ position:absolute; z-index:6; max-width:52%; background:#fff8e6; color:#2a1e14; border:3px solid #2a1e14; box-shadow:3px 3px 0 rgba(0,0,0,.45);
+  padding:3px 8px 4px; font-family:'Nunito',system-ui,sans-serif; font-size:14px; line-height:1.25; animation:saypop .2s steps(3) 1; }
+.say::after{ content:""; position:absolute; bottom:-11px; left:var(--tail,24px); border:8px solid transparent; border-top:8px solid #2a1e14; border-bottom:0; }
+.say.side::after{ bottom:auto; left:auto; top:12px; right:-11px; border:8px solid transparent; border-left:8px solid #2a1e14; border-right:0; }
+@keyframes saypop{ from{ transform:scale(.6); opacity:0; } to{ transform:none; opacity:1; } }
+/* floating numbers and labels (live in #fxtop, positioned in page coordinates) */
+.float{ position:absolute; z-index:2; transform:translateX(-50%); white-space:nowrap; pointer-events:none; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:24px; line-height:1;
+  color:#fff2b0; text-shadow:2px 0 #1b1410,-2px 0 #1b1410,0 2px #1b1410,0 -2px #1b1410,2px 2px #1b1410,-2px 2px #1b1410; animation:floatup 1s steps(10) forwards; }
+.float.crit{ color:#f2d25a; font-size:28px; } .float.big{ font-size:34px; } .float.you{ color:#ff8a6a; }
+.float.heal{ color:#9ee07a; } .float.shield{ color:#a8d0f2; font-size:17px; } .float.focus{ color:#b8e07a; font-size:17px; } .float.tag{ color:#f6e6c0; font-size:15px; }
+@keyframes floatup{ 0%{ transform:translate(-50%,8px) scale(.6); opacity:0; } 14%{ transform:translate(-50%,0) scale(1.2); opacity:1; } 28%{ transform:translate(-50%,-4px) scale(1); }
+  75%{ opacity:1; } 100%{ transform:translate(-50%,-36px); opacity:0; } }
+/* Your turn / Their turn */
+.turnban{ position:absolute; height:0; display:flex; justify-content:center; align-items:center; pointer-events:none; }
+.turnban span{ font-family:'Pixelify Sans',system-ui,sans-serif; font-size:20px; letter-spacing:.06em; padding:4px 22px; background:rgba(23,17,13,.88);
+  border-top:3px solid currentColor; border-bottom:3px solid currentColor; animation:banner .95s steps(12) forwards; }
+.turnban.mine span{ color:#f2c84a; } .turnban.theirs span{ color:#e0683a; }
+@keyframes banner{ 0%{ transform:translateX(-60px); opacity:0; } 18%{ transform:none; opacity:1; } 78%{ transform:none; opacity:1; } 100%{ transform:translateX(60px); opacity:0; } }
+/* the freeing beat: their first free words, big */
+.beat{ position:absolute; pointer-events:auto; cursor:pointer; background:rgba(23,17,13,.94); color:#f6e6c0; border:3px solid #f2c84a; box-shadow:4px 4px 0 rgba(0,0,0,.5);
+  padding:10px 12px 12px; animation:beatin .3s steps(4) 1; }
+.beat .bwho{ display:flex; align-items:center; gap:8px; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:14px; color:#f2c84a; margin-bottom:6px; }
+.beat .bwho img{ image-rendering:pixelated; border:2px solid #f2c84a; }
+.beat .bwho img.spr{ object-fit:cover; object-position:top; background:#3a2a1e; }
+.beat .bline{ font-family:'Nunito',system-ui,sans-serif; font-size:19px; line-height:1.3; }
+.beat.out{ animation:beatout .22s steps(3) forwards; }
+@keyframes beatin{ from{ transform:translateY(10px) scale(.92); opacity:0; } to{ transform:none; opacity:1; } }
+@keyframes beatout{ to{ transform:translateY(-8px); opacity:0; } }
+/* the log: your own thoughts in italics */
+.textbox .thought{ font-style:italic; color:#bcd8ec; }
+.textbox div:not(:last-child) .thought{ color:#8aa4b8; }
+/* the intent line: one enemy per line, the move by name, the number as a badge */
+.fightdock .intents .intent{ display:block; }
+.fightdock .intents b{ color:#f6e6c0; font-weight:700; }
+.fightdock .intents em{ font-style:normal; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:14px; color:#fff; background:#b4401c; padding:0 6px; margin-left:4px; border:2px solid #17110d; }
+.fightdock .intents .i-big em{ background:#e0683a; } .fightdock .intents .i-vex em{ background:#6a4d80; }
+.fightdock .intents .hint{ display:block; font-size:13px; color:#c8ac84; }
+/* after the fight: who was freed and how each verse went */
+.afterfight .freed span:last-child{ color:var(--leaf); font-weight:700; text-align:right; }
+.afterfight .verse-res{ margin-bottom:6px; }
+.afterfight .res{ font-weight:700; } .afterfight .res.perfect{ color:var(--leaf); } .afterfight .res.steady{ color:var(--gold); } .afterfight .res.slipped{ color:var(--ember); }
+@media (prefers-reduced-motion: reduce){
+  .en.lunge, .en.hit, .pl.hit, .say, .beat, .beat.out, .turnban span{ animation:none; }
+  .float{ animation:none; } .info .bar i, .info .bar b.lag{ transition:none; }
+}

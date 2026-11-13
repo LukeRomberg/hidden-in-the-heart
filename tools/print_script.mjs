@@ -34,6 +34,16 @@ scene(`15. ${T.defeat.heading}`, `*${T.defeat.story}*`, button(T.defeat.button))
 scene('16. First visits', ...[['The Forge', 'forge'], ['The Inn', 'inn'], ['The Training Yard', 'training'], ['The Scriptorium', 'scriptorium']]
   .map(([h, k]) => `**${h}**\n\n${conv(T[k].firstVisit)}`));
 scene('17. Town, later visits', ['forge', 'inn', 'scriptorium'].map(k => conv([T[k].line])).join('\n\n'), conv([T.training.yardLine]));
+const list = a => [].concat(a).map(l => `- ${l}`).join('\n');
+const F = T.fight;
+scene('18. In a fight', `**Openers:** the Furnace: ${F.bossRoars}`,
+  ...['grudge', 'brawler', 'slanderer'].map(k => `**${T.enemies[k].name}:** ${F.openers[k]}`),
+  `**Villagers, one:**\n\n${list(F.openers.villagerOne)}`, `**Villagers, more than one:**\n\n${list(F.openers.villagerMany)}`,
+  ...Object.entries(F.cast).map(([k, v]) => `**You cast (${k}):**\n\n${list(v)}`),
+  ...Object.entries(F.thoughts).map(([k, v]) => `**You think (${k}):**\n\n${list(v)}`));
+scene('19. What the held say', ...Object.entries(T.foes).map(([k, f]) => `### ${T.enemies[k] ? T.enemies[k].name : 'Villagers'}\n\n` +
+  ['taunts', 'waver', 'crack'].map(m => `**${m}:**\n\n${list(f[m])}`).join('\n\n') + '\n\n' +
+  ['atk', 'big', 'vex'].filter(m => f[m]).map(m => `**moves (${m}):** ${f[m].join(' · ')}`).join('\n\n')));
 
 mkdirSync(join(ROOT, 'tools/out'), { recursive: true });
 const file = join(ROOT, 'tools/out/script.md');
