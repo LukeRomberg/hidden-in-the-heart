@@ -3,6 +3,7 @@ const SAVE_KEY = 'hidden-in-the-heart-v1';
 let P = {casts:{}, hero:null, town:{}, missions:{}, met:{}, caves:{}, creed:0, run:null, tutorialDone:false};
 try{ const s = localStorage.getItem(SAVE_KEY); if(s){ const o = JSON.parse(s);
   if(o.hero && o.tutorialDone===undefined) o.tutorialDone = true;   // saves from before the tutorial have played past it
+  if(o.run && o.run.cave!=null && o.run.v!==2) o.run = {v:2, cave:o.run.cave};   // a dive from before the cave maps starts over at the cave mouth
   P = Object.assign(P, o); } }catch(e){}
 ['casts','town','missions','met','caves'].forEach(k=>{ if(!P[k]) P[k]={}; });
 delete P.fresh; delete P.mastery; delete P.perks;
@@ -58,6 +59,6 @@ function savesHTML(){
 }
 function continueGame(){ loadHero();
   if(!P.tutorialDone){ goto('tutorial'); return; }
-  if(P.run && P.run.cave!=null){ Object.assign(R, {cave:P.run.cave, step:P.run.step, room:null, node:null, enemies:[], boss:null}); goto('dive'); return; }
+  if(P.run && P.run.cave!=null && CAVES[P.run.cave]){ resumeCave(P.run); return; }
   P.run = null;   // runs from the old square map can't resume
   goto('town'); }

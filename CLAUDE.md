@@ -31,8 +31,9 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 
 - Source is in `src/`; `npm run build` inlines it into one self-contained `dist/index.html`
   (the file that gets hosted). `npm run dev` rebuilds on save and serves on the LAN for phone
-  testing. `npm run smoke` builds, then plays title -> tutorial -> first mission fight headless
-  and fails on any console error. `npm test` = verify + smoke. Run it after every change.
+  testing. `npm run smoke` builds, then plays title -> tutorial -> the Hollow's map (walks to
+  and wins the first fight, opens a chest, verse door, lever, bumps the boss door, reloads)
+  headless and fails on any console error. `npm test` = verify + smoke. Run it after every change.
   `npm run script` prints the story as a readable script to `tools/out/script.md`.
 - **Test mode**: add `?test` to the URL (local `dist/index.html`, `npm run dev`, or the live
   site). A Test button (top right) jumps straight to the tutorial, town, any cave, any cave
@@ -84,15 +85,23 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   don't heal him and Amos says the last passage with you, so nobody can get stuck.
 - **Provoked** (vex) raises verse costs by 1 for one turn only, then wears off whatever you
   do; otherwise a player at 0 focus could never cast again.
-- **Caves** (`CAVES` in dive.js): one view, no map. A scene, narration, and "Go left / Go
-  right" buttons with hints at a fork; chests and rest stops open in place; fights switch to
-  the arena and return. `P.caves` counts clears; `P.run` resumes a dive after a reload.
+- **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,
+  `B` the held townsperson, `D` boss door, `V` verse door, `L`/`K` levers for `G`/`H` gates,
+  digits = that cave's `marks`: fights, chests, campfire). Fog of war: light reaches ~3 tiles
+  (blocked by rock and shut doors, not gate bars); seen tiles stay dim. Tap a tile to walk the
+  BFS path over tiles you've seen; tap the dark to get as near as you can. Walking into a marker
+  stops you in front of it: fights switch to the arena and come back (`clearColumn()` is the
+  hand-back combat.js calls), chests and the campfire open a panel under the map, and a cleared
+  marker is gone. A verse door opens on any verse you carry said without a slip; the boss door
+  stays barred until every fight on the map is cleared. Placeholder tiles and objects are drawn
+  in code (`CAVE_PAL`, `ART`). `P.caves` counts clears; `P.run` ({v:2, cave, pos, face, seen,
+  done, open}) resumes on the map after a reload; an older run restarts at the cave mouth.
 - Balance was tuned with a scripted player at 60/70/85% accuracy over the whole arc.
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
 - **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)
-  to put back in order. Tier comes from the map (`STEPS`): deeper chests have more pieces, fewer
-  allowed mistakes and better loot (`CHEST` in map.js). Fail and you get nothing. Progress is
+  to put back in order. Tier comes from the cave's `marks`: deeper chests have more pieces, fewer
+  allowed mistakes and better loot (`CHEST` in dive.js). Fail and you get nothing. Progress is
   `P.creed`; the Codex shows the Creed so far.
 - **The tree**: all nine fruit of the Spirit, bottom-up. Patience, Gentleness, Peace are
   open; the rest unlock one per mission going up the trunk. Only those three have perks
@@ -160,7 +169,10 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 ## Art still wanted
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
-- Held-villager sprites (today the villagers are tinted townsfolk).
+- Held-villager sprites (today the villagers are tinted townsfolk; on the cave map, red-rimmed shadows).
+- Cave map tileset (rock, rock face, floor per cave; doors, gate, lever, chest, campfire) and hero
+  walking frames, about 6 PixelLab generations. Waiting for Luke's OK after he tries the
+  code-drawn placeholders on his phone.
 
 ## Conventions
 

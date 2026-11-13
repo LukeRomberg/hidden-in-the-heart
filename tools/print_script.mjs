@@ -27,7 +27,8 @@ scene(`7. ${T.victory.heading}`, `*${T.victory.story}*`, `*${T.victory.bell}*`, 
 scene('8. Bram', conv(T.tutorial.after), button(T.tutorial.toTown));
 scene('9. The church', conv([T.church.lineBefore]), conv([T.church.lineAfter]));
 T.caves.forEach((c, i) => scene(`${10 + i}. ${c.name}`, `*${c.blurb}*`, conv(c.intro), button(T.dive.enter), `*At the end:* ${c.bossLead}`, button(T.dive.face), conv(c.done), button(T.dive.home)));
-scene('13. In the tunnels', `*${T.dive.split}*`, Object.entries(T.dive.hints).map(([k, v]) => `- **${k}:** ${v}`).join('\n'));
+scene('13. In the tunnels', `*${T.dive.walkHint}*`, Object.entries(T.dive.hints).map(([k, v]) => `- **${k}:** ${v}`).join('\n'),
+  ['bossDoorSeen', 'bossDoorShut', 'bossDoorOpen', 'gateSeen', 'gateShut', 'leverSeen', 'leverPulled', 'verseSeen', 'verseBody', 'verseOpen', 'verseShut'].map(k => `- **${k}:** ${T.dive[k]}`).join('\n'));
 scene('14. The freed', Object.entries(T.thanks).map(([k, v]) => `- **${T.enemies[k].name}:** ${v}`).join('\n'),
   T.villagers.map(v => `- **${v.name}:** ${v.thanks}`).join('\n'));
 scene(`15. ${T.defeat.heading}`, `*${T.defeat.story}*`, button(T.defeat.button));
