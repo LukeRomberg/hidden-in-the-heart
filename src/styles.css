@@ -586,3 +586,9 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .apiece.done img{ filter:none; border-color:#d8a630; }
 .apiece.next img{ filter:grayscale(.3) opacity(.85); border:2px dashed #7a4a24; }
 .apiece.next span{ color:#3a2414; }
+
+/* after the Furnace: the forge lit and the church, side by side, on the night */
+.panel.scene.changed{ display:flex; justify-content:center; align-items:flex-end; gap:18px; padding:14px 10px 10px !important; }
+.changed figure{ margin:0; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.changed img{ image-rendering:pixelated; width:132px; height:auto; }
+.changed figcaption{ font-size:16px; font-weight:800; color:#5a3418; }

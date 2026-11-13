@@ -754,7 +754,10 @@ const TEXT = {
   },
   victory: {
     heading: 'The Furnace goes out',
-    story: 'The last fire goes out. Where the Furnace stood is Bram, the blacksmith, blinking like a man stepping out of a dark room. Somewhere behind you, someone opens a shutter. Then another.',
+    // captions under the two pictures at the top: the forge lit, the church
+    forgeLit: 'The forge is lit',
+    bellRings: 'The bell rings',
+    story: 'Where the Furnace once stood is Bram, the blacksmith, blinking like a man stepping out of a dark room. Somewhere behind you, someone opens a shutter. Then another.',
     bell: 'That night, for the first time in a long time, the church bell rings. And people come.',
     fruit: 'A clearer mind',
     fruitPerk: '+2 max focus, for good',

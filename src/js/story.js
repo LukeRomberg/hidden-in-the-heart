@@ -144,7 +144,10 @@ function defeat(){
 function retreat(){ R.hp=Math.max(1,R.hp); P.run=null; R.cave=null; saveHero(); goto('town'); }
 function victoryHTML(){
   const T = TEXT.victory;
-  return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.square)}<div class="panel story"><p>${T.story}</p>
+  // what changed: the forge lit and the church bell (town art, open state), not the empty square
+  const changed = `<div class="panel scene changed"><figure><img src="${IMG.town.forge[1]}" alt=""><figcaption>${T.forgeLit}</figcaption></figure>
+    <figure><img src="${IMG.town.church[1]}" alt=""><figcaption>${T.bellRings}</figcaption></figure></div>`;
+  return `<h1>${T.heading}</h1>${changed}<div class="panel story"><p>${T.story}</p>
     ${R.firstClear?`<p>${T.bell}</p>`:''}</div>
     <div class="panel"><h2>Earned</h2><div class="stat"><span>Souls saved</span><span>+${R.firstClear?3:1}</span></div><div class="stat"><span>Talents</span><span>+${R.firstClear?30:15}</span></div>
     ${R.firstClear?`<div class="stat t-Patience"><span>${T.fruit}</span><span>${T.fruitPerk}</span></div><div class="stat t-Self-control"><span>${T.newVerse}</span><span>Galatians 5:16</span></div><div class="stat t-Gentleness"><span>${T.gift}</span><span>${ITEMS[BRAM_GIFT].name}</span></div>`:''}</div>
