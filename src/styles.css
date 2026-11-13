@@ -560,3 +560,29 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .wico{ flex:none; width:54px; height:54px; image-rendering:pixelated; background:#e8d6aa; border:2px solid #c8a26a; padding:3px; box-sizing:border-box; }
 .ware.locked .wico{ filter:grayscale(.7) opacity(.6); }
 .gearrow{ display:flex; gap:10px; align-items:center; }
+
+/* gear screen: paper-doll slots around the hero, the tapped slot's details, the armor in order */
+.doll{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.doll .dcol{ display:flex; flex-direction:column; gap:10px; }
+.doll .dhero{ flex:1; display:flex; justify-content:center; }
+.slot{ position:relative; width:72px; height:72px; padding:0; margin:0; border:3px solid #7a5232; border-image:none; background:#e8d6aa;
+  box-shadow:inset 0 0 0 2px #f6ead0; display:flex; align-items:center; justify-content:center; }
+.slot img{ width:54px; height:54px; image-rendering:pixelated; margin-top:-8px; }
+.slot .slbl{ position:absolute; bottom:1px; left:0; right:0; text-align:center; font-size:12px; font-weight:800; color:#7a5232; line-height:1.1; }
+.slot.empty{ background:#d8c49a; border-style:dashed; }
+.slot.empty .slbl{ bottom:auto; top:50%; transform:translateY(-50%); }
+.slot.holy{ border-color:#d8a630; box-shadow:inset 0 0 0 2px #fff3c4, 0 0 0 2px #f2c84a; }
+.slot.sel{ outline:3px solid #3a2414; outline-offset:2px; }
+.slot:active{ transform:scale(.96); }
+.slotinfo{ display:flex; gap:12px; align-items:flex-start; }
+.slotinfo .sicon{ flex:none; width:64px; height:64px; image-rendering:pixelated; background:#e8d6aa; border:2px solid #c8a26a; padding:4px; box-sizing:border-box; }
+.slotinfo .sicon.empty{ border-style:dashed; }
+.slotinfo .sname{ font-size:18px; font-weight:800; color:#3a2414; }
+.slotinfo .snext{ margin-top:6px; font-size:15px; font-weight:700; color:#7a4a24; }
+.slotinfo .snext.holy{ color:#a87a10; }
+.achain{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:6px; }
+.apiece{ display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; font-weight:700; color:#8a6a48; }
+.apiece img{ width:100%; max-width:48px; image-rendering:pixelated; filter:grayscale(1) opacity(.4); background:#e8d6aa; border:2px solid #c8a26a; box-sizing:border-box; }
+.apiece.done img{ filter:none; border-color:#d8a630; }
+.apiece.next img{ filter:grayscale(.3) opacity(.85); border:2px dashed #7a4a24; }
+.apiece.next span{ color:#3a2414; }

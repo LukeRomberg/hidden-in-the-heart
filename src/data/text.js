@@ -825,6 +825,12 @@ const TEXT = {
     fits: '{name}. It fits.',
     failed: 'The Scripture slipped away from you. The metal stays cold.',
     bought: '{name} on.',
+    // the gear screen's slot panel (drafts)
+    emptySlot: '{slot}: nothing yet',
+    forgeSells: 'Bram sells a {name} at the Forge for {n} talents.',
+    nextConsecrate: 'Next: the {up}. {n} talents at the Forge, and recite {ref} perfectly.',
+    laterConsecrate: 'Becomes the {up}, after the {prev}.',
+    consecratedWith: 'Consecrated with {ref}.',
   },
 
   // ---------- Spells, recall, the tree ----------
