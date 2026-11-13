@@ -1,6 +1,6 @@
 // Headless click-through: title -> New game -> prologue -> pick two verses -> the Furnace (tutorial) ->
 // Bram -> town -> church -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
-// verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
+// truth villager (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
@@ -138,7 +138,8 @@ try {
     await btn('Leave the room').click(); await waitScreen('victory');
     if (await page.locator('.overlay.levelup').count()) await page.locator('.overlay .lvopt').first().click();   // grow a fruit
     await page.locator('.dock button').first().click(); await waitScreen('tutend');
-    await finishDialogue(); await act().click(); await waitScreen('town');
+    await finishDialogue(); await act().click(); await waitScreen('tour');
+    await finishDialogue(); await act().click(); await waitScreen('town');   // Amos's town tour
     const s = await page.evaluate(() => ({ forge: P.town.forge, done: P.tutorialDone, gift: owns(BRAM_GIFT), romans: R.deck.some(c => c.ref === 'Romans 12:2') }));
     if (!s.forge || !s.done || !s.gift || !s.romans) throw new Error('after the Furnace: ' + JSON.stringify(s));
   });
@@ -174,6 +175,17 @@ try {
     const after = await page.evaluate(([c, x, y]) => ({ creed: P.creed === c + 1, gone: !markAt(x, y) }), [creed, ...await findGlyph('3')]);
     if (!after.creed || !after.gone) throw new Error('after the chest: ' + JSON.stringify(after));
   });
+  await step('true/false villager, with Amos', async () => {
+    await walkTo(await findGlyph('t')); await page.waitForFunction(() => R.room === 'truth');
+    const dockBtn = t => page.locator('.dock button', { hasText: t });
+    await dockBtn('Go on').click(); await dockBtn('Go on').click();   // Amos arrives, Amos answers the first
+    const ans = await page.evaluate(() => TRUTHS[R.tf.q].answer);
+    await dockBtn(ans ? 'False' : 'True').click();                   // a wrong answer: Amos points you back
+    if (await page.evaluate(() => R.tf.phase) !== 'ask') throw new Error('with Amos there, a wrong answer should not end it');
+    await dockBtn(ans ? 'True' : 'False').click(); await dockBtn('Go on').click(); await mapIdle();
+    const st = await page.evaluate(() => ({ room: R.room, first: P.firstTruth }));
+    if (st.room || !st.first) throw new Error('after the truth: ' + JSON.stringify(st));
+  });
   await step('verse door', async () => {
     const v = await findGlyph('V');
     await walkTo(v); await page.waitForFunction(() => R.room === 'verse');
@@ -186,7 +198,8 @@ try {
   });
   await step('boss door stays barred', async () => {
     const d = await findGlyph('D');
-    await walkTo(d);
+    const doorMsg = () => page.evaluate(() => R.map.msg === fill(TEXT.dive.bossDoorShut, { n: fightsLeft() }));
+    for (let i = 0; i < 4 && !(await doorMsg()); i++) await walkTo(d);   // you stop to look at anything new on the way
     const s = await page.evaluate(d => ({ shut: closedAt(...d), msg: R.map.msg, want: fill(TEXT.dive.bossDoorShut, { n: fightsLeft() }), left: fightsLeft() }), d);
     if (!s.shut || s.msg !== s.want || !s.left) throw new Error('boss door with fights left: ' + JSON.stringify(s));
   });

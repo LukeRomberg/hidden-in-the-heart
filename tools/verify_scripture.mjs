@@ -1,6 +1,6 @@
 // Verifies every Scripture quotation in src/ against the BSB. Exits 1 on any mismatch.
 // Checks:
-//   1. VERSES, ARMOR_V, STORY_V in src/data/scripture.js: text == BSB for the ref
+//   1. VERSES, ARMOR_V, STORY_V, TRUTH_V in src/data/scripture.js: text == BSB for the ref
 //   2. CHUNKS (the boss assembly) joined == BSB for PASSAGE_REF
 //   3. src/data/pass.json == what tools/build_passages.mjs generates from the BSB
 //   4. Quotations inline in src/ (“…” followed by a reference, e.g. the Ephesians 6:12 line)
@@ -27,7 +27,7 @@ function check(where, ref, got) {
 }
 
 // 1. verse lists
-for (const list of ['VERSES', 'ARMOR_V', 'STORY_V']) for (const v of S[list]) check(`scripture.js ${list}`, v.ref, v.text);
+for (const list of ['VERSES', 'ARMOR_V', 'STORY_V', 'TRUTH_V']) for (const v of S[list]) check(`scripture.js ${list}`, v.ref, v.text);
 
 // 2. boss passage pieces
 check('scripture.js CHUNKS', S.PASSAGE_REF, S.CHUNKS.join(' '));
@@ -62,5 +62,5 @@ if (fails.length) {
   for (const f of fails) console.error('  ' + f + '\n');
   process.exit(1);
 }
-console.log(`scripture OK: ${checked} checks against the BSB (${S.VERSES.length + S.ARMOR_V.length + S.STORY_V.length} verses, ` +
+console.log(`scripture OK: ${checked} checks against the BSB (${S.VERSES.length + S.ARMOR_V.length + S.STORY_V.length + S.TRUTH_V.length} verses, ` +
   `Galatians chunks, ${Object.keys(JSON.parse(passFile)).length} passages, ${inline} inline quotations, Nicene Creed vs ELLC)`);

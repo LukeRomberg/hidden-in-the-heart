@@ -14,7 +14,7 @@ const OUT = join(ROOT, 'src/data/pass.json');
 export function loadScripture() {
   const ctx = {};
   vm.runInNewContext(readFileSync(join(ROOT, 'src/data/scripture.js'), 'utf8') +
-    '\nthis.S = {VERSES, ARMOR_V, STORY_V, PASSAGE_REF, CHUNKS};', ctx);
+    '\nthis.S = {VERSES, ARMOR_V, STORY_V, TRUTH_V, PASSAGE_REF, CHUNKS};', ctx);
   return ctx.S;
 }
 

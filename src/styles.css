@@ -478,3 +478,11 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .divetools{ margin:0; gap:6px; flex-wrap:nowrap; }
 .divetools button{ flex:1; margin:4px 0; font-size:15px; text-align:center; padding-left:2px; padding-right:2px; }
 @media (prefers-reduced-motion: reduce){ .cmap, .chero{ transition:none; } .torch, .tl .mk.flame, .tl .glow, .chero.walking .hs{ animation:none; } }
+
+/* cave encounters (encounters.js) */
+.tl .mk.who.hurt{ transform:rotate(-12deg); transform-origin:50% 90%; filter:saturate(.75) brightness(.9); }
+.panel.truth .q{ font-size:19px; line-height:1.35; margin:4px 0 8px; }
+.tline{ margin:0 0 8px; } .tline b{ font-family:'Pixelify Sans',system-ui,sans-serif; font-weight:400; color:var(--gold); margin-right:4px; }
+.verse.truthverse{ margin:6px 0 8px; } .verse.truthverse .ref{ display:block; margin-top:4px; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:13px; opacity:.8; }
+.panel.scrap{ background:#efe2bf; color:#3a2414; } .panel.scrap .scraptext{ font-style:italic; }
+.tfbtns{ gap:8px; } .tfbtns button{ flex:1; margin:0; }

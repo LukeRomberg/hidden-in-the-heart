@@ -9,70 +9,75 @@
      D boss door, opens once every fight on the map is cleared
      V verse door, opens when you say a verse you carry without a slip
      L lever, opens every G gate      K lever, opens every H gate
-     1-9 a marker from that cave's marks: {t:'fight', e:[enemy ids]}, {t:'lock', tier}, {t:'rest'} */
+     1-9 a marker from that cave's marks: {t:'fight', e:[enemy ids]}, {t:'lock', tier}, {t:'rest'}
+     a-z (lowercase) the encounters in encounters.js: {t:'scrap', truth}, {t:'truth', truth, amos}, {t:'hurt', who} */
 const CAVES = [
-  {id:'hollow', boss:'grudge', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager']}, 3:{t:'lock',tier:1}, 4:{t:'rest'}}, map:[
+  {id:'hollow', boss:'grudge', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager']}, 3:{t:'lock',tier:1}, 4:{t:'rest'}, a:{t:'scrap',truth:'even'}, b:{t:'scrap',truth:'account'}, c:{t:'scrap',truth:'sun'},
+    t:{t:'truth',truth:'account',amos:'even'}, u:{t:'truth',truth:'sun'}}, map:[
     '##############',
     '#####...######',
     '#####.B.######',
     '#####...######',
     '######D#######',
-    '###.....4#...#',
+    '###c....4#...#',
     '###2.....#L#.#',
-    '####.....###.#',
+    '####....u###.#',
     '######G#####.#',
     '######.#####V#',
-    '##..3#.#####.#',
+    '##..3#.#####t#',
     '##.###.#####.#',
     '#............#',
     '#.####1#####.#',
     '#.####.###...#',
-    '#..###.###.###',
+    '#.a###.###b###',
     '######S#######',
     '##############',
   ]},
   {id:'quarry', boss:'brawler', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager','villager']}, 3:{t:'fight',e:['villager_strong']},
-    4:{t:'rest'}, 5:{t:'lock',tier:1}, 6:{t:'lock',tier:2}}, map:[
+    4:{t:'rest'}, 5:{t:'lock',tier:1}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'tobias'},
+    a:{t:'scrap',truth:'gentle'}, b:{t:'scrap',truth:'help'}, c:{t:'scrap',truth:'pride'}, t:{t:'truth',truth:'gentle'}, u:{t:'truth',truth:'help'}, w:{t:'truth',truth:'pride'}}, map:[
     '###############',
     '######...######',
     '######.B.######',
     '######...######',
     '#######D#######',
-    '##4.........###',
-    '##..#..3..#..##',
-    '##...........##',
+    '##4........w###',
+    '##..#..3..#.c##',
+    '##.u.........##',
     '#######H#######',
-    '#6#.........###',
-    '#.#..#...#..#K#',
+    '#6#......t..###',
+    '#.#b.#...#..#K#',
     '#V#.........2.#',
     '#...#...#...#5#',
     '###.###.###.###',
-    '#...###1###..##',
+    '#a..###1###.h##',
     '#######.#######',
     '#######S#######',
     '###############',
   ]},
   {id:'deep', boss:'slanderer', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager_strong']}, 3:{t:'fight',e:['villager_strong','villager']},
-    4:{t:'rest'}, 5:{t:'lock',tier:2}, 6:{t:'lock',tier:2}}, map:[
+    4:{t:'rest'}, 5:{t:'lock',tier:2}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'hannah'},
+    a:{t:'scrap',truth:'money'}, b:{t:'scrap',truth:'good'}, c:{t:'scrap',truth:'heart'}, d:{t:'scrap',truth:'handle'},
+    t:{t:'truth',truth:'good'}, u:{t:'truth',truth:'handle'}, w:{t:'truth',truth:'heart'}, x:{t:'truth',truth:'money'}}, map:[
     '################',
     '#######...######',
     '#######.B.######',
     '#######...######',
     '########D#######',
-    '###4.........###',
-    '###.3........###',
+    '###4......u..###',
+    '###.3.......d###',
     '#########H######',
-    '###.....#.######',
+    '###.w...#.######',
     '###.###.#.######',
     '###.#...#.##6###',
-    '###.#.###.##.###',
-    '###.#.2..K##.###',
+    '###.#c###.##.###',
+    '###.#.2..K##b###',
     '###.########.###',
-    '###..........###',
+    '###..t.......###',
     '#######V########',
-    '#..G...........#',
-    '#.####.#.####.##',
-    '#5####.1.####.##',
+    '#.xG...........#',
+    '#a####.#.####.##',
+    '#5####.1h####.##',
     '#######.#####.L#',
     '#######S########',
     '################',
@@ -106,11 +111,11 @@ function startCave(i){
   R.map = freshMap(i); R.map.msg = TEXT.dive.walkHint;
   saveRun(); goto('caveintro');
 }
-function freshMap(i){ const m = caveMap(i); return {pos:m.start.slice(), face:'back', seen:new Array(m.W*m.H).fill(0), done:[], open:[], msg:null, vis:new Set()}; }
-// P.run = {v:2, cave, pos, face, seen:'0110…', done:[marker ids], open:[door and lever ids]}
+function freshMap(i){ const m = caveMap(i); return {pos:m.start.slice(), face:'back', seen:new Array(m.W*m.H).fill(0), done:[], open:[], helped:[], msg:null, vis:new Set()}; }
+// P.run = {v:2, cave, pos, face, seen:'0110…', done:[marker ids], open:[door and lever ids], helped:[who]}
 function saveRun(){
   const M = R.map; if(!M || R.cave==null) return;
-  P.run = {v:2, cave:R.cave, pos:M.pos.slice(), face:M.face, seen:M.seen.join(''), done:M.done.slice(), open:M.open.slice()};
+  P.run = {v:2, cave:R.cave, pos:M.pos.slice(), face:M.face, seen:M.seen.join(''), done:M.done.slice(), open:M.open.slice(), helped:(M.helped||[]).slice()};
   saveHero();
 }
 // back on the map after a reload; anything that no longer fits the map (it was redrawn) starts over
@@ -119,7 +124,7 @@ function resumeCave(run){
   Object.assign(R, {cave:i, room:null, node:null, enemies:[], boss:null}); R.map = M;
   if(typeof run.seen==='string' && run.seen.length===m.W*m.H){
     M.seen = Array.from(run.seen, Number);
-    M.done = (run.done||[]).filter(id=>m.mk[id]); M.open = (run.open||[]).slice();
+    M.done = (run.done||[]).filter(id=>m.mk[id]); M.open = (run.open||[]).slice(); M.helped = (run.helped||[]).slice();
     if(Array.isArray(run.pos) && walkable(run.pos[0], run.pos[1])) M.pos = run.pos.slice();
     if(run.face==='front') M.face = 'front';
   }
@@ -150,10 +155,12 @@ function closedAt(x,y){ const c = tileAt(x,y);
 function walkable(x,y){ const c = tileAt(x,y);
   if(c==='#') return false;
   if(c==='D' || c==='V' || leverFor(c)) return !closedAt(x,y);
-  if(caveMap(R.cave).mk[tid(x,y)]) return isDone(x,y);
+  const mk = caveMap(R.cave).mk[tid(x,y)];
+  if(mk) return isDone(x,y) || mk.t==='scrap';   // a scrap of paper on the floor: walk over it and pick it up
   return true; }
 function blocksSight(x,y){ const c = tileAt(x,y); return c==='#' || ((c==='D' || c==='V') && !isOpen(x,y)); }   // you can see through a gate's bars
-function fightsLeft(){ return Object.values(caveMap(R.cave).mk).filter(m=>m.t==='fight' && !R.map.done.includes(m.id)).length; }
+// everyone still held on this floor: fights and the villagers asking “Is it true…?”
+function fightsLeft(){ return Object.values(caveMap(R.cave).mk).filter(m=>(m.t==='fight'||m.t==='truth') && !R.map.done.includes(m.id)).length; }
 
 // ---- Light: a few tiles around you, cut off by rock ----
 function inSight(hx,hy,x,y){
@@ -216,6 +223,7 @@ async function walkLoop(){
       let stop = false;
       for(let i=1;i<plan.path.length && !stop;i++){
         const next = plan.path[i], m = markAt(...next);
+        if(m && m.t==='scrap'){ stepTo(...next); await sleep(STEP_MS); if(screen!=='dive' || R.map!==M) return; trigger(m); stop = true; break; }
         if(m){ face(next); trigger(m); stop = true; break; }   // you stop in front of it, facing it
         const fresh = stepTo(...next); await sleep(STEP_MS);
         if(screen!=='dive' || R.map!==M) return;
@@ -243,6 +251,9 @@ function arrive(fresh, goal){
 }
 function markHint(m){ const D = TEXT.dive;
   if(m.t==='boss') return TEXT.caves[R.cave].bossLead;
+  if(m.t==='scrap') return TEXT.truths.scrapHint;
+  if(m.t==='truth') return TEXT.truths.villagerHint;
+  if(m.t==='hurt') return TEXT.living.hint;
   return D.hints[m.t==='fight' && m.e.length>1 ? 'fightMany' : m.t]; }
 function say(msg){ R.map.msg = msg; const el = document.getElementById('cavemsg'); if(el) el.innerHTML = msg; }
 function heroEl(op){ const h = document.getElementById('chero'); if(h) h.classList[op]('walking'); }
@@ -258,10 +269,12 @@ function camera(){ const [x,y] = R.map.pos; return `translate(${-(x+.5)*MAP_T}px
 function trigger(m){
   R.node = m;
   if(m.t==='fight'){ R.node = {...m, e:m.e.map(standIn)}; saveRun(); startFight(R.node.e); return; }
-  R.room = m.t; render();   // lock, rest, boss: a panel under the map
+  if(m.t==='truth') startTruth(m);
+  if(m.t==='hurt') startHurt();
+  R.room = m.t; render();   // lock, rest, boss, scrap, truth, hurt: a panel under the map
 }
 function notNow(){ R.room=null; R.node=null; render(); }
-function faceBoss(){ const n = R.node; R.node = {...n, t:'elite', caveBoss:true, e:n.e.map(standIn)}; R.room=null; saveRun(); startFight(R.node.e); }
+function faceBoss(){ const n = R.node; R.node = {...n, t:'elite', caveBoss:true, e:n.e.map(standIn)}; R.room=null; saveRun(); startFight(R.node.e); helpersAtBoss(); }
 function bump(x,y){ const c = tileAt(x,y), D = TEXT.dive;
   if(c==='D'){ const n = fightsLeft();
     if(n){ say(fill(D.bossDoorShut,{n})); return; }
@@ -320,8 +333,11 @@ function tileInner(x,y){
   if(leverFor(c)) return art(closedAt(x,y)?'gate':'gateUp');
   const mk = markAt(x,y); if(!mk) return '';
   if(mk.t==='lock') return art('chest');
+  if(mk.t==='scrap') return art('note');
+  if(mk.t==='hurt') return `<img class="mk who hurt" src="${FREED_IMG['freed'+((x*3+y)%6)].f[0]}" alt="">`;
   if(mk.t==='rest') return art('logs')+`<img class="mk flame" src="${caveArt().flame}" alt="">`;
   // people: still held, so a shadow with an angry glow; the named townsperson is drawn as themselves
+  if(mk.t==='truth') return `<img class="mk who shade" src="${FREED_IMG['freed'+((x+y)%6)].f[0]}" alt="">`;
   if(mk.t==='boss' && standIn(mk.e[0])===mk.e[0]){ const E = ENEMY_IMG[mk.e[0]]; return `<img class="mk who boss" src="${E.f[0]}" alt="">`; }
   return mk.e.map((e,i)=>`<img class="mk who shade n${mk.e.length}-${i}" src="${FREED_IMG['freed'+((x+y+i*3)%6)].f[0]}" alt="">`).join('');
 }
@@ -345,6 +361,9 @@ function diveHTML(){
   if(R.room==='lock'){ body = lockPanel(); dock = `<button class="primary wide" onclick="pickLock()">${T.pickLock}</button>${back(D.notNow)}`; }
   else if(R.room==='rest'){ body = restPanel(); dock = back(D.notNow); }
   else if(R.room==='boss'){ body = `<div class="panel cavemsg">${TEXT.caves[R.cave].bossLead}</div>`; dock = `<button class="primary wide" onclick="faceBoss()">${D.face}</button>${back(D.notYet)}`; }
+  else if(R.room==='scrap'){ body = scrapPanel(); dock = `<button class="primary wide" onclick="takeScrap()">${TEXT.truths.takeIt}</button>`; }
+  else if(R.room==='truth' && R.tf){ body = truthPanel(); dock = truthDock(); }
+  else if(R.room==='hurt' && R.hurt){ body = hurtPanel(); dock = hurtDock(); }
   else if(R.room==='verse'){ body = versePanel(); dock = `<button class="wide" onclick="R.room=null;R.node=null;render()">${D.notNow}</button>`; }
   else { body = `<div class="panel cavemsg" id="cavemsg">${R.map.msg || D.walkHint}</div>`; dock = tools; }
   return `${mapHTML()}${body}<div class="dock">${dock}</div>`;
@@ -392,6 +411,8 @@ const ART_PAL = {k:'#1e140c', w:'#8a5a2e', W:'#b07a40', d:'#5e3a1c', g:'#f2c84a'
 const ART = {
   chest:['................','................','................','...kkkkkkkkkk...','..kWWWWWWWWWWk..','..kwwwwwwwwwwk..','..kwwwwggwwwwk..','..kkkkkgGkkkkk..',
          '..kdddwgGwdddk..','..kwwwwggwwwwk..','..kwwwwwwwwwwk..','..kddddddddddk..','..kkkkkkkkkkkk..','...xxxxxxxxxx...','................','................'],
+  note: ['................','................','................','....kkkkkkkk....','...kYYYYYYYYk...','...kYSSSSSSYk...','...kYYYYYYYYk...','...kYSSSSYYYk...',
+         '...kYYYYYYYYk...','...kYSSSSSSYk...','...kYYYYYYttk...','...kYSSSYYtsst..','...kkkkkkktsssk.','.....xxxxxxtttx.','................','................'],
   logs: ['................','................','................','................','................','................','................','................',
          '................','................','...kdk....kdk...','..kWwwdkkdwwWk..','..kdwwwWWwwwdk..','.tSkkkkkkkkkkSt.','..tSt.tSt.tSt...','................'],
   flame:['................','................','.......y........','......yo........','......ooy.......','.....oyyo.......','.....ryyor......','....royYyo......',

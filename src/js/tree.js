@@ -19,7 +19,7 @@ function growFromPopup(b){ modal=null; R.levelUps=Math.max(0, Math.min(R.levelUp
 function closeLevelUp(){ R.levelUps=0; R.levelHp=0; modal=null; render(); }
 function treeDue(){ return (R.level-1) - R.rank; }
 const TREE = TEXT.tree.perks;
-// All nine fruit of the Spirit, grown from the ground up: the three from Emberford first, then one branch per mission.
+// All nine fruit of the Spirit, grown from the ground up: the three from Philadelphia first, then one branch per mission.
 const FRUIT = [
   {b:'Patience',     col:'#c8961a'},
   {b:'Gentleness',   col:'#4f8a2a'},

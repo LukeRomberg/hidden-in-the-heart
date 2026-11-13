@@ -1,4 +1,4 @@
-/* Emberford: town map, church, and the buildings freed enemies reopen. */
+/* Philadelphia (Emberford until 2026-11): town map, church, and the buildings freed enemies reopen. */
 const UNLOCKS = {furnace:['forge',TEXT.town.unlocked.furnace], grudge:['inn',TEXT.town.unlocked.grudge], brawler:['training',TEXT.town.unlocked.brawler], slanderer:['scriptorium',TEXT.town.unlocked.slanderer]};
 function townUnlock(id){ const u=UNLOCKS[id]; if(u && !P.town[u[0]]){ P.town[u[0]]=true; R.unlockMsg=u[1]; save(); } }
 const BUILD = {
@@ -38,6 +38,7 @@ function churchHTML(){
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('church'+(done?1:0),[done?T.lineAfter:T.lineBefore],'',false)}
     <h2>${T.missions}</h2>${caves}
     <button class="wide" disabled>${done?T.nextOpen:T.nextLocked}</button>
+    <button class="wide" onclick="R.tourFrom='church';TW={key:null};goto('tour')">${TEXT.tour.again}</button>
     <h2 style="margin-top:12px">${T.pews}</h2>
     <button class="wide" onclick="R.trainFrom='church';goto('training')">${T.pray}<br><span class="sub">${T.prayBlurb}</span></button>
     ${R.hp<R.maxHp?`<button class="wide" ${R.talents<5?'disabled':''} onclick="R.talents-=5; R.hp=R.maxHp; saveHero(); toast(TEXT.church.restDone); render()">${T.rest}</button>`:''}
@@ -86,7 +87,7 @@ function scriptoriumHTML(){
 function learn(ref){ const v=BY_REF[ref], c=10+5*v.cost; if(R.talents<c) return; R.talents-=c; addVerse(ref); saveHero(); toast(fill(TEXT.scriptorium.learned,{ref})); render(); }
 function worldHTML(){
   const cleared = allCavesDone();
-  const N = TEXT.world.towns, towns = [[30,70,N.emberford,'Wrath',true],[78,52,N.ashby,'???',false],[112,30,N.fennmarsh,'???',false],[54,22,N.greyhollow,'???',false]];
+  const N = TEXT.world.towns, towns = [[30,70,N.philadelphia,'Wrath',true],[78,52,N.ephesus,'???',false],[112,30,N.sardis,'???',false],[54,22,N.smyrna,'???',false]];
   let s = `<rect width="140" height="100" fill="#3e5a3a"/>`;
   for(let i=0;i<60;i++){ const x=(i*37)%140, y=(i*53)%100; s+=`<rect x="${x}" y="${y}" width="3" height="3" fill="#355030"/>`; }
   s += `<rect x="96" y="60" width="44" height="40" fill="#2f4a6a"/><rect x="0" y="0" width="34" height="18" fill="#5a5a5a"/>`;

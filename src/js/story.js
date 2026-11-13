@@ -85,7 +85,13 @@ function coachLine(){
 function tutendHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,
-    `<button class="primary wide" onclick="goto('town')">${T.toTown}</button>`)}`;
+    `<button class="primary wide" onclick="goto('tour')">${T.toTown}</button>`)}`;
+}
+// Amos shows you the town once, after the Furnace (and again from the church, if you ask)
+function tourHTML(){
+  const T = TEXT.tour;
+  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40)])}${talk('tour', T.lines,
+    `<button class="primary wide" onclick="P.toured=true;save();goto(R.tourFrom||'town')">${T.button}</button>`)}`;
 }
 const THANKS = TEXT.thanks;
 function victory(){

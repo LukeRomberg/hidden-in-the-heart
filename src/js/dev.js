@@ -26,6 +26,7 @@ function testHero(afterTutorial){
 }
 const TEST_JUMPS = [
   ['Tutorial: the Furnace', ()=>{ testHero(false); startTutorial(); }],
+  ['Amos’s town tour', ()=>{ testHero(true); R.tourFrom='town'; goto('tour'); }],
   ['Town, after the tutorial', ()=>{ testHero(true); goto('town'); }],
   ['The Hollow', ()=>{ testHero(true); startCave(0); }],
   ['The Old Quarry', ()=>{ testHero(true); P.caves.hollow = 1; startCave(1); }],

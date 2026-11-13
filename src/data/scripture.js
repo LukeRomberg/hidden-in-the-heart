@@ -26,5 +26,18 @@ const ARMOR_V = [
 const STORY_V = [
   {ref:'Psalm 119:11', type:'Love', cost:1, dmg:5, text:'I have hidden Your word in my heart that I might not sin against You.'},
 ];
+// Verses the truths in TEXT.truths point to (shown after a villager’s question and on Amos’s notes). Copied from the BSB; npm run verify checks them.
+const TRUTH_V = [
+  {ref:'Romans 5:6', text:'For at just the right time, while we were still powerless, Christ died for the ungodly.'},
+  {ref:'Romans 12:19', text:'Do not avenge yourselves, beloved, but leave room for God’s wrath. For it is written: “Vengeance is Mine; I will repay, says the Lord.”'},
+  {ref:'2 Corinthians 1:8–9', text:'We do not want you to be unaware, brothers, of the hardships we encountered in the province of Asia. We were under a burden far beyond our ability to endure, so that we despaired even of life. Indeed, we felt we were under the sentence of death, in order that we would not trust in ourselves, but in God, who raises the dead.'},
+  {ref:'Ephesians 2:8–9', text:'For it is by grace you have been saved through faith, and this not from yourselves; it is the gift of God, not by works, so that no one can boast.'},
+  {ref:'1 Timothy 6:10', text:'For the love of money is the root of all kinds of evil. By craving it, some have wandered away from the faith and pierced themselves with many sorrows.'},
+  {ref:'Jeremiah 17:9', text:'The heart is deceitful above all things and beyond cure. Who can understand it?'},
+  {ref:'Ephesians 4:26', text:'“Be angry, yet do not sin.” Do not let the sun set upon your anger,'},
+  {ref:'Proverbs 16:18', text:'Pride goes before destruction, and a haughty spirit before a fall.'},
+  {ref:'Proverbs 15:1', text:'A gentle answer turns away wrath, but a harsh word stirs up anger.'},
+  {ref:'1 Corinthians 13:5', text:'It is not rude, it is not self-seeking, it is not easily angered, it keeps no account of wrongs.'},
+];
 const PASSAGE_REF = 'Galatians 5:22–23';
 const CHUNKS = ['But the fruit','of the Spirit','is love, joy, peace,','patience, kindness, goodness,','faithfulness, gentleness, and self-control.','Against such things','there is','no law.'];
