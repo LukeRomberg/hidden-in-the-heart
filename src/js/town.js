@@ -28,8 +28,7 @@ function townHTML(){
   const open = ['forge','inn','training','scriptorium'].filter(k=>P.town[k]).length;
   return `<h1>${TEXT.town.heading}</h1><div class="panel scene">${townMap()}</div>
     <div class="small mute" style="margin-bottom:8px">${open===4?TEXT.town.allOpen: open===3?TEXT.town.stillBoardedOne: fill(TEXT.town.stillBoardedMany,{n:4-open})}</div>
-    <div class="row">${['forge','inn','training','scriptorium'].map(k=>`<button ${P.town[k]?'':'disabled'} onclick="enterBuilding('${k}')">${BUILD[k].name}</button>`).join('')}<button onclick="goto('world')">Road</button></div>
-    <div class="row" style="margin-top:8px"><button onclick="R.codexFrom='town';goto('codex')">Codex</button><button onclick="goto('title')">Title</button></div>`;
+    <div class="row"><button onclick="R.codexFrom='town';goto('codex')">Codex</button><button onclick="goto('title')">Title</button></div>`;
 }
 function churchHTML(){
   const done = allCavesDone(), T = TEXT.church;
