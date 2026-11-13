@@ -391,3 +391,10 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .depth{ margin:-6px 0 8px; }
 .divetools{ margin:0 0 8px; gap:6px; }
 .divetools button{ flex:1; margin:0; font-size:15px; }
+
+/* test mode (?test) */
+#testpanel{ position:fixed; right:8px; top:calc(env(safe-area-inset-top,0px) + 6px); z-index:70; width:230px; display:flex; flex-direction:column; align-items:flex-end; }
+#testpanel .testbtn{ font-size:12px; padding:4px 10px; opacity:.85; }
+#testpanel .testlist{ display:none; margin-top:6px; padding:8px; max-height:60vh; overflow:auto; background:#1d1410; border:2px solid var(--gold); }
+#testpanel.open .testlist{ display:flex; flex-direction:column; gap:6px; }
+#testpanel .testlist button{ font-size:13px; padding:4px 8px; min-height:0; }

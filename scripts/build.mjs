@@ -14,7 +14,7 @@ export const ORDER = [
   'data/scripture.js', 'data/text.js', 'data/pixels.js', 'data/images.js',
   'js/state.js', 'js/save.js', 'js/spells.js', 'js/recall.js', 'js/art.js', 'js/fx.js',
   'js/gear.js', 'js/combat.js', 'js/dive.js', 'js/tree.js', 'js/story.js', 'js/town.js',
-  'js/ui.js', 'js/main.js',
+  'js/ui.js', 'js/dev.js', 'js/main.js',
 ];
 
 const read = p => readFileSync(join(SRC, p), 'utf8');

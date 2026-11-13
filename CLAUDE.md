@@ -34,6 +34,11 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   testing. `npm run smoke` builds, then plays title -> tutorial -> first mission fight headless
   and fails on any console error. `npm test` = verify + smoke. Run it after every change.
   `npm run script` prints the story as a readable script to `tools/out/script.md`.
+- **Test mode**: add `?test` to the URL (local `dist/index.html`, `npm run dev`, or the live
+  site). A Test button (top right) jumps straight to the tutorial, town, any cave, any cave
+  boss, a villager fight, the level-up popup or the Forge with a throwaway hero ("Strong hero"
+  for a late-game one). `src/js/dev.js`; it saves under `hidden-in-the-heart-test`, so the
+  real save is never read or written. Add a jump there whenever a new section lands.
 - `src/js/*.js` are plain scripts sharing one global scope (inline onclick handlers call
   top-level functions by name), concatenated in the `ORDER` list in `scripts/build.mjs`.
 - `src/data/`: scripture (`scripture.js`, `pass.json`), art (`hero.json`, `hero-alpha.json`,
