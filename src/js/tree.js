@@ -33,8 +33,8 @@ const FRUIT = [
 ];
 // Where each fruit hangs on the painted tree (assets/source/tree/tree.png, 104x104), in tree pixels: one
 // fruit per clump of leaves, three tiers bottom-up in FRUIT order, so the tree fills in as missions open.
-// (The bottom-centre clump is a copy of the bottom-left one, pasted in so there are nine.)
-const SOCKET = [[22,58],[52,65],[86,54], [20,36],[50,38],[82,32], [28,16],[51,13],[74,16]];
+// (The bottom-centre clump is a copy of the bottom-left one, turned 14° so its light falls from above.)
+const SOCKET = [[22,58],[52,55],[86,54], [20,36],[50,38],[82,32], [28,16],[51,13],[74,16]];
 function fruitHTML(f,k){ const g=f.lock?0:(R.tree[f.b]||0), [x,y]=SOCKET[k], sel=R.treeSel&&R.treeSel.b===f.b, due=!f.lock&&g<3&&treeDue()>0;
   const pips = f.lock ? '' : `<span class="pips">${[0,1,2].map(t=>`<i class="${t<g?'on':''}" style="--c:${f.col}"></i>`).join('')}</span>`;
   const ico = f.lock ? `<span class="lockb">${pxgIcon()}</span>` : `<img src="${IMG.icon[f.b]}" alt="">`;
