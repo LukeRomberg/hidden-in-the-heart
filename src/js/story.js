@@ -85,7 +85,7 @@ function startTutorial(){ R.tutorial=true; addVerse('Galatians 5:22-23'); R.node
 // (R.tipsSeen), in this order; render() opens the next one due when nothing else is on screen.
 const TIP_ORDER = [
   ['firstCard', ()=>R.turn>=1],
-  ['oneMove', ()=>R.turn>=2],
+  // 'oneMove' is shown by enemyTurn() itself, after your first verse and before Bram's first move
   ['readIntent', ()=>R.turn>=3 || R.spent.length>=2],
   ['gift', ()=>R.gift],
 ];

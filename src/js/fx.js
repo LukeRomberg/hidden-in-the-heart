@@ -64,6 +64,7 @@ async function strike(id, text, cls, big){
 }
 // “Your turn” / “Their turn”, across the middle of the arena
 function turnBanner(text, mine){
+  if(modal) return;   // a popup is up (Amos teaching, a recall): the banner would sit on top of it
   const a=document.getElementById('arena'); if(!a) return; const r=a.getBoundingClientRect();
   const d=document.createElement('div'); d.className='turnban '+(mine?'mine':'theirs'); d.innerHTML=`<span>${text}</span>`;
   d.style.left=r.left+'px'; d.style.width=r.width+'px'; d.style.top=(r.top+r.height*0.4)+'px';

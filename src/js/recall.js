@@ -1,6 +1,12 @@
 /* The recall challenge: blanks, multiple choice, first-letter typing. */
 function core(w){ return w.toLowerCase().replace(/[^a-z0-9]/g,''); }
-const ALL_WORDS = [...new Set([...VERSES,...Object.values(PASS).flatMap(p=>p.vs.map(x=>({text:x.t})))].flatMap(v=>v.text.split(' ')).map(core).filter(w=>w.length>=4 && !/^\d+$/.test(w)))];
+const ALL_TEXT = [...VERSES,...Object.values(PASS).flatMap(p=>p.vs.map(x=>({text:x.t})))].flatMap(v=>v.text.split(' '));
+const ALL_WORDS = [...new Set(ALL_TEXT.map(core).filter(w=>w.length>=4 && !/^\d+$/.test(w)))];
+// Blanks are compared by core() (no case, no punctuation), but a choice shows the word as Scripture spells it:
+// “quick-tempered”, not “quicktempered”; “God’s”, not “gods”.
+const WORD_FORM = {}; ALL_TEXT.forEach(w=>{ const k=core(w), f=w.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g,''); if(k && !(k in WORD_FORM)) WORD_FORM[k]=f; });
+const wordForm = x => WORD_FORM[x] || x;
+const bareOf = w => w.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g,'');   // a word without its outer punctuation
 function words(verse){ return verse.text.replace(/\u2014/g,' \u2014 ').split(' ').filter(Boolean); }
 function refParts(verse){ const m = verse.ref.match(/^(.+) (\d+):(\S+)$/); return {book:m[1], ch:m[2], vs:m[3]}; }
 function shiftVs(vs, d){ if(/^\d+$/.test(vs)) return String(Math.max(1,+vs+d)); const [a,b]=vs.split('-').map(Number); return `${Math.max(1,a+d)}-${Math.max(2,b+d)}`; }
@@ -50,11 +56,12 @@ function verseMarkup(){
     let sepBefore = i===0 ? '' : (o.kind==='vs' ? ':' : ' ');
     if(o.kind==='num') return `${sepBefore}<sup class="mute" style="font-size:.6em">${o.w}</sup>`;
     if(!o.mode) return sepBefore+o.w;
-    const lead = o.kind==='word' ? (o.w.match(/^[^A-Za-z0-9]*/)||[''])[0] : ''; const trail = o.kind==='word' ? o.w.replace(/^[^A-Za-z0-9]*[A-Za-z0-9\u2019']*/,'') : '';
+    // the blank is the whole word, hyphens and apostrophes inside it included; only outer punctuation stays visible
+    const lead = o.kind==='word' ? (o.w.match(/^[^A-Za-z0-9]*/)||[''])[0] : ''; const trail = o.kind==='word' ? (o.w.slice(lead.length).match(/[^A-Za-z0-9]*$/)||[''])[0] : '';
     const bare = o.kind==='word' ? o.w.slice(lead.length, o.w.length-trail.length) : o.w;
     if(o.given!==undefined){ const ok=o.given===o.ans;
       if(o.mode==='letter') return `${sepBefore}${lead}<span class="${ok?'t-Gentleness':'t-Goodness'}">${bare}</span>${trail}`;
-      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:o.given}</span>${trail}${ok||!c.done?'':`<span class="t-Gentleness"> ${bare}</span>`}`; }
+      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:(o.kind==='word'?wordForm(o.given):o.given)}</span>${trail}${ok||!c.done?'':`<span class="t-Gentleness"> ${bare}</span>`}`; }
     if(o.mode==='letter') return `${sepBefore}${lead}<span class="ph ${i===curI?'cur':''}">${'_'.repeat(Math.min(bare.length,7))}</span>${trail}`;
     return `${sepBefore}${lead}<span class="blank ${i===curI?'cur':''}">${i===curI?'?':'&nbsp;'}</span>${trail}`;
   }).join('');
@@ -68,7 +75,7 @@ function recallHTML(){
   } else if(curTok().mode==='letter'){
     controls = `<div class="small mute">${TEXT.recall.typeHint}</div>
       <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="letterInput(this)" style="text-align:center;font-size:28px;letter-spacing:.3em">`;
-  } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${x}</button>`).join('')}</div>`; }
+  } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${o.kind!=='word'?x: x===o.ans?bareOf(o.w):wordForm(x)}</button>`).join('')}</div>`; }
   const s=sp(c.verse.ref);
   const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : '';   // in the Furnace fight Amos says it in a popup first (tutorialFirst)
   return `<div class="overlay"><div class="panel"><h2>${modal.title}</h2>
