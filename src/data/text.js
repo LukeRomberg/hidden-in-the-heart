@@ -159,7 +159,7 @@ const TEXT = {
       ['priest',"‘It is the glory of God to conceal a matter and the glory of kings to search it out.’"],
       ['priest', '“This town has only a little strength, son. But it kept His word. That is enough to start with.”'],
     ],
-    button: 'Walk into town',
+    button: 'Continue',
     again: 'Walk the town with Amos again',
   },
 
@@ -763,7 +763,7 @@ const TEXT = {
     fruitPerk: '+2 max focus, for good',
     newVerse: 'New verse',
     gift: 'From Bram',
-    button: 'Help Bram up',
+    button: 'Continue',
   },
   defeat: {
     heading: 'You wake on a pew',
