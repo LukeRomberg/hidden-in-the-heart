@@ -1,6 +1,6 @@
 /* The recall challenge: blanks, multiple choice, first-letter typing. */
 function core(w){ return w.toLowerCase().replace(/[^a-z0-9]/g,''); }
-const ALL_TEXT = [...VERSES,...Object.values(PASS).flatMap(p=>p.vs.map(x=>({text:x.t})))].flatMap(v=>v.text.split(' '));
+const ALL_TEXT = [...VERSES,...Object.values(PASS).flatMap(p=>p.vs.map(x=>({text:x.t})))].flatMap(v=>words(v));   // same split as the blanks (an em dash separates words)
 const ALL_WORDS = [...new Set(ALL_TEXT.map(core).filter(w=>w.length>=4 && !/^\d+$/.test(w)))];
 // Blanks are compared by core() (no case, no punctuation), but a choice shows the word as Scripture spells it:
 // “quick-tempered”, not “quicktempered”; “God’s”, not “gods”.
