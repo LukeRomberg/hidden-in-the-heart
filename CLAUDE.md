@@ -9,7 +9,7 @@ not sin against You"), which is also the verse the hero falls asleep studying.
 ## Story
 
 A regular guy in a hoodie falls asleep trying to memorize verses (the game's whole premise:
-memorization is boring, so make it a game). He wakes in Emberford, a village where sin has
+memorization is boring, so make it a game). He wakes in Philadelphia, a village where sin has
 become visible. The church is empty; the old priest, Amos, gives him a dented trash-can lid
 and asks if he knows Scripture. The first fight is the tutorial and the first boss: Bram, the
 blacksmith, burning by the well, has become the Furnace. Freeing him opens the Forge and he
@@ -17,13 +17,19 @@ gives you his work boots (`BRAM_GIFT`). The held townsfolk who were in the squar
 three caves; the church sends you after them one cave at a time. Enemies are people "held" by a sin (Ephesians 6:12: not flesh
 and blood). Reciting truth over them frees them, and each freed person reopens part of town.
 
-- Emberford is the Wrath chapter: the Furnace (Bram) in the square, then three caves. Each
+- **Towns are the seven churches of Revelation 2–3**, one per chapter, named outright
+  (Philadelphia was Emberford until 2026-11). Philadelphia is the faithful church (3:7–13:
+  little strength, kept His word, an open door) with Amos as its pastor; Ephesus (first love
+  lost) is next. Every town follows one template: a boss in the square, then three caves; each
+  cave adds one encounter type and the last mixes them. Plan for all seven: `docs/mvp.md`.
+- Philadelphia is the Wrath chapter: the Furnace (Bram) in the square, then three caves. Each
   cave ends with a held townsperson whose freeing reopens one building: The Hollow (the
   Grudge, Wendell, Inn), The Old Quarry (the Brawler, Hale, Training Yard), The Deep Cave
-  (the Slanderer, Silas, Scriptorium). After all three, the road to Ashby opens.
+  (the Slanderer, Silas, Scriptorium). After all three, the road to Ephesus opens. After the
+  Furnace, Amos walks you through town once (`tourHTML`, `TEXT.tour`; replayable from the church).
 - Fights along the way are fled villagers (`TEXT.villagers`, men and women, tinted red until
   freed). A cave cleared again has a villager instead of its named boss.
-- The world map shows Ashby and two unknown towns. Next missions pair a vice with a fruit
+- The world map shows Ephesus, Sardis and Smyrna. Next missions pair a vice with a fruit
   (Galatians 5): Hatred/Love, Envy/Joy, Rivalry/Kindness, Impurity/Goodness,
   Idolatry/Faithfulness, Drunkenness/Self-control.
 
@@ -87,15 +93,24 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   do; otherwise a player at 0 focus could never cast again.
 - **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,
   `B` the held townsperson, `D` boss door, `V` verse door, `L`/`K` levers for `G`/`H` gates,
-  digits = that cave's `marks`: fights, chests, campfire). Fog of war: light reaches ~3 tiles
+  digits = that cave's `marks`: fights, chests, campfire; lowercase letters = the encounters in
+  `encounters.js`: `scrap`, `truth`, `hurt`). Fog of war: light reaches ~3 tiles
   (blocked by rock and shut doors, not gate bars); seen tiles stay dim. Tap a tile to walk the
   BFS path over tiles you've seen; tap the dark to get as near as you can. Walking into a marker
   stops you in front of it: fights switch to the arena and come back (`clearColumn()` is the
   hand-back combat.js calls), chests and the campfire open a panel under the map, and a cleared
   marker is gone. A verse door opens on any verse you carry said without a slip; the boss door
-  stays barred until every fight on the map is cleared. Placeholder tiles and objects are drawn
+  stays barred until everyone held on the map is free (fights and truth villagers). Placeholder tiles and objects are drawn
   in code (`CAVE_PAL`, `ART`). `P.caves` counts clears; `P.run` ({v:2, cave, pos, face, seen,
   done, open}) resumes on the map after a reload; an older run restarts at the cave mouth.
+- **Encounters** (`encounters.js`, plan in `docs/encounters.md`): Amos's **sermon scraps**
+  (“You have heard it said, brothers…”) are walked over and picked up (`P.notes`) and teach one
+  truth each; **truth villagers** ask “Is it true that…?” from `TEXT.truths.list` (verses in
+  `TRUTH_V`, checked by verify). Right frees them; wrong means a fight, and the truth goes in
+  `P.retry` and is asked by the next villager. **Someone hurt** (`TEXT.living`): help (6 HP) or
+  walk on; everyone helped stands with you at the boss (+5 shield each). The first truth
+  villager and the first hurt person ever come with Amos (`P.firstTruth`, `P.firstHurt`); with
+  him there you can't fail.
 - Balance was tuned with a scripted player at 60/70/85% accuracy over the whole arc.
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
@@ -196,5 +211,5 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
    personal account via a repo-local credential helper; the default SSH key is the work account.
 3. Wire PixelLab and replace the placeholder art above.
 4. Finish the UI overhaul: recall popup, after-fight panel, dungeon map.
-5. Design Mission 2 (Hatred / Love) and Ashby.
+5. Design Mission 2 (Hatred / Love) and Ephesus.
 6. Optional: backend saves so progress follows Luke between phone and laptop.
