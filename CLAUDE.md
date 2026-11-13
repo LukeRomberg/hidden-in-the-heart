@@ -121,9 +121,14 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
 - **The tree**: all nine fruit of the Spirit, bottom-up. Patience, Gentleness, Peace are
   open; the rest unlock one per mission going up the trunk. Only those three have perks
   defined (`TREE`); the rest need designing.
-- **Gear** arrives in a fixed order and follows Ephesians 6:14-17. Plain gear (belt, vest,
-  boots, cap; Bible and lid from the priest) is consecrated at the Forge into the Armor of God
-  by reciting Ephesians 6 cumulatively (6:14, then 6:14-15, ... 6:14-17). Gear is permanent.
+- **Gear** follows Ephesians 6:14-17. Plain gear (belt, vest, cap) is bought at the Forge;
+  the boots are Bram's gift, the Bible and lid the priest's. Nothing drops after fights. Plain
+  gear is consecrated at the Forge into the Armor of God, in order, by reciting Ephesians 6
+  cumulatively (6:14, then 6:14-15, ... 6:14-17). Gear is permanent. Prices: `docs/mvp.md`, Economy.
+- **Shops** (town.js): each building lists its whole stock with what it does, its price, and
+  why it's locked. The Inn adds a rumor about the next uncleared cave and Wendell's ledger
+  (what you're saving toward). The yard pays for a clean drill once per verse per cave cleared
+  (`P.drills`).
 - **Saves**: localStorage key `hidden-in-the-heart-v1` (object `P`; hero in `P.hero`). A
   mission in progress is `P.run` (step + fragments), so a reload resumes on the map.
   Per-browser; "Move your save" on the title screen copies the whole save as a code
