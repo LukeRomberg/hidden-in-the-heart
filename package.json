@@ -7,6 +7,7 @@
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev.mjs",
     "smoke": "node scripts/build.mjs && node tests/smoke.mjs dist/index.html",
+    "playtest": "npm run build && node tests/playtest.mjs",
     "verify": "node tools/verify_scripture.mjs",
     "passages": "node tools/build_passages.mjs",
     "test": "node tools/check_text.mjs && npm run verify && npm run smoke",

@@ -118,7 +118,11 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   walk on; everyone helped stands with you at the boss (+5 shield each). The first truth
   villager and the first hurt person ever come with Amos (`P.firstTruth`, `P.firstHurt`); with
   him there you can't fail.
-- Balance was tuned with a scripted player at 60/70/85% accuracy over the whole arc.
+- **Balance**: `npm run playtest` plays the whole chapter at 50/60/70/85/95% recall accuracy,
+  with and without buying gear, and reports lowest HP, close calls and defeats
+  (`tests/out/playtest.md`). Targets: 50% and 60% fail, 70% scrapes through (with gear), 85% is
+  fairly comfortable. Numbers and what set them: `docs/mvp.md`, Balance. Rerun it after any change
+  to enemies, damage, healing or prices (about 15 minutes; `node tests/playtest.mjs 0.7 shopper` for one).
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
 - **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)

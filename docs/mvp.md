@@ -72,6 +72,28 @@ player who hasn't memorized 6:14-17 is held back by that before money.
 Plain gear no longer drops after fights (`gearDrop()` in gear.js returns null). It used to drop
 on half of all fights and every cave boss, which emptied the Forge by the second cave.
 
+## Balance
+
+Targets (Luke): a 50% or 60% player fails the chapter, a 70% player gets through on low
+health, an 85% player is fairly comfortable. Measured with `npm run playtest`
+(`tests/playtest.mjs`): a bot plays the whole chapter at a given recall accuracy, once never
+buying anything (frugal) and once buying gear every trip into town (shopper). It reports the
+lowest HP in every fight, close calls (below 25%), and defeats; 3 defeats in one cave means
+the run failed.
+
+| Accuracy | Frugal | Shopper | Target |
+|---|---|---|---|
+| 50% | fails in the Hollow | fails in the Hollow | fail ✓ |
+| 60% | fails in the Old Quarry | fails in the Old Quarry | fail ✓ |
+| 70% | fails in the Old Quarry | clears, 2 defeats, 19% close calls | low health ✓ (gear decides it) |
+| 85% | clears, no defeats, worst HP 60% | clears, no defeats, worst HP 40% | fairly comfortable ✓ |
+| 95% | clears, worst HP 79% | clears, worst HP 90% | (reference: easy) |
+
+What set it (2026-11): enemies have about 40% more HP and hit 1–2 harder than before (`ENEMIES`
+in combat.js), and a cast below `STEADY_DMG` (65%) hits for half its accuracy; perfect is full,
+65%+ is its accuracy. The 75% `SLIP_BELOW` line for dropping a spell's tier is unchanged.
+Before this, a 50% player cleared everything without dropping below 65% HP.
+
 ## After the MVP (future iterations, roughly in order)
 
 - Book-order locks on doors (`docs/encounters.md`)

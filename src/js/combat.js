@@ -1,13 +1,14 @@
 /* Turn-based combat, card play, enemy turns, and the Furnace boss assembly. */
+const STEADY_DMG = 0.65;   // a cast at least this accurate hits for its accuracy; below it, half that
 const ENEMIES = {
   hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
-  grudge:{hp:34, atk:3, spr:'grudge', pattern:['atk','vex']},
-  brawler:{hp:44, atk:5, spr:'brawler', pattern:['atk','atk','big']},
-  slanderer:{hp:52, atk:4, spr:'slanderer', pattern:['vex','atk','atk']},
+  grudge:{hp:48, atk:4, spr:'grudge', pattern:['atk','vex']},
+  brawler:{hp:60, atk:6, spr:'brawler', pattern:['atk','atk','big']},
+  slanderer:{hp:72, atk:5, spr:'slanderer', pattern:['vex','atk','atk']},
   furnace:{hp:28, atk:2, spr:'furnace', freedSpr:'hothead_f', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
-  villager:{hp:16, atk:3, pattern:['atk','atk'], villager:true},
-  villager_strong:{hp:28, atk:4, pattern:['vex','atk','atk'], villager:true},
+  villager:{hp:22, atk:4, pattern:['atk','atk'], villager:true},
+  villager_strong:{hp:38, atk:5, pattern:['vex','atk','atk'], villager:true},
 };
 const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', him:'her', his:'her', He:'She'}};
 function makeEnemy(id, i){
@@ -195,7 +196,10 @@ function playCard(ref){
     if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) R.gentleUsed=true;
     P.casts[c.ref]=(P.casts[c.ref]||0)+1; save();
     let eff = frac; if(frac<1 && R.tree.Peace>=2 && !R.stumbleUsed){ R.stumbleUsed=true; eff=1; }
-    let mult = eff===1?1: eff>0? 0.5+0.5*eff : 0.3;
+    // perfect = full; steady (75%+) = as accurate as you were; a slip lands weakly. Tuned so a 50-60% player
+    // can't carry the chapter and a 70% one scrapes through (tests/playtest.mjs, docs/mvp.md Balance)
+    // (STEADY_DMG is lower than SLIP_BELOW on purpose: a 70% cast still hits properly, but it can still slip a spell's tier)
+    let mult = eff===1 ? 1 : eff>=STEADY_DMG ? eff : eff*0.5;
     const SM = spellMult(c.ref); if(has('sword') && sp(c.ref).tier===3) mult *= 1.25;
     if(frac===1 && (has('belt')||has('truth'))) R.shield += 2;
     if(frac===1 && has('truth')) mult *= 1.25;

@@ -441,7 +441,7 @@ function rewardHTML(){
   return `<h1>${TEXT.rooms.chestHeading}</h1><h2>${TEXT.rooms.chestTake}</h2><div class="hand">${R.reward.map(ref=>`<div onclick="takeReward('${ref}')">${cardView(BY_REF[ref])}</div>`).join('')}</div>
     <div class="dock"><button class="wide" onclick="clearColumn()">${TEXT.rooms.chestLeave}</button></div>`;
 }
-function takeReward(ref){ addVerse(ref); clearColumn(); }
+function takeReward(ref){ if(!R.reward) return; R.reward = null; addVerse(ref); clearColumn(); }   // once, even on a double tap
 function restPanel(){
   return `<div class="panel">${TEXT.rooms.restBody}
     <button class="wide" onclick="R.hp=Math.min(R.maxHp,R.hp+12);toast(TEXT.rooms.slept);clearColumn()">${TEXT.rooms.sleep}</button>
