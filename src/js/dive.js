@@ -83,7 +83,6 @@ const CAVES = [
     '################',
   ]},
 ];
-const FRAGS = [CHUNKS[0]+' '+CHUNKS[1], CHUNKS[2]+' '+CHUNKS[3], CHUNKS[4]+' '+CHUNKS[5], CHUNKS[6]+' '+CHUNKS[7]];   // the Furnace's first fire
 const LEVERS = {L:'G', K:'H'};      // lever glyph -> the gates it opens
 const MAP_T = 40, STEP_MS = 120, SIGHT = 3.3;   // tile size in px, walking speed, how far the light reaches (tiles)
 

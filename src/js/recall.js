@@ -70,7 +70,7 @@ function recallHTML(){
       <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="letterInput(this)" style="text-align:center;font-size:28px;letter-spacing:.3em">`;
   } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${x}</button>`).join('')}</div>`; }
   const s=sp(c.verse.ref);
-  const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : (R && R.tutorial && !R.castRefs.length) ? TEXT.tutorial.coach.recall : '';
+  const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : '';   // in the Furnace fight Amos says it in a popup first (tutorialFirst)
   return `<div class="overlay"><div class="panel"><h2>${modal.title}</h2>
     <div class="small mute">${glyphs(c.verse.ref)} \u00b7 ${TIER_NAME[c.tier]} \u00b7 <span id="rp">${progressText()}</span></div>
     <div class="verse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}<div class="dock">${controls}</div></div></div>`;

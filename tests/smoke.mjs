@@ -72,7 +72,11 @@ async function winFight() {
       await page.waitForFunction(() => !R.busy, null, { timeout: 15000 }); continue;
     }
     const card = page.locator('#app .hand .card:not(.dim):not(.spent)').first();
-    if (await card.count()) { await card.click(); await solveRecall(); }
+    if (await card.count()) {
+      await card.click();
+      if (await page.evaluate(() => modal && modal.kind === 'tip')) await page.locator('.overlay.tip button').click();   // Amos explains the first recall
+      await solveRecall();
+    }
     else await btn('Brace').click();
     await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
   }

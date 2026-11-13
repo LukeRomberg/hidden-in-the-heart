@@ -88,7 +88,6 @@ const TIP_ORDER = [
   ['oneMove', ()=>R.turn>=2],
   ['readIntent', ()=>R.turn>=3 || R.spent.length>=2],
   ['gift', ()=>R.gift],
-  ['afterFire', ()=>R.boss && R.boss.phase>0],
 ];
 function tutorialTip(){
   if(screen!=='fight' || !R.tutorial || R.busy || R.after) return null;
@@ -104,20 +103,16 @@ function tipHTML(){ const k = modal.key, T = TEXT.tutorial, o = modal.once;
     ${body}<button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
 function closeTip(){
   if(modal.once){ (P.tips=P.tips||{})[modal.key]=true; save(); modal=null; const ov=document.getElementById('tipov'); if(ov) ov.remove(); return; }   // nothing under it changed: leave the screen as it is
-  R.tipsSeen.push(modal.key); modal=null; render(); }
+  R.tipsSeen.push(modal.key); const then = modal.then; modal=null; if(then) then(); else render(); }
+// In the tutorial, Amos stops you before something new opens (the first recall, the first assembly): show his tip
+// first, then carry on. Returns true if it stepped in.
+function tutorialFirst(k, then){ if(!R.tutorial) return false; R.tipsSeen = R.tipsSeen||[]; if(R.tipsSeen.includes(k)) return false;
+  modal = {kind:'tip', key:k, then}; render(); return true; }
 // one-time popups that wait for a scene's last line to finish typing: {screen: tip key}
 const ONCE_TIPS = {forge:'forge'};
 function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.tips[k])) return;
   const t = TEXT[k].tip; modal = {kind:'tip', key:k, once:{who:t.who, title:t.title, body:t.body}};
   document.getElementById('app').insertAdjacentHTML('beforeend', tipHTML()); }
-function coachLine(){
-  const C = TEXT.tutorial.coach;
-  if(R.gift) return C.gift;
-  if(R.boss && R.boss.phase>0 && R.turn>2) return C.afterFire;
-  if(R.turn===1) return C.firstCard;
-  if(R.turn===2) return C.oneMove;
-  return C.readIntent;
-}
 function tutendHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,

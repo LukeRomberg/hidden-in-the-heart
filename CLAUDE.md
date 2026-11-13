@@ -93,9 +93,11 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   each cast as perfect / steady / slipped; the level-up popup opens over it. Effects
   live in `#fxtop` so a render() doesn't cut them off. `prefers-reduced-motion` drops the
   lunge, knockback, hit-stop and slides. Styles are in the `/* battle feel */` block.
-- **The Furnace** (tutorial boss): three fires; at each third of HP the player assembles
-  Galatians 5:22-23 in order (Amos hands it over before the fight). In the tutorial slips
-  don't heal him and Amos says the last passage with you, so nobody can get stuck.
+- **The Furnace** (tutorial boss): an ordinary fight until his HP hits 0; then the player says
+  Galatians 5:22-23 over him by tapping its pieces in order (Amos hands it over before the fight), and
+  that frees him. In the tutorial slips don't count: Amos says it with you. Amos's rules come as popups
+  that stop the fight (`TIP_ORDER`, `tutorialFirst()` in story.js), including before the first recall
+  and before the Galatians pieces.
 - **Provoked** (vex) raises verse costs by 1 for one turn only, then wears off whatever you
   do; otherwise a player at 0 focus could never cast again.
 - **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,

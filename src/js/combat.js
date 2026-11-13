@@ -91,7 +91,7 @@ async function freeBeat(t, ti){
 const TYPE_MULT = {Patience:1.5, Gentleness:1.25};
 function startFight(ids, boss){
   R.enemies = ids.map(makeEnemy);
-  R.boss = boss ? {phase:0} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.castLog=[]; R.unlockMsg=null; R.say=null; R.thoughtAt=-9; R.hurtSaid=false;
+  R.boss = boss ? {} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.castLog=[]; R.unlockMsg=null; R.say=null; R.thoughtAt=-9; R.hurtSaid=false;
   R.spent=[]; R.focus = R.tutorial ? Math.min(R.maxFocus, TUTORIAL_FOCUS) : R.maxFocus; R.brace=false; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null;
   log(openerLine()); if(!R.tutorial) think('start'); goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
@@ -136,7 +136,7 @@ function arenaHTML(mini){
       top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, Math.round(106*k-EI.h*enemyK(sc))); }
     return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = infoTarget();
-  const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${t&&t.boss&&R.boss?' · fires '+(3-R.boss.phase):''} ${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp">${barHTML('ebar', t?100*Math.max(0,t.hp)/t.max:0)}</div><div class="small" id="ebarn">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
+  const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp">${barHTML('ebar', t?100*Math.max(0,t.hp)/t.max:0)}</div><div class="small" id="ebarn">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp">${barHTML('pbar', 100*Math.max(0,R.hp)/R.maxHp)}</div><div class="small" id="pbarn">${playerHPText()}</div><div class="bar mn">${barHTML('fbar', 100*R.focus/R.maxFocus)}</div><div class="small" id="fbarn">${TEXT.fight.focus} ${R.focus}/${R.maxFocus}</div></div>`;
   return `<div class="arena ${mini?'mini':''}" id="arena" ${mini?'':`style="height:${H}px;--k:${k.toFixed(3)}"`}><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
@@ -188,6 +188,7 @@ function playCard(ref){
   const c = {ref}; const v = BY_REF[ref]; const cost = cardCost(v);
   if(R.spent.includes(ref)){ toast(TEXT.fight.alreadySaid); return; }
   if(cost>R.focus){ toast(TEXT.fight.notEnoughFocus); return; }
+  if(tutorialFirst('recall', ()=>playCard(ref))) return;
   openRecall(v, async (frac)=>{
     R.busy=true; R.focus -= cost; R.vexed = false; R.spent.push(ref); if(!R.castRefs.includes(ref)) R.castRefs.push(ref); R.castLog.push({ref, frac}); R.gift=false;
     if(R.tree.Gentleness>=3 && v.type==='Gentleness' && !R.gentleUsed) R.gentleUsed=true;
@@ -225,7 +226,7 @@ function playCard(ref){
       await sleep(300);
       if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
       if(t.hp<=0){ if(t.boss){ R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); await freeBeat(t, ti); }
-      else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); if(t.boss) checkBossPhase(t); }   // let the number clear first
+      else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); }   // let the number clear first
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; floatText('pl', fill(F.shield,{n:s}), 'shield'); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); floatText('pl', fill(F.heal,{n:h}), 'heal'); }
     else if(v.focus){ const f=Math.round(v.focus*SM*mult); R.focus=Math.min(R.maxFocus,R.focus+f); floatText('pl', fill(F.focus,{n:f}), 'focus'); }
@@ -278,13 +279,11 @@ function nextAfterFight(){
 }
 function dropHTML(){ const v=BY_REF[R.pendingDrop]; return `<h1>${TEXT.drop.heading}</h1><div class="panel small">${fill(TEXT.drop.body,{name:R.dropFrom||''})}</div><div class="hand">${cardView(v)}</div><div class="dock"><button class="primary wide" onclick="R.deck.push({ref:R.pendingDrop});R.pendingDrop=null;nextAfterFight()">${TEXT.drop.take}</button></div>`; }
 function enterBoss(){ startFight(['furnace'], true); }
-function checkBossPhase(t){
-  const th = [Math.floor(t.max*0.66), Math.floor(t.max*0.33)];
-  if(R.boss.phase<2 && t.hp<=th[R.boss.phase]){ bossAssembly(R.boss.phase); }
-}
+// The Furnace: wear him down like any fight; when his HP hits 0 you say Galatians 5:22-23 over him, in order,
+// and that is what frees him. (In the tutorial Amos says it with you if you slip, so nobody gets stuck.)
 function bossAssembly(phase){
-  const chunks = phase===0 ? FRAGS : CHUNKS;
-  modal = {kind:'assembly', phase, chunks, order:shuffle(chunks.map((c,i)=>i)), next:0, mistakes:0, wrong:null};
+  if(tutorialFirst('assembly', ()=>bossAssembly(phase))) return;
+  modal = {kind:'assembly', phase, chunks:CHUNKS, order:shuffle(CHUNKS.map((c,i)=>i)), next:0, mistakes:0, wrong:null};
   render();
 }
 function tapChunk(i){
@@ -301,12 +300,6 @@ async function finishAssembly(){
     if(m.mistakes===0 || R.tutorial){ R.busy=true; boss.freed=true; render(); await freeBeat(boss, 0); R.busy=false; fightWon(); return; }
     boss.hp = R.tutorial ? 4 : Math.min(12, 4*m.mistakes); log(fill(TEXT.boss.lastFlares,{slips:slips(m.mistakes)}));
     render(); floatText('en0', '+'+boss.hp, 'heal');
-  } else {
-    R.boss.phase++; R.busy=true;
-    // close the popup first, so you see the fire go out (or flare back)
-    if(m.mistakes===0){ const was=boss.hp; boss.hp = Math.max(1, boss.hp-8); boss.stun=true; log(fill(TEXT.boss.fireDazed,{n:R.boss.phase})); render(); await strike('en0', String(was-boss.hp), '', true); floatText('en0', TEXT.fight.float.dazed, 'tag', -26); }
-    else { const heal=R.tutorial ? 0 : Math.min(8,3*m.mistakes); boss.hp=Math.min(boss.max,boss.hp+heal); log(fill(TEXT.boss.fireFlares,{slips:slips(m.mistakes), n:heal})); render(); if(heal) floatText('en0', '+'+heal, 'heal'); }
-    await sleep(500); R.busy=false;
   }
   enemyTurn();
 }
@@ -318,9 +311,8 @@ function assemblyHTML(){
     return `<div class="overlay"><div class="panel"><h2>${fill(T.chestCreed,{n:m.sec+1, total:CREED.sections.length})}</h2>
       <div class="small mute">${T.chestTap} ${fill(T.chestMistakes,{n:m.mistakes, max:m.allowed})}</div>
       <div class="seq">${placed||'&nbsp;'}</div><div>${chips}</div></div></div>`; }
-  const title = m.phase==='final' ? TEXT.boss.lastFire : fill(TEXT.boss.fireOut,{n:m.phase+1});
-  return `<div class="overlay"><div class="panel"><h2>${title} — ${PASSAGE_REF}</h2>${arenaHTML(true)}
-    ${R.tutorial?`<div class="coach">${TEXT.tutorial.coach.assembly}</div>`:''}<div class="small mute">${TEXT.boss.assemble}${m.phase==='final'?TEXT.boss.assembleFinal:TEXT.boss.assemblePhase} Mistakes: ${m.mistakes}</div>
+  return `<div class="overlay"><div class="panel"><h2>${TEXT.boss.lastFire} — ${PASSAGE_REF}</h2>${arenaHTML(true)}
+    <div class="small mute">${TEXT.boss.assemble} Mistakes: ${m.mistakes}</div>
     <div class="seq">${placed||'&nbsp;'}</div>
     <div>${chips}</div></div></div>`;
 }

@@ -114,6 +114,7 @@ async function playOne(acc, style) {
 
   // ---- recall at accuracy acc: every blank is right with probability acc ----
   async function solveRecall() {
+    if (await ev(() => modal && modal.kind === 'tip')) await ev(() => closeTip());   // Amos explains the first recall first
     await until(() => modal && modal.kind === 'recall');
     for (let i = 0; i < 400; i++) {
       const st = await ev(() => { if (!modal || modal.kind !== 'recall') return { gone: true }; const c = modal.c; if (c.done) return { done: true }; const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans, opts: o.opts }; });
