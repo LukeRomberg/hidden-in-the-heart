@@ -153,7 +153,7 @@ function worldHTML(){
   for(let i=0;i<60;i++){ const x=(i*37)%140, y=(i*53)%100; s+=`<rect x="${x}" y="${y}" width="3" height="3" fill="#355030"/>`; }
   s += `<rect x="96" y="60" width="44" height="40" fill="#2f4a6a"/><rect x="0" y="0" width="34" height="18" fill="#5a5a5a"/>`;
   [[0,1],[1,2],[1,3]].forEach(([a,b])=>{ const A=towns[a],B=towns[b]; s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${cleared||a>0?'#c8a870':'#6e5a40'}" stroke-width="2" stroke-dasharray="${a===0&&cleared?'':'3 2'}"/>`; });
-  towns.forEach(([x,y,n,v,here])=>{ s+=`<rect x="${x-5}" y="${y-5}" width="10" height="10" fill="${here?'#f2c45a':'#4a4038'}" stroke="#1b1410"/><text x="${x}" y="${y+11}" font-size="3.4" font-family="'Pixelify Sans',sans-serif" fill="#e8dcc0" text-anchor="middle">${here?n:'???'}</text>`; });
+  towns.forEach(([x,y,n,v,here])=>{ s+=`<rect x="${x-5}" y="${y-5}" width="10" height="10" fill="${here?'#f2c45a':'#4a4038'}" stroke="#1b1410"/><text x="${x}" y="${y+11}" font-size="4.4" font-family="'Nunito',sans-serif" fill="#e8dcc0" text-anchor="middle">${here?n:'???'}</text>`; });
   s += `<g>${heroRects('front',0,22,46,0.2)}</g>`;
   const T = TEXT.world;
   return `<h1>${T.heading}</h1><div class="panel" style="padding:0;overflow:hidden"><svg viewBox="0 0 140 100" width="100%" shape-rendering="crispEdges" role="img" aria-label="World map">${s}</svg></div>

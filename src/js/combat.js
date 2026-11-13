@@ -158,12 +158,14 @@ function fightHTML(){
   const intents = R.enemies.filter(e=>!e.freed).map(intentHTML).join('');
   if(R.say) queueMicrotask(placeSay);   // once the arena is on screen
   // the cards ride in the pinned bottom bar as a side-scrolling row, so the battle stays in view
-  const bottom = R.after ? afterHTML() : `${R.tutorial?`<div class="coach">${coachLine()}</div>`:''}
-    <div class="dock fightdock"><div class="intents">${intents}${R.enemies.length>1?`<span class="hint">${TEXT.fight.targetHint}</span>`:''}</div>
+  // the tutorial teaches with popups (tutorialTip, below), not a box in the way
+  const bottom = R.after ? afterHTML() : `<div class="dock fightdock">
     <div class="hand hscroll">${hand}</div>
     <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}</div>`;
-  return `${arenaHTML(false)}<div class="textbox" id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${bottom}`;
+  // everything that happens, back and forth, in one box under the battle: what was said and done, then what's coming
+  const next = R.after ? '' : `<div class="intents">${intents}${R.enemies.length>1?`<span class="hint">${TEXT.fight.targetHint}</span>`:''}</div>`;
+  return `${arenaHTML(false)}<div class="textbox"><div id="log">${R.log.map(m=>`<div>${m}</div>`).join('')}</div>${next}</div>${bottom}`;
 }
 // how a cast went, for the after-fight panel
 function castResult(frac){ return frac===1 ? 'perfect' : frac>=SLIP_BELOW ? 'steady' : 'slipped'; }
@@ -199,7 +201,7 @@ function playCard(ref){
     // perfect = full; steady (75%+) = as accurate as you were; a slip lands weakly. Tuned so a 50-60% player
     // can't carry the chapter and a 70% one scrapes through (tests/playtest.mjs, docs/mvp.md Balance)
     // (STEADY_DMG is lower than SLIP_BELOW on purpose: a 70% cast still hits properly, but it can still slip a spell's tier)
-    let mult = eff===1 ? 1 : eff>=STEADY_DMG ? eff : eff*0.5;
+    let mult = eff===1 ? 1 : R.tutorial ? 0.5+0.5*eff : eff>=STEADY_DMG ? eff : eff*0.5;   // the coached Furnace stays forgiving
     const SM = spellMult(c.ref); if(has('sword') && sp(c.ref).tier===3) mult *= 1.25;
     if(frac===1 && (has('belt')||has('truth'))) R.shield += 2;
     if(frac===1 && has('truth')) mult *= 1.25;

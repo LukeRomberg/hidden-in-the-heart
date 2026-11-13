@@ -100,6 +100,7 @@ async function playOne(acc, style) {
       const s = await ev(() => ({ screen, modal: modal && modal.kind, dlg: !!document.querySelector('.dlg'), acts: document.querySelectorAll('#acts button').length, dock: document.querySelectorAll('#app .dock button').length }));
       if (s.screen === targetScreen) return;
       if (s.modal === 'levelup') { await levelUp(); continue; }
+      if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.modal === 'assembly') { await solveAssembly(); continue; }
       if (s.dlg) { await finishDialogue(); if (s.acts) await page.locator('#acts button').first().click(); else if (s.dock) await page.locator('#app .dock button').first().click(); }
@@ -168,10 +169,12 @@ async function playOne(acc, style) {
       if (s.after) {
         if (!stats) stats = { minPct: Math.max(0, Math.min(1, await ev(() => window.__minPct ?? 1))), lost: false, result: 'won', names: info.names, boss: info.boss, tut: info.tut, turns: s.turn, hpStart: info.hp, hpEnd: s.hp, casts: s.castLog.length, slips: s.castLog.filter(f => f < 0.75).length };
         if (s.modal === 'levelup') { await levelUp(); continue; }
+      if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
         return stats;
       }
       if (s.screen !== 'fight') { if (s.screen === 'dive' || s.screen === 'victory') { await page.waitForTimeout(100); if (s.screen === 'victory') return stats || { result: 'won', names: info.names }; continue; } return stats || { result: 'left', names: info.names }; }
       if (s.modal === 'levelup') { await levelUp(); continue; }
+      if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
       if (s.modal === 'assembly') { await solveAssembly(); await until(() => !R.busy || R.after || screen !== 'fight'); continue; }
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.busy) { await page.waitForTimeout(60); continue; }
@@ -261,6 +264,7 @@ async function playOne(acc, style) {
         if (s.screen === 'reward') { await page.locator('#app .hand > div').first().click(); await until(() => screen !== 'reward'); continue; }
         if (s.screen === 'dive' && !s.room && !s.modal) break;
         if (s.modal === 'levelup') { await levelUp(); continue; }
+      if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
         await page.waitForTimeout(80);
       }
       const after = await ev(() => ({ tal: R.talents, creed: P.creed }));

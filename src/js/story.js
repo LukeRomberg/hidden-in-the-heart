@@ -1,8 +1,13 @@
 /* Dialogue engine, prologue, intro, mission story beats, and end states. */
 // A conversation is a list of [speaker id, text]; speaker null means narration. Text lives in data/text.js.
 let TW = {key:null, i:0, typing:false, timer:null};
+// The one typing timer. It lives outside TW on purpose: TW is replaced whenever a new conversation starts,
+// and a timer whose handle was lost with the old TW kept running forever, killing every later line's typing
+// (the blank dialogue after the Furnace, 2026-11).
+let typingTimer = null;
+function stopTyping(){ clearInterval(typingTimer); typingTimer = null; }
 function talk(key, lines, actions, gate=true){
-  if(TW.key!==key){ TW={key, i:0, typing:false, timer:null}; }
+  if(TW.key!==key){ stopTyping(); TW={key, i:0, typing:false, timer:null}; }
   const [who, text] = lines[Math.min(TW.i, lines.length-1)];
   const last = TW.i >= lines.length-1;
   return `<div class="dlg ${who?'':'narr'}" onclick="talkTap(${lines.length})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')talkTap(${lines.length})" aria-label="Continue">
@@ -11,17 +16,19 @@ function talk(key, lines, actions, gate=true){
     <div class="acts ${actions?'dock':''} ${gate&&!last?'hide':''}" id="acts">${actions||''}</div>`;
 }
 function typeIt(){
-  const el=document.getElementById('tw'); if(!el) return; clearInterval(TW.timer);
+  const el=document.getElementById('tw'); if(!el) return; stopTyping();
   const full=el.dataset.full; const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(quick){ el.innerHTML=full; doneTyping(); return; }
   let n=0; TW.typing=true; el.textContent='';
-  TW.timer=setInterval(()=>{ n+=2; el.innerHTML=full.slice(0,n); if(n>=full.length){ clearInterval(TW.timer); el.innerHTML=full; doneTyping(); } },22);
+  const id = typingTimer = setInterval(()=>{
+    if(id!==typingTimer || !el.isConnected){ clearInterval(id); return; }   // superseded, or its screen is gone
+    n+=2; el.innerHTML=full.slice(0,n); if(n>=full.length){ stopTyping(); el.innerHTML=full; doneTyping(); } },22);
 }
 function doneTyping(){ TW.typing=false; const m=document.getElementById('twmore'); const acts=document.getElementById('acts'); const step=document.querySelector('.dlg .step');
   const total = step? +step.textContent.split('/')[1] : 1;
   if(TW.i < total-1){ if(m) m.style.display='block'; } else if(acts) acts.classList.remove('hide'); }
 function talkTap(total){
-  if(TW.typing){ clearInterval(TW.timer); const el=document.getElementById('tw'); el.innerHTML=el.dataset.full; doneTyping(); return; }
+  if(TW.typing){ stopTyping(); const el=document.getElementById('tw'); el.innerHTML=el.dataset.full; doneTyping(); return; }
   if(TW.i < total-1){ TW.i++; render(); }
 }
 function portrait(who){
@@ -74,6 +81,25 @@ const TUTORIAL_FOCUS = 3;
 const BRAM_GIFT = 'boots';   // what Bram gives you when he is freed (an ITEMS id)
 function startTutorial(){ R.tutorial=true; addVerse('Galatians 5:22-23'); R.node={t:'boss'}; startFight(['furnace'], true); log(TEXT.tutorial.groggy); }
 // what the priest says over your shoulder, based on where you are in the fight
+// Tutorial popups: the first time each rule matters, the fight stops and Amos explains it. Shown once each
+// (R.tipsSeen), in this order; render() opens the next one due when nothing else is on screen.
+const TIP_ORDER = [
+  ['firstCard', ()=>R.turn>=1],
+  ['oneMove', ()=>R.turn>=2],
+  ['readIntent', ()=>R.turn>=3 || R.spent.length>=2],
+  ['gift', ()=>R.gift],
+  ['afterFire', ()=>R.boss && R.boss.phase>0],
+];
+function tutorialTip(){
+  if(screen!=='fight' || !R.tutorial || R.busy || R.after) return null;
+  R.tipsSeen = R.tipsSeen||[];
+  const due = TIP_ORDER.find(([k,when])=>!R.tipsSeen.includes(k) && when());
+  return due ? due[0] : null;
+}
+function tipHTML(){ const k = modal.key, T = TEXT.tutorial;
+  return `<div class="overlay tip"><div class="panel"><div class="tiphead">${portrait('priest')}<h2>${T.tips[k]}</h2></div>
+    <p class="tipbody">${T.coach[k]}</p><button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
+function closeTip(){ R.tipsSeen.push(modal.key); modal=null; render(); }
 function coachLine(){
   const C = TEXT.tutorial.coach;
   if(R.gift) return C.gift;

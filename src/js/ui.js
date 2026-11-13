@@ -49,7 +49,8 @@ function render(){
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   const tabs = R && R.deck && R.deck.length && TAB_ON.has(screen); document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();
   if(!modal && levelUpDue()) modal = {kind:'levelup'};
-  if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : assemblyHTML(); }
+  if(!modal){ const tip = tutorialTip(); if(tip) modal = {kind:'tip', key:tip}; }
+  if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : modal.kind==='tip'? tipHTML() : assemblyHTML(); }
   document.getElementById('app').innerHTML = html;
   // pinned buttons sit just above the tab bar when it shows
   const nav = document.querySelector('.tabs'); document.body.style.setProperty('--dock-bottom', (tabs && nav ? nav.offsetHeight : 0) + 'px');

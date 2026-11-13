@@ -61,8 +61,9 @@ async function solveRecall() {
 // Play cards (answering correctly) until the fight is won.
 async function winFight() {
   for (let turn = 0; turn < 80; turn++) {
-    const s = await page.evaluate(() => ({ after: R.after, screen, asm: modal && modal.kind === 'assembly' }));
+    const s = await page.evaluate(() => ({ after: R.after, screen, asm: modal && modal.kind === 'assembly', tip: modal && modal.kind === 'tip' }));
     if (s.after || s.screen !== 'fight') break;
+    if (s.tip) { await page.locator('.overlay.tip button').click(); continue; }   // the tutorial stops to teach a rule
     if (s.asm) {   // a fire went out: tap the Galatians pieces in order
       while (await page.evaluate(() => modal && modal.kind === 'assembly')) {
         const i = await page.evaluate(() => modal.order.indexOf(modal.next));
@@ -132,7 +133,7 @@ try {
   });
   await step('tutorial: the Furnace', async () => {
     await finishDialogue(); await act().click(); await waitScreen('fight');
-    if (!(await page.locator('.coach').count())) throw new Error('no tutorial coaching shown');
+    await page.waitForSelector('.overlay.tip', { timeout: 5000 }).catch(() => { throw new Error('no tutorial popup shown'); });
     if (!(await page.evaluate(() => R.boss && R.enemies[0].id === 'furnace'))) throw new Error('the tutorial is not the Furnace');
     await winFight();
     await btn('Leave the room').click(); await waitScreen('victory');

@@ -62,7 +62,7 @@ function treeSVG(){
       else s+=`<rect x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" fill="#3a2616" stroke="${next?c:'#6a4a2e'}" stroke-width="${next?1.8:1}"/>`;
       s+=`</g>`; }
     const sd=side(k); const lx = TX + sd*46, ly = branchY(k) - 17;
-    s+=`<text x="${lx}" y="${ly}" font-size="6" font-weight="700" font-family="'Pixelify Sans',sans-serif" fill="${f.lock?'#a8987a':f.col}" text-anchor="middle">${f.b}${open?` <tspan font-weight="500" fill="#8a6a48">${R.tree[f.b]||0}/3</tspan>`:''}</text>`;
+    s+=`<text x="${lx}" y="${ly}" font-size="6" font-weight="700" font-family="'Nunito',sans-serif" fill="${f.lock?'#a8987a':f.col}" text-anchor="middle">${f.b}${open?` <tspan font-weight="500" fill="#8a6a48">${R.tree[f.b]||0}/3</tspan>`:''}</text>`;
   });
   return `<svg viewBox="0 0 ${TW_} ${TH_}" width="100%" shape-rendering="crispEdges" role="img" aria-label="The fruit of the Spirit">${s}</svg>`;
 }
