@@ -27,6 +27,13 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   Grudge, Wendell, Inn), The Old Quarry (the Brawler, Hale, Training Yard), The Deep Cave
   (the Slanderer, Silas, Scriptorium). After all three, the road to Ephesus opens. After the
   Furnace, Amos walks you through town once (`tourHTML`, `TEXT.tour`; replayable from the church).
+- **The chapter ending** (`chapterEndHTML` in story.js, screen `chapterend`, text `TEXT.chapterEnd`)
+  plays once: the first clear that finishes the last cave sends `caveDoneHTML`'s button there
+  instead of town. A full church, the bell, a line each from Bram, Wendell, Hale and Silas, then
+  Amos reads Revelation 3:8 (the town is named for the church in Revelation 3:7–13) and points
+  at the road east. Then chapter stats (souls, who came home, truths from `P.notes` +
+  `P.truthsRight`, everyone helped in `P.helpedAll`, Creed pieces, verses by heart, talents) and
+  “To be continued.” Leaving sets `P.chapters.philadelphia`. Test jump: “Chapter ending”.
 - Fights along the way are fled villagers (`TEXT.villagers`, men and women, tinted red until
   freed). A cave cleared again has a villager instead of its named boss.
 - The world map shows Ephesus, Sardis and Smyrna. Next missions pair a vice with a fruit

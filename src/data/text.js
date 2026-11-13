@@ -756,6 +756,42 @@ const TEXT = {
     button: 'Get up',
   },
 
+  // ---------- The end of the Philadelphia chapter: plays once, after the last cave is cleared ----------
+  // Philadelphia is named for the church in Revelation 3:7–13: little strength, kept His word, an open door.
+  chapterEnd: {
+    lines: [
+      [null, 'That Sunday the church bell rings, and nobody has to be talked into coming. The pews fill. Then the aisle. Then the doorway.'],
+      [null, 'Bram sits in the back row with soot still in his knuckles. Wendell has brought bread for everyone. Hale stands by the door like he is on guard. Silas sits very straight with a clean page in his lap.'],
+      ['blacksmith', '“Rang the bell myself. Recast the clapper Tuesday.” He nods once. “Rings true now.”'],
+      ['innkeeper', '“Full house! I counted. Heads, mind you, not grudges! Forty-one, and every one of them fed.”'],
+      ['drill', '“Eyes front, recruit. Man’s about to preach.” Then, quieter: “You did good down there.”'],
+      ['scribe', '“I have copied tonight’s passage for anyone who wants it. I checked it three times. It says exactly what is written, and nothing else.”'],
+      [null, 'Amos steps up to the pulpit and looks out at a church that is full for the first time in years. For a while he does not say anything.'],
+      ['priest', '“This town was named for a church, long ago. The Lord had a letter written to it, and He had nothing against them. Not one thing.” He opens his worn Bible and reads.'],
+      [null, '“I know your deeds. See, I have placed before you an open door, which no one can shut. For you have only a little strength, yet you have kept My word and have not denied My name.” Revelation 3:8'],
+      ['priest', '“A little strength. That is us, friends. We ran, and we burned, and we kept lists. But a few of us kept His word, and it was enough to bring the rest of us home.”'],
+      ['you', '“I came here because I couldn’t memorize one verse.”'],
+      ['priest', 'Amos chuckles quietly. “And now look at you.” He points out the open doors, past the square, to the road east. “That road runs to Ephesus. I have not had a letter from their church in a long time, son. The door is open. No one can shut it. But someone has to walk through it.”'],
+    ],
+    toStats: 'Step out into the square',
+    heading: 'Philadelphia',
+    sub: 'Everyone is home.',
+    souls: 'Souls freed',
+    home: 'Brought home',
+    truths: 'Truths learned',
+    truthsOf: '{n} of {total}',
+    helped: 'People you helped',
+    helpedNone: 'No one, this time',
+    creed: 'The Nicene Creed',
+    creedOf: '{n} of {total} pieces',
+    mastered: 'Verses by heart',
+    masteredOf: '{n} of {total}',
+    talents: 'Talents',
+    road: 'The road to Ephesus opens.',
+    continued: 'To be continued.',
+    button: 'Back to town',
+  },
+
   // ---------- Gear and the Armor of God ----------
   items: {
     cap: { name: 'Ball Cap', perk: 'Keeps your head clear: one wrong choice is crossed off every multiple-choice blank.' },

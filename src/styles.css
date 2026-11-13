@@ -510,3 +510,9 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 /* Pixelify's 5 and 6 read as 8 at this size: verse references stay in Nunito so nobody learns the wrong one */
 .ware .wname.ref{ font-family:'Nunito',system-ui,sans-serif; font-size:17px; font-weight:800; }
 .shoppay{ margin:-4px 0 6px; }
+/* chapter end */
+.panel.chend .chsub{ text-align:center; color:var(--gold); margin-bottom:8px; }
+.panel.chend .stat{ margin-top:6px; }
+.panel.chend .chnames{ font-size:14px; opacity:.75; text-align:right; margin-bottom:2px; }
+.panel.chroad{ text-align:center; }
+.panel.chroad p.px{ color:var(--gold); font-size:22px; margin:0; }

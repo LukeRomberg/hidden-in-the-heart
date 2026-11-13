@@ -42,12 +42,23 @@ const TEST_JUMPS = [
   ['Shop: the Inn', ()=>testShop('inn', 1, 20)],
   ['Shop: the Training Yard', ()=>testShop('training', 2, 40)],
   ['Shop: the Scriptorium', ()=>testShop('scriptorium', 3, 30)],
+  ['Chapter ending', testChapterEnd],
 ];
 // a hero who has cleared the first `caves` caves (so those buildings are open) with `talents` to spend
 function testShop(id, caves, talents){
   testHero(true); CAVES.slice(0, caves).forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null;
   if(!testStrong) R.talents = talents;
   P.met[id] = true; saveHero(); enterBuilding(id);
+}
+// Silas has just been freed: all three caves cleared for the first time, so the Deep Cave's goodbye leads to the ending
+function testChapterEnd(){
+  testHero(true); R.level = 7; R.souls = 31; R.maxHp = R.hp = 64; R.talents = 87;
+  ['Proverbs 16:32','Romans 12:19'].forEach(addVerse);
+  ['Proverbs 14:29','Galatians 5:22-23','Romans 12:2'].forEach(r=>setSp(r,{n:1, tier:3, perf:0, fails:0}));
+  P.town = {church:true, forge:true, inn:true, training:true, scriptorium:true};
+  CAVES.forEach(c=>P.caves[c.id] = 1); P.creed = 5;
+  P.notes = TEXT.truths.list.slice(0,4).map(t=>t.id); P.truthsRight = TEXT.truths.list.slice(2,6).map(t=>t.id); P.helpedAll = ['tobias'];
+  R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero(); goto('cavedone');
 }
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;

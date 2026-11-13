@@ -26,7 +26,7 @@ down there, come back stronger, go deeper.** Ship it, play it, then iterate.
    - Training Yard: drill verses
    - Inn: rest, plus a rumor about the next cave
 7. **Chapter ending.** After the third cave: a closing scene, chapter stats, and "The road to
-   Ashby opens. To be continued."
+   Ephesus opens. To be continued."
 8. **Full playtest.** A scripted player runs the whole chapter at 60/70/85% accuracy to catch
    dead ends and balance problems. Then Luke plays it on his phone.
 
@@ -80,5 +80,5 @@ on half of all fights and every cave boss, which emptied the Forge by the second
 - The Codex keeps what you've learned, readable at the campfire
 - Campfire questions, and sorting the fruit of the Spirit
 - Perks for the six fruit still undesigned
-- Mission 2: Hatred and Love, in Ashby
+- Mission 2: Hatred and Love, in Ephesus (the church that lost its first love)
 - Backend saves
