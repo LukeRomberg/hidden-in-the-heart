@@ -140,7 +140,7 @@ try {
     await page.waitForSelector('.overlay.tip', { timeout: 5000 }).catch(() => { throw new Error('no tutorial popup shown'); });
     if (!(await page.evaluate(() => R.boss && R.enemies[0].id === 'furnace'))) throw new Error('the tutorial is not the Furnace');
     await winFight();
-    await btn('Leave the room').click(); await waitScreen('victory');
+    await page.evaluate(() => TEXT.afterFight.afterBoss).then(t => btn(t).click()); await waitScreen('victory');
     if (await page.locator('.overlay.levelup').count()) await page.locator('.overlay .lvopt').first().click();   // grow a fruit
     await page.locator('.dock button').first().click(); await waitScreen('tutend');
     await finishDialogue(); await act().click(); await waitScreen('tour');
