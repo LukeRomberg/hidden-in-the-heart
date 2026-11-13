@@ -32,6 +32,46 @@ down there, come back stronger, go deeper.** Ship it, play it, then iterate.
 
 Every new section gets a jump in test mode (`?test`, `src/js/dev.js`).
 
+## Economy
+
+Talents for one clean pass through Philadelphia (no deaths, no Gentleness perk, every chest
+opened, every truth answered right). Each freed villager or cave boss pays 5.
+
+| Source | Talents | Running total |
+|---|---|---|
+| The Furnace (tutorial, first clear) | 30 | 30 |
+| The Hollow: 2 villagers + the Grudge 15, tier-1 chest 10, first clear 20 | 45 | 75 |
+| The Old Quarry: 4 villagers + the Brawler 25, tier-1 + tier-2 chests 25, first clear 20 | 70 | 145 |
+| The Deep Cave: 4 villagers + the Slanderer 25, two tier-2 chests 30, first clear 20 | 75 | 220 |
+| Training Yard drills: 2 per verse, once per verse per cave cleared (opens after the Quarry) | ~25 | ~245 |
+
+Extra, not counted: +5 per wrong truth answer (it turns into a fight), Gentleness 2 doubles
+fight pay, cleared caves can be run again. Losses: a defeat costs 25%, a pew rest 5.
+
+| Shop | Price | Opens |
+|---|---|---|
+| Forge, plain gear: Leather Belt / Canvas Vest / Ball Cap | 25 / 35 / 45 | after the Furnace |
+| Forge, consecration: Truth / Breastplate / Shoes / Faith / Helmet / Sword | 10 / 15 / 25 / 35 / 45 / 60 | after the Furnace |
+| Scriptorium, a verse by its focus cost 0 / 1 / 2 / 3 | 5 / 20 / 35 / 50 | after the Deep Cave |
+| Inn: eat and sleep | free | after the Hollow |
+| Training Yard: a clean drill pays | +2 | after the Quarry |
+
+A sample run, one meaningful buy per trip into town:
+
+| In town with | Buys | Left |
+|---|---|---|
+| 30, before the Hollow | Leather Belt 25 | 5 |
+| 50, before the Quarry | Canvas Vest 35 + Belt of Truth 10 | 5 |
+| 75 + drills, before the Deep Cave | Ball Cap 45 + Breastplate 15 | ~25 |
+| ~100 + drills, chapter end | Shoes 25 + Shield of Faith 35 + one 2-focus verse 35 | ~10 |
+
+Still out of reach at the end: the Helmet of Salvation (45) and the Sword of the Spirit (60),
+plus most of Silas's shelf. Consecration also needs Ephesians 6 recited perfectly, so a
+player who hasn't memorized 6:14-17 is held back by that before money.
+
+Plain gear no longer drops after fights (`gearDrop()` in gear.js returns null). It used to drop
+on half of all fights and every cave boss, which emptied the Forge by the second cave.
+
 ## After the MVP (future iterations, roughly in order)
 
 - Book-order locks on doors (`docs/encounters.md`)

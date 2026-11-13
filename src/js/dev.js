@@ -15,6 +15,7 @@ function testHero(afterTutorial){
   P = {casts:{}, hero:null, town:{}, missions:{}, met:{}, caves:{}, creed:0, run:null, tutorialDone:false};
   R = Object.assign(transient(), blankHero()); Object.keys(heroCache).forEach(k=>delete heroCache[k]);
   addVerse('Proverbs 14:29'); addVerse('Philippians 4:7');
+  equip('bible'); equip('lid');   // Amos hands both over in the prologue
   if(afterTutorial){
     R.maxFocus += 2; addVerse('Galatians 5:22-23'); addVerse('Galatians 5:16'); addVerse('Romans 12:2');
     P.town.church = true; P.town.forge = true; P.missions.wrath = 1; P.tutorialDone = true; equip(BRAM_GIFT);
@@ -36,8 +37,18 @@ const TEST_JUMPS = [
   ['Boss: the Slanderer', ()=>testBoss(2)],
   ['Villager fight', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
   ['Level-up popup', ()=>{ testHero(true); goto('town', ()=>gainXP(xpNeed(R.level))); }],
-  ['The Forge', ()=>{ testHero(true); equip('belt'); R.talents = 40; enterBuilding('forge'); }],
+  // shops, at the point in the chapter each one opens: tick "Strong hero" for a rich one (200 talents)
+  ['Shop: the Forge', ()=>testShop('forge', 0, 30)],
+  ['Shop: the Inn', ()=>testShop('inn', 1, 20)],
+  ['Shop: the Training Yard', ()=>testShop('training', 2, 40)],
+  ['Shop: the Scriptorium', ()=>testShop('scriptorium', 3, 30)],
 ];
+// a hero who has cleared the first `caves` caves (so those buildings are open) with `talents` to spend
+function testShop(id, caves, talents){
+  testHero(true); CAVES.slice(0, caves).forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null;
+  if(!testStrong) R.talents = talents;
+  P.met[id] = true; saveHero(); enterBuilding(id);
+}
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
   startCave(i); setTimeout(()=>{ R.node = {t:'elite', caveBoss:true}; startFight([CAVES[i].boss], false); }, 400);

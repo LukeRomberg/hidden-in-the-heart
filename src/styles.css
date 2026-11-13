@@ -486,3 +486,27 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .verse.truthverse{ margin:6px 0 8px; } .verse.truthverse .ref{ display:block; margin-top:4px; font-family:'Pixelify Sans',system-ui,sans-serif; font-size:13px; opacity:.8; }
 .panel.scrap{ background:#efe2bf; color:#3a2414; } .panel.scrap .scraptext{ font-style:italic; }
 .tfbtns{ gap:8px; } .tfbtns button{ flex:1; margin:0; }
+
+/* shops */
+/* a shop's stock: one parchment list, each line name + price, what it does, then a note or a buy button */
+.panel.shop{ padding:2px 6px 4px; }
+.shop .shopnote{ margin:2px 0 6px; }
+.ware{ padding:8px 0 6px; border-top:2px dashed #c8a26a; }
+.ware:first-child, .shopnote + .ware{ border-top:0; }
+.ware .wtop{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.ware .wname{ font-family:'Pixelify Sans',sans-serif; font-size:18px; font-weight:500; color:#3a2414; }
+.ware .wprice{ flex:none; font-family:'Nunito',system-ui,sans-serif; font-size:17px; font-weight:800; color:#7a4a24; white-space:nowrap; }
+.ware .wprice .ico{ vertical-align:-3px; }
+.ware .wdo{ font-size:16px; line-height:1.35; color:#3a2414; margin-top:2px; }
+.ware .wx{ font-size:15px; line-height:1.35; color:#8a6a48; font-style:italic; margin-top:3px; }
+.ware .wfoot{ display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:4px; }
+.ware .wnote{ font-size:15px; font-weight:700; color:#8a6a48; }
+.ware .wbuy{ flex:none; margin:4px 0 0 auto; padding:0 10px; font-size:16px; }
+.ware.own .wnote{ color:#4f7a2a; }
+.ware.own .wprice{ text-decoration:line-through; opacity:.5; }
+.ware.short .wnote{ color:#b0401c; }
+.ware.locked{ opacity:.6; }
+.ware .wname.t-Patience{ color:#a8780e; }
+/* Pixelify's 5 and 6 read as 8 at this size: verse references stay in Nunito so nobody learns the wrong one */
+.ware .wname.ref{ font-family:'Nunito',system-ui,sans-serif; font-size:17px; font-weight:800; }
+.shoppay{ margin:-4px 0 6px; }
