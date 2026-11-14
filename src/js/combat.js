@@ -94,7 +94,7 @@ function startFight(ids, boss){
   R.boss = boss ? {} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.castLog=[]; R.unlockMsg=null; R.say=null; R.thoughtAt=-9; R.hurtSaid=false;
   R.spent=[]; R.focus = R.tutorial ? Math.min(R.maxFocus, TUTORIAL_FOCUS) : R.maxFocus; R.brace=false; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null;
-  log(openerLine()); if(!R.tutorial) think('start'); goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
+  log(openerLine()); if(!R.tutorial) think('start'); holdTips(TURN_BEAT); goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
 }
 // One action a turn: say one verse (costs focus), Brace, or Charge. Then the enemies act.
 // Focus does not come back during a fight, except through a verse like Romans 12:2.
@@ -184,7 +184,7 @@ function afterHTML(){
     <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?A.afterBoss:A.moveOn}</button></div>`;
 }
 function playCard(ref){
-  if(R.busy || R.after) return;
+  if(R.busy || R.after) return; if(tipPending()){ R.tipHold=0; render(); return; }
   const c = {ref}; const v = BY_REF[ref]; const cost = cardCost(v);
   if(R.spent.includes(ref)){ toast(TEXT.fight.alreadySaid); return; }
   if(cost>R.focus){ toast(TEXT.fight.notEnoughFocus); return; }
@@ -225,7 +225,8 @@ function playCard(ref){
       if(daze) floatText('en'+ti, F.dazed, 'tag', -26);
       await sleep(300);
       if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
-      if(t.hp<=0){ if(t.boss){ R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); await freeBeat(t, ti); }
+      // the Furnace: let you see him go down before the Galatians pieces open
+      if(t.hp<=0){ if(t.boss){ await sleep(TIP_DELAY); R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); await freeBeat(t, ti); }
       else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); }   // let the number clear first
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; floatText('pl', fill(F.shield,{n:s}), 'shield'); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); floatText('pl', fill(F.heal,{n:h}), 'heal'); }
@@ -237,9 +238,11 @@ function playCard(ref){
     enemyTurn();
   });
 }
-function brace(){ if(R.busy || R.after) return; R.brace=true; R.say=null; log(TEXT.fight.braceLog); shieldFX(); enemyTurn(); }
-// A full beat each way between turns, so a fight reads as back and forth (Luke, 2026-11).
-const TURN_BEAT = 1000;
+function brace(){ if(R.busy || R.after) return; if(tipPending()){ R.tipHold=0; render(); return; } R.brace=true; R.say=null; log(TEXT.fight.braceLog); shieldFX(); enemyTurn(); }
+// A full beat each way between turns, so a fight reads as back and forth (Luke, 2026-11), and a pause before
+// any of Amos's popups so you see the turn start before he talks. The tests shorten them.
+let TURN_BEAT = 2000, TIP_DELAY = 1200;
+if(window.__FAST){ TURN_BEAT = 60; TIP_DELAY = 60; }   // smoke and playtest set this before the page loads
 async function enemyTurn(beatDone){
   if(R.busy || R.after) return;
   if(!beatDone){ R.busy=true; await sleep(TURN_BEAT); R.busy=false; if(R.after) return; }   // let your verse land before he answers
@@ -263,16 +266,17 @@ async function enemyTurn(beatDone){
       log(fill(TEXT.fight.hits, vars));
       if(absorbed) floatText('pl', fill(TEXT.fight.float.blocked,{n:absorbed}), 'shield', d>0?-26:0);
       if(d>0){ hitFX(); await strike('pl', String(d), 'you', a==='big'); } else barsSync(); }
-    await sleep(300); if(el) el.classList.remove('lunge');
+    await sleep(700); if(el) el.classList.remove('lunge');   // time to read what he did before the next one moves
     if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); barsSync(); }
     if(R.hp<=0){ R.busy=false; defeat(); return; }
   }
   await sleep(TURN_BEAT);   // and his, before it's your turn again
+  holdTips(TIP_DELAY);   // before anything renders, so a popup can't jump in ahead of “Your turn”
   newTurn(); R.busy=false;
   if(R.hp < R.maxHp*0.4 && !R.hurtSaid){ R.hurtSaid=true; think('hurt', {}, true); }
   render(); turnBanner(TEXT.fight.yourTurn, true);
 }
-function charge(){ if(R.busy||R.charge||R.after) return; R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
+function charge(){ if(R.busy||R.charge||R.after) return; if(tipPending()){ R.tipHold=0; render(); return; } R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
 function fightWon(){
   if(R.boss) townUnlock('furnace');   // Bram is free: the forge opens
   R.pendingDrop = (R.node && R.node.t==='elite' && !R.deck.some(c=>c.ref==='Romans 12:19')) ? 'Romans 12:19' : null; R.dropFrom = R.enemies[0] && R.enemies[0].name;

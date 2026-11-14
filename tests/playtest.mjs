@@ -56,6 +56,7 @@ async function playOne(acc, style) {
   await ctx.addInitScript(s0 => { let s = s0; Math.random = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }, seed * 31 + 7);
   await ctx.addInitScript(() => { setInterval(() => { try { if (R && R.enemies && screen === 'fight' && !R.after) window.__minPct = Math.min(window.__minPct ?? 9, R.hp / R.maxHp); } catch (e) {} }, 15); });
   const page = await ctx.newPage();
+  await page.addInitScript(() => { window.__FAST = true; });   // the fights' pauses for reading (combat.js TURN_BEAT) shrink to a blink
   page.setDefaultTimeout(20000);
   const rec = { acc, style, purchases: [], caves: [], issues: [], errors: [], blanks: { right: 0, wrong: 0 }, tutorialTurns: 0, outcome: 'incomplete', final: null, ms: 0 };
   let shotN = 0;
@@ -180,7 +181,13 @@ async function playOne(acc, style) {
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.busy) { await page.waitForTimeout(60); continue; }
       const ref = await pickVerse();
-      if (ref) { await page.locator(`.hand .card[onclick="playCard('${ref}')"]`).click(); await solveRecall(); }
+      if (ref) {
+        await page.locator(`.hand .card[onclick="playCard('${ref}')"]`).click();
+        // a popup that was due takes the tap (except Amos's 'recall' one, which then opens the recall): close it and choose again
+        const tip = await ev(() => modal && modal.kind === 'tip' ? modal.key : null);
+        if (tip && tip !== 'recall') { await ev(() => closeTip()); continue; }
+        await solveRecall();
+      }
       else await page.locator('.fightdock button[onclick="brace()"]').click();
       turnsDone++;
       await until(() => R.busy || R.after || screen !== 'fight' || (modal && modal.kind !== 'recall') || !modal); // the action has started...
@@ -355,7 +362,7 @@ async function playOne(acc, style) {
     if (style !== 'shopper' || !(await ev(() => !!P.town.forge))) return;
     const bought = [];
     for (let i = 0; i < 12; i++) {
-      await ev(() => enterBuilding('forge')); await waitScreen('forge');
+      await ev(() => { (P.tips = P.tips || {}).forge = true; enterBuilding('forge'); }); await waitScreen('forge');   // Bram's one-time popup: the bot has read it
       const act = await ev(() => {
         const buy = PLAIN_ORDER.filter(id => ITEMS[id].price && !owns(id) && R.talents >= ITEMS[id].price).sort((a, b) => ITEMS[a].price - ITEMS[b].price)[0];
         if (buy) return { buy };

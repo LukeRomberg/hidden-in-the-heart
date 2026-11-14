@@ -13,6 +13,7 @@ const shots = resolve('tests/out'); mkdirSync(shots, { recursive: true });
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 430, height: 932 }, deviceScaleFactor: 2 });
+await page.addInitScript(() => { window.__FAST = true; });   // the fights' pauses for reading (combat.js TURN_BEAT) shrink to a blink
 const errors = [], warnings = [], netFails = [];
 page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); else if (m.type() === 'warning') warnings.push(m.text()); });
 page.on('pageerror', e => errors.push('pageerror: ' + e.message));
@@ -47,12 +48,12 @@ async function solveRecall() {
     const st = await page.evaluate(() => {
       if (!modal || modal.kind !== 'recall') return { gone: true };
       const c = modal.c; if (c.done) return { done: true };
-      const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans };
+      const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans, at: o.opts ? o.opts.indexOf(o.ans) : -1 };
     });
     if (st.gone) return;
     if (st.done) { await page.locator('.overlay button', { hasText: 'Continue' }).click(); return; }
     if (st.mode === 'letter') await page.locator('#ans').pressSequentially(st.ans);
-    else await page.locator('.overlay .opts button').filter({ hasText: new RegExp(`^${st.ans.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }).first().click();
+    else await page.locator('.overlay .opts button').nth(st.at).click();   // by position: a choice shows the word as spelled (self-control), the answer is its key (selfcontrol)
   }
   throw new Error('recall never finished');
 }
@@ -74,8 +75,10 @@ async function winFight() {
     const card = page.locator('#app .hand .card:not(.dim):not(.spent)').first();
     if (await card.count()) {
       await card.click();
-      if (await page.evaluate(() => modal && modal.kind === 'tip')) await page.locator('.overlay.tip button').click();   // Amos explains the first recall
-      await solveRecall();
+      const tip = await page.evaluate(() => modal && modal.kind === 'tip' ? modal.key : null);
+      if (tip) await page.locator('.overlay.tip button').click();
+      if (tip && tip !== 'recall') continue;   // a popup that was due took the tap: choose again
+      await solveRecall();   // (Amos's 'recall' popup opens the recall when it closes)
     }
     else await btn('Brace').click();
     await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });

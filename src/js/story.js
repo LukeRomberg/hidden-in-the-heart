@@ -89,12 +89,18 @@ const TIP_ORDER = [
   ['readIntent', ()=>R.turn>=3 || R.spent.length>=2],
   ['gift', ()=>R.gift],
 ];
-function tutorialTip(){
-  if(screen!=='fight' || !R.tutorial || R.busy || R.after) return null;
+function dueTip(){
+  if(screen!=='fight' || !R.tutorial || R.after) return null;
   R.tipsSeen = R.tipsSeen||[];
   const due = TIP_ORDER.find(([k,when])=>!R.tipsSeen.includes(k) && when());
   return due ? due[0] : null;
 }
+function tutorialTip(){ return (R && !R.busy && !(R.tipHold > Date.now())) ? dueTip() : null; }
+// Hold Amos's popups for a moment so you see the turn start first; then open the one that's due.
+// Meanwhile your cards wait (tipPending), so you can't play past a rule you haven't been told yet.
+function holdTips(ms){ if(!R.tutorial) return; R.tipHold = Date.now()+ms;
+  setTimeout(()=>{ if(screen==='fight' && !modal && tutorialTip()) render(); }, ms+30); }
+function tipPending(){ return !!(R.tutorial && !modal && dueTip()); }
 // A popup that stops everything to teach one rule. Tutorial tips come from TEXT.tutorial (Amos); others
 // (modal.once) carry their own speaker, title and paragraphs and are shown once per save (P.tips).
 function tipHTML(){ const k = modal.key, T = TEXT.tutorial, o = modal.once;
@@ -103,7 +109,8 @@ function tipHTML(){ const k = modal.key, T = TEXT.tutorial, o = modal.once;
     ${body}<button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
 function closeTip(){
   if(modal.once){ (P.tips=P.tips||{})[modal.key]=true; save(); modal=null; const ov=document.getElementById('tipov'); if(ov) ov.remove(); return; }   // nothing under it changed: leave the screen as it is
-  R.tipsSeen.push(modal.key); const then = modal.then; modal=null; if(then) then(); else render(); }
+  R.tipsSeen.push(modal.key); const then = modal.then; modal=null; if(then){ then(); return; }
+  holdTips(TIP_DELAY*0.6); render(); }   // a breath before the next popup, if another is due
 // In the tutorial, Amos stops you before something new opens (the first recall, the first assembly): show his tip
 // first, then carry on. Returns true if it stepped in.
 function tutorialFirst(k, then){ if(!R.tutorial) return false; R.tipsSeen = R.tipsSeen||[]; if(R.tipsSeen.includes(k)) return false;
@@ -111,7 +118,7 @@ function tutorialFirst(k, then){ if(!R.tutorial) return false; R.tipsSeen = R.ti
 // one-time popups that wait for a scene's last line to finish typing: {screen: tip key}
 const ONCE_TIPS = {forge:'forge'};
 function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.tips[k])) return;
-  const t = TEXT[k].tip; modal = {kind:'tip', key:k, once:{who:t.who, title:t.title, body:t.body}};
+  const t = TEXT[k].tip; modal = {kind:'tip', key:k, once:{who:t.who, title:t.title, body:t.body, screen}};
   document.getElementById('app').insertAdjacentHTML('beforeend', tipHTML()); }
 function tutendHTML(){
   const T = TEXT.tutorial;
