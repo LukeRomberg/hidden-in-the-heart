@@ -3,6 +3,7 @@
    map), into a cave mouth to go down, or out along the road east to the world map.
 
    Map glyphs:  T tree   # rock   , grass   . cobblestone   = dirt path   O the well   @ where you wake
+     l lamp post   k bench   p flower planter (you walk round them)
      C church  F forge  N inn  Y training yard  R scriptorium: a building's footprint (its art covers it)
      + a door: the building is the footprint letter it sits in
      1 2 3 a cave mouth (CAVES[0..2])     E the road east (the world map)
@@ -16,14 +17,14 @@ const TOWN = {map:[
   'T,,CCC,,T,,=,,,,FFF,,,T',
   'T,,CCC,,,,,=,,T,FFF,,,T',
   'T,,C+Ca,,,,=,,,,F+Fb,TT',
-  'TT,,................,,T',
-  'T,,,................,,T',
-  'TNNN...............RRRT',
-  'TNNN.......OB......RRRT',
-  'TN+N..............sR+RT',
+  'TT,,.........p......,,T',
+  'T,,,...l........l...,,T',
+  'TNNN.p.............RRRT',
+  'TNNN.....k.OB......RRRT',
+  'TN+N..........k...sR+RT',
   'T,,w......@.........,,T',
-  'T,,,................==E',
-  'T,,,................,,T',
+  'T,,,...l........l...==E',
+  'T,,,..............p.,,T',
   '##,,=,,,,,,,,,,=,,,,,,T',
   '#1===,YYY,,,,,,=,,T,,,T',
   '##,,,,YYY,,T,,,=,,,,T,T',
@@ -88,6 +89,7 @@ function townPlace(pos, face){ const M = townSt(); M.pos = pos.slice(); M.face =
 
 // ---- Walking into things ----
 function townTrigger(m){
+  townSt().msg = null;   // an old line under the map (a boarded door) doesn't follow you in and back out
   if(m.t==='door') townDoor(m.b);
   else if(m.t==='cave') townCave(m.i);
   else if(m.t==='road') townRoad();
@@ -135,13 +137,16 @@ function townBase(x,y){ const c = townChar(x,y);
   if(c==='.' || c==='@' || c==='O' || c==='B') return 'cb';
   if(c==='=' || c==='E') return 'dt';
   if(c==='#' || '123'.includes(c)) return 'rk';
-  if('abwhs'.includes(c)) return [[x,y-1],[x+1,y],[x,y+1],[x-1,y]].some(([a,b])=>'.@'.includes(townChar(a,b))) ? 'cb' : 'gr';
+  if('abwhslkp'.includes(c)) return [[x,y-1],[x+1,y],[x,y+1],[x-1,y]].some(([a,b])=>'.@'.includes(townChar(a,b))) ? 'cb' : 'gr';
   return 'gr'; }
 function townTileCls(x,y){ const v = ((x*7+y*13+x*y*3)%4+4)%4; return `tl ${townBase(x,y)} v${v} lit`; }
 function townTileInner(x,y){
   const c = townChar(x,y), art = n=>`<img class="mk" src="${townArt()[n]}" alt="">`;
   if(c==='T') return art('tree');
   if(c==='O') return art('well');
+  if(c==='l') return art('lamp');
+  if(c==='k') return art('bench');
+  if(c==='p') return art('planter');
   if('123'.includes(c)) return art('mouth');
   if(c==='E') return art('sign');
   const m = townMark(x,y); if(!m || m.t!=='npc') return '';
@@ -196,6 +201,12 @@ const TOWN_ART = {
          '.kSbbbbbbbbbbSk.','.kSbBBbbbbBbbSk.','.kSbbbbbbbbbbSk.','.kSSSSSSSSSSSSk.','.ksssssssssssssk','.kttttttttttttk.','..xxxxxxxxxxxx..','................'],
   mouth:['................','.....kkkkkk.....','...kknnnnnnkk...','..knnnnnnnnnnk..','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','knnnnnnnnnnnnnnk','knnnnnnnnnnnnnnk',
          'knnnnnnnnnnnnnnk','knnnnnnnnnnnnnnk','knnnnnnnnnnnnnnk','knnnnnnnnnnnnnnk','knnnnnnnnnnnnnnk','kttnnnnnnnnnnttk','tSttnnnnnnnnttSt','.tSStttttttttSt.'],
+  lamp: ['......kkkk......','.....kyYYyk.....','.....kyYYyk.....','......kkkk......','.......jj.......','.......jI.......','.......jI.......','.......jI.......',
+         '.......jI.......','.......jI.......','.......jI.......','.......jI.......','......kjIk......','.....kjjIIk.....','.....xxxxxx.....','................'],
+  bench:['................','................','................','................','................','..kkkkkkkkkkkk..','..kWWWWWWWWWWk..','..kwwwwwwwwwwk..',
+         '..kkkkkkkkkkkk..','..kWWWWWWWWWWk..','..kwwwwwwwwwwk..','..kddddddddddk..','..kdk......kdk..','..kdk......kdk..','..xxx......xxx..','................'],
+  planter:['................','................','...h.y.h..o.h...','..hfhyhfhhohfh..','..fhfhfhfhfhfh..','.kkkkkkkkkkkkkk.','.kSSSSSSSSSSSSk.','.kssssssssssssk.',
+         '.kssssssssssssk.','.kttttttttttttk.','..xxxxxxxxxxxx..','................','................','................','................','................'],
   sign: ['................','................','..kkkkkkkkkkk...','..kWWWWWWWWWWk..','..kwwwwwwwwwwwk.','..kwddddddddwwwk','..kwwwwwwwwwwwk.','..kkkkkkkkkkkk..',
          '......kdk.......','......kdk.......','......kdk.......','......kdk.......','......kdk.......','.....xkdkx......','................','................'],
 };

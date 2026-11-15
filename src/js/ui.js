@@ -47,7 +47,7 @@ function render(){
   const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
-  const tabs = R && R.deck && R.deck.length && TAB_ON.has(screen); document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();
+  const tabs = R && R.deck && R.deck.length && P.tutorialDone && TAB_ON.has(screen);   // no tabs until Bram is free (the opening walks the town map) document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();
   if(modal && modal.once && modal.once.screen!==screen) modal = null;   // a one-time popup belongs to its screen; unseen, it comes back next visit
   if(!modal && levelUpDue()) modal = {kind:'levelup'};
   if(!modal){ const tip = tutorialTip(); if(tip) modal = {kind:'tip', key:tip}; }

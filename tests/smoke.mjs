@@ -97,6 +97,7 @@ const mapIdle = () => page.waitForFunction(() => !document.getElementById('wipe'
 // Walk to a tile (or up to a closed door, which also taps it). Each tap goes to the furthest tile of the real route
 // that is already lit or remembered and on screen, so fog and the tap-to-walk path are exercised for real.
 async function walkTo(goal) {
+  let tappedGoal = false;   // the last tap was on the goal itself, not just the nearest tile on screen
   for (let i = 0; i < 80; i++) {
     await mapIdle();
     const s = await page.evaluate(([[gx, gy], tapped]) => {
@@ -113,10 +114,11 @@ async function walkTo(goal) {
       path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
         if (M.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
       return best ? { best } : { err: 'nothing on the route is lit' };
-    }, [goal, i > 0]);
+    }, [goal, tappedGoal]);
     if (s.stop) return;
     if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
     await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
+    tappedGoal = s.best.x === goal[0] && s.best.y === goal[1];
     if (s.best.x === goal[0] && s.best.y === goal[1] && await page.evaluate(([x, y]) => here().closed(x, y), goal)) { await mapIdle(); return; }   // tapped a shut door
   }
   throw new Error(`never got to ${goal}`);
@@ -155,6 +157,7 @@ try {
   await step('town: out to the well with Amos', async () => {
     await finishDialogue(); await act().click(); await waitScreen('town');
     if (!(await page.locator('#camos').count())) throw new Error('Amos is not walking with you');
+    if (await page.locator('.tabs').count()) throw new Error('the tab bar shows before Bram is free');
     await walkTo(await spot('npc', 'furnace')); await page.waitForSelector('#talkpop');
     await finishDialogue(); await act().click(); await waitScreen('fight');
   });

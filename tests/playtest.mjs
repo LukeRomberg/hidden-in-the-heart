@@ -14,6 +14,8 @@
 // dock buttons, not by English labels. Everything it chooses at random (right or wrong answers) uses its own seeded
 // generator, and the game's Math.random is seeded too, so a run repeats.
 //
+// Town: the bot walks the town map like a player (tapping tiles) to the church, Bram, shop doors and cave mouths.
+//
 // Bot policies (all in one place so they are easy to change):
 //   fights:    each turn say the best affordable unsaid verse (a heal when HP < 50%, else the most damage); Brace when
 //              nothing is affordable. Never uses Charge. Level-ups take the first fruit on offer.
@@ -67,15 +69,15 @@ async function playOne(acc, style) {
 
   // ---- stall guard: any loop that waits calls tick(); no change in the game's state for 60 s is a stall ----
   let lastSig = '', lastAt = Date.now();
-  const sigOf = () => page.evaluate(() => { try { return JSON.stringify([screen, document.getElementById('wipe').className, R && [R.hp, R.focus, R.turn, R.busy, R.after, R.levelUps, R.room, R.enemies && R.enemies.map(e => e.hp).join(), R.tf && [R.tf.phase, R.tf.tries], R.hurt && R.hurt.phase, R.map && [R.map.pos, R.map.done.length, R.map.open.length]], modal && [modal.kind, modal.cur, modal.c && modal.c.cur, modal.next, modal.mistakes], TW.i, TW.typing]); } catch (e) { return 'err'; } });
+  const sigOf = () => page.evaluate(() => { try { return JSON.stringify([screen, document.getElementById('wipe').className, R && [R.hp, R.focus, R.turn, R.busy, R.after, R.levelUps, R.room, R.enemies && R.enemies.map(e => e.hp).join(), R.tf && [R.tf.phase, R.tf.tries], R.hurt && R.hurt.phase, R.map && [R.map.pos, R.map.done.length, R.map.open.length], R.tmap && R.tmap.pos, R.tour && [R.tour.i, R.tour.busy]], modal && [modal.kind, modal.cur, modal.c && modal.c.cur, modal.next, modal.mistakes], TW.i, TW.typing]); } catch (e) { return 'err'; } });
   const tick = async () => { const s = await sigOf(), now = Date.now(); if (s !== lastSig) { lastSig = s; lastAt = now; } else if (now - lastAt > STALL_MS) throw new Stall(`the game state did not change for ${STALL_MS / 1000}s`); };
   const until = async (pred, arg) => { for (;;) { if (await page.evaluate(pred, arg)) return; await tick(); await page.waitForTimeout(40); } };
-  const idle = () => until(() => !document.getElementById('wipe').className && !(R && R.map && R.map.walking));
+  const idle = () => until(() => !document.getElementById('wipe').className && !(R && PLACES[screen] && PLACES[screen].st().walking));
   const waitScreen = s => until(x => screen === x && !document.getElementById('wipe').className, s);
   const ev = (fn, arg) => page.evaluate(fn, arg);
   const describe = () => page.evaluate(() => {
     const T = s => (s || '').replace(/\s+/g, ' ').trim();
-    return { screen, room: R && R.room, tf: R && R.tf && { q: R.tf.q, phase: R.tf.phase }, hurt: R && R.hurt && R.hurt.phase, modal: modal && modal.kind, pos: R && R.map && R.map.pos, hp: R && `${R.hp}/${R.maxHp}`,
+    return { screen, room: R && R.room, tf: R && R.tf && { q: R.tf.q, phase: R.tf.phase }, hurt: R && R.hurt && R.hurt.phase, modal: modal && modal.kind, pos: R && (screen === 'town' ? R.tmap && R.tmap.pos : R.map && R.map.pos), hp: R && `${R.hp}/${R.maxHp}`,
       focus: R && R.focus, turn: R && R.turn, enemies: R && R.enemies && R.enemies.map(e => `${e.name} ${e.hp}/${e.max}${e.freed ? ' freed' : ''}`), busy: R && R.busy, after: R && R.after,
       text: T(document.getElementById('app').innerText).slice(0, 300), buttons: [...document.querySelectorAll('#app button, .overlay button')].map(b => T(b.innerText)).filter(Boolean).slice(0, 10) };
   }).catch(e => ({ unavailable: String(e).split('\n')[0] }));
@@ -102,6 +104,7 @@ async function playOne(acc, style) {
       if (s.screen === targetScreen) return;
       if (s.modal === 'levelup') { await levelUp(); continue; }
       if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
+      if (s.screen === 'town' && !s.modal) throw new Stall(`on the town map while heading for ${targetScreen}`);   // the map's dock is Codex/Title: never click it
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.modal === 'assembly') { await solveAssembly(); continue; }
       if (s.dlg) { await finishDialogue(); if (s.acts) await page.locator('#acts button').first().click(); else if (s.dock) await page.locator('#app .dock button').first().click(); }
@@ -232,28 +235,31 @@ async function playOne(acc, style) {
     else if (boss.length) pick = boss[0];
     return { pick, left: fightsLeft(), pos: M.pos };
   }, { skip });
-  // from smoke.mjs: tap tiles like a player; each tap goes to the furthest tile of the real route that is lit or remembered and on screen
+  // from smoke.mjs: tap tiles like a player (caves and the town); each tap goes to the furthest tile of the real route that is lit or remembered and on screen
   async function walkTo(goal) {
+    let tappedGoal = false;   // the last tap was on the goal itself, not just the nearest tile on screen
     for (let i = 0; i < 80; i++) {
       await idle();
-      const s = await ev(([gx, gy]) => {
-        if (screen !== 'dive' || R.room || modal || R.node) return { stop: true };
-        const [hx, hy] = R.map.pos; if (hx === gx && hy === gy) return { stop: true };
-        const m = caveMap(R.cave), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
-        while (q.length) { const [x, y] = q.shift(); if (x === gx && y === gy) break; if ((x !== hx || y !== hy) && !walkable(x, y)) continue;
-          for (const [a, b] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) { if (prev.has(a + ',' + b) || (!walkable(a, b) && !(a === gx && b === gy) && !markAt(a, b))) continue; prev.set(a + ',' + b, [x, y]); q.push([a, b]); } }
+      const s = await ev(([[gx, gy], tapped]) => {
+        const pl = PLACES[screen]; if (!pl || pl.busy() || modal) return { stop: true };
+        const M = pl.st(), [hx, hy] = M.pos; if (hx === gx && hy === gy) return { stop: true };
+        if (tapped && pl.mark(gx, gy) && Math.abs(hx - gx) + Math.abs(hy - gy) === 1) return { stop: true };   // walked into it and stayed (a boarded door)
+        const m = pl.grid(), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
+        while (q.length) { const [x, y] = q.shift(); if (x === gx && y === gy) break; if ((x !== hx || y !== hy) && !pl.walkable(x, y)) continue;
+          for (const [a, b] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) { if (prev.has(a + ',' + b) || (!pl.walkable(a, b) && !(a === gx && b === gy) && !pl.mark(a, b))) continue; prev.set(a + ',' + b, [x, y]); q.push([a, b]); } }
         if (!prev.has(gx + ',' + gy)) return { err: 'no route' };
         const path = []; for (let p = [gx, gy]; p; p = prev.get(p.join(','))) path.unshift(p);
         const r = document.getElementById('cmap').getBoundingClientRect(), v = document.querySelector('.cave-view').getBoundingClientRect();
         let best = null;
         path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
-          if (R.map.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
+          if (M.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
         return best ? { best } : { err: 'nothing on the route is lit' };
-      }, goal);
+      }, [goal, tappedGoal]);
       if (s.stop) return;
       if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
       await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
-      if (s.best.x === goal[0] && s.best.y === goal[1] && await ev(([x, y]) => closedAt(x, y), goal)) { await idle(); return; }   // tapped a shut door
+      tappedGoal = s.best.x === goal[0] && s.best.y === goal[1];
+      if (s.best.x === goal[0] && s.best.y === goal[1] && await ev(([x, y]) => here().closed(x, y), goal)) { await idle(); return; }   // tapped a shut door
     }
     throw new Error(`never got to ${goal}`);
   }
@@ -362,41 +368,54 @@ async function playOne(acc, style) {
     if (style !== 'shopper' || !(await ev(() => !!P.town.forge))) return;
     const bought = [];
     for (let i = 0; i < 12; i++) {
-      await ev(() => { (P.tips = P.tips || {}).forge = true; enterBuilding('forge'); }); await waitScreen('forge');   // Bram's one-time popup: the bot has read it
+      await ev(() => { (P.tips = P.tips || {}).forge = true; }); await walkTown('door', 'forge'); await waitScreen('forge');   // Bram's one-time popup: the bot has read it
       const act = await ev(() => {
         const buy = PLAIN_ORDER.filter(id => ITEMS[id].price && !owns(id) && R.talents >= ITEMS[id].price).sort((a, b) => ITEMS[a].price - ITEMS[b].price)[0];
         if (buy) return { buy };
         const a = nextArmor(); if (a && owns(a.from) && R.talents >= a.price) return { cons: a.up, price: a.price };
         return null;
       });
-      if (!act) break;
+      if (!act) { await townBack(); break; }
       if (act.buy) { await page.locator(`#app button[onclick="buy('${act.buy}')"]`).click(); bought.push(act.buy); await page.waitForTimeout(80); }
       else {
         await page.locator('#app button[onclick="consecrate()"]').click(); await solveRecall();
         const ok = await ev(id => owns(id) && has(id), act.cons); bought.push(act.cons + (ok ? '' : ' (recital failed)')); await page.waitForTimeout(80);
       }
+      await townBack();
     }
     if (bought.length) rec.purchases.push(`${where}: ${bought.join(', ')}`);
-    await ev(() => goto('town')); await waitScreen('town');
   }
   async function restUp(cave) {
     const s = await ev(() => ({ hp: R.hp, max: R.maxHp, inn: !!P.town.inn, tal: R.talents }));
     if (s.hp >= s.max) return { rested: false };
     if (s.inn) {
-      await ev(() => enterBuilding('inn')); await waitScreen('inn');
+      await walkTown('door', 'inn'); await waitScreen('inn');
       await page.locator('#app .dock button.primary').first().click(); await page.waitForTimeout(100);
-      return { rested: true, where: 'inn', spent: 0 };
+      await townBack(); return { rested: true, where: 'inn', spent: 0 };
     }
-    await ev(() => goto('church')); await waitScreen('church');
+    await walkTown('door', 'church'); await waitScreen('church');
     const b = page.locator('#app button[onclick*="R.talents-=5"]');
-    if (await b.count() && !(await b.first().isDisabled())) { await b.first().click(); await page.waitForTimeout(100); return { rested: true, where: 'church', spent: 5 }; }
+    if (await b.count() && !(await b.first().isDisabled())) { await b.first().click(); await page.waitForTimeout(100); await townBack(); return { rested: true, where: 'church', spent: 5 }; }
+    await townBack();
     return { rested: false, stuck: `hurt (${s.hp}/${s.max}) with ${s.tal} talents and no inn: cannot rest` };
   }
   async function startCave(i) {
-    await ev(() => goto('church')); await waitScreen('church');
-    await page.locator(`#app button[onclick="startCave(${i})"]`).click(); await page.waitForTimeout(700);
-    if ((await ev(() => screen)) === 'church') { const d = await describe(); throw new Softlock(`could not start cave ${i}: still in the church (hp ${d.hp}); too hurt to descend?`); }
+    await walkTown('cave', i); await page.waitForTimeout(700);
+    if ((await ev(() => screen)) === 'town') { const d = await describe(); throw new Softlock(`could not start cave ${i}: still in town (hp ${d.hp}, ${await ev(() => R.tmap.msg)}); too hurt to descend?`); }
     await navigate('dive');
+  }
+  // walk into something on the town map: walkTown('door', 'forge'), walkTown('cave', 0), walkTown('npc', 'furnace')
+  async function walkTown(t, id) { await waitScreen('town'); await walkTo(await ev(([t, id]) => townSpot(t, id), [t, id])); }
+  // out of a building onto the map again: the Town tab (the church has no Back button), or the screen's Back
+  async function townBack() { await idle(); if ((await ev(() => screen)) !== 'town') { await ev(() => tab('town')); } await waitScreen('town'); }
+  // Amos's tour: tap through his lines at each stop until he heads back to the church
+  async function finishTour() {
+    await waitScreen('town');
+    while (await ev(() => !!R.tour)) {
+      await tick();
+      if (await ev(() => modal && modal.kind === 'talk')) { await finishDialogue(); await page.locator('#acts button').first().click(); }
+      await page.waitForTimeout(60);
+    }
   }
   const snapshot = () => ev(() => ({ talents: R.talents, souls: R.souls, level: R.level, xp: R.xp, need: xpNeed(R.level), maxHp: R.maxHp, hp: R.hp, maxFocus: R.maxFocus, tree: { ...R.tree }, creed: P.creed,
     verses: [...new Set(R.deck.map(c => c.ref))].map(ref => `${spellLine(ref)} ${TIER_NAME[sp(ref).tier]}`), gear: Object.values(R.gear).filter(Boolean) }));
@@ -407,13 +426,15 @@ async function playOne(acc, style) {
     await page.evaluate(() => localStorage.clear()); await page.reload();
     await page.evaluate(() => { const o = defeat; defeat = function () { window.__defeats = (window.__defeats || 0) + 1; return o.apply(this, arguments); }; });
     await page.locator('#app button[onclick*="newGame"]').click(); await waitScreen('pro1');
-    await navigate('intro');                                           // prologue: recall Psalm 119:11, Amos, the lid
+    await navigate('town');                                            // prologue: recall Psalm 119:11, wake in the square
+    await walkTown('door', 'church'); await navigate('intro');         // walk to the church: Amos, the lid
     const hands = page.locator('#app .hand');
     await hands.nth(0).locator('.card').first().click(); await hands.nth(1).locator('.card').first().click();
     await page.locator('#app .dock button.primary').click(); await waitScreen('tutorial');
+    await navigate('town'); await walkTown('npc', 'furnace');          // out to the well with Amos
     await navigate('fight');                                           // the Furnace
     const tut = await fightLoop(); rec.tutorialTurns = tut.turns;
-    await afterFight(); await navigate('town');                        // victory, Bram, Amos's tour
+    await afterFight(); await navigate('town'); await finishTour();    // victory, Bram, Amos's tour on the map
     const base = await ev(() => ({ forge: P.town.forge, done: P.tutorialDone, gift: owns(BRAM_GIFT) }));
     if (!base.forge || !base.done || !base.gift) rec.issues.push({ kind: 'STATE', msg: 'after the Furnace: ' + JSON.stringify(base) });
 
