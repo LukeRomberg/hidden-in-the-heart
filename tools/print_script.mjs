@@ -25,6 +25,11 @@ scene('6. The Furnace (tutorial)', conv(T.tutorial.lead), button(T.tutorial.star
   '**Amos, coaching during the fight:**\n\n' + Object.values(T.tutorial.coach).map(l => `- ${l}`).join('\n'));
 scene(`7. ${T.victory.heading}`, `*${T.victory.story}*`, `*${T.victory.bell}*`, button(T.victory.button));
 scene('8. Bram', conv(T.tutorial.after), button(T.tutorial.toTown));
+scene('8b. Amos’s tour (walking the town map)', ...T.tour.stops.map(st => `*At the ${st.at}:*\n\n${conv(st.lines)}`));
+const TM = T.townMap;
+scene('8c. The town map', `*Waking:* ${TM.woke}`, `*Walking into Bram, empty-handed:*\n\n${conv(TM.bramShouting)}`, `*With the lid, Amos beside you:* ${TM.toTheWell}`,
+  conv(TM.churchAfterLid), conv(TM.bramFight), `*${TM.walkHint}*`, `*${TM.notTonight}*`, `*${TM.caveShut}*`, `*${TM.tourDone}*`,
+  ...Object.values(TM.people).map(conv));
 scene('9. The church', conv([T.church.lineBefore]), conv([T.church.lineAfter]));
 T.caves.forEach((c, i) => scene(`${10 + i}. ${c.name}`, `*${c.blurb}*`, conv(c.intro), button(T.dive.enter), `*At the end:* ${c.bossLead}`, button(T.dive.face), conv(c.done), button(T.dive.home)));
 scene('13. In the tunnels', `*${T.dive.walkHint}*`, Object.entries(T.dive.hints).map(([k, v]) => `- **${k}:** ${v}`).join('\n'),

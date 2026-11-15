@@ -4,6 +4,7 @@
    opens it; chests and the campfire open right here under the map, fights switch to the arena
    and come back. Puzzles: verse doors (say a verse you carry, no slip), levers that open gates,
    and the boss door, which stays barred until everyone else in the cave is free.
+   Walking, light, camera and drawing are the shared map engine in tilemap.js; this file is the cave's rules.
 
    Map glyphs:  # rock   . floor   S start   B the held townsperson (CAVES[].boss)
      D boss door, opens once every fight on the map is cleared
@@ -84,7 +85,6 @@ const CAVES = [
   ]},
 ];
 const LEVERS = {L:'G', K:'H'};      // lever glyph -> the gates it opens
-const MAP_T = 40, STEP_MS = 120, SIGHT = 3.3;   // tile size in px, walking speed, how far the light reaches (tiles)
 
 function caveOpen(i){ return i===0 || !!P.caves[CAVES[i-1].id]; }
 function allCavesDone(){ return CAVES.every(c=>P.caves[c.id]); }
@@ -97,6 +97,7 @@ function caveMap(i){
     if(ch==='S') start=[x,y];
     if(ch==='B') mk[x+','+y] = {t:'boss', e:[c.boss]};
     if(c.marks[ch]) mk[x+','+y] = {...c.marks[ch]};
+    if(mk[x+','+y] && mk[x+','+y].t==='scrap') mk[x+','+y].walkOver = true;   // a scrap of paper on the floor: walk over it and pick it up
   }));
   Object.entries(mk).forEach(([id,m])=>m.id=id);
   return MAPS[i] = {W, H, rows, start, mk};
@@ -140,7 +141,6 @@ function caveScene(){ const id = CAVES[R.cave].id, H = CAVE_H[id];
 
 // ---- What's on a tile ----
 function tileAt(x,y){ const m = caveMap(R.cave); return (y>=0 && y<m.H && x>=0 && x<m.W) ? m.rows[y][x] : '#'; }
-const tid = (x,y)=>x+','+y;
 function isDone(x,y){ return R.map.done.includes(tid(x,y)); }
 function isOpen(x,y){ return R.map.open.includes(tid(x,y)); }
 function leverFor(gate){ return Object.keys(LEVERS).find(l=>LEVERS[l]===gate); }
@@ -161,84 +161,8 @@ function blocksSight(x,y){ const c = tileAt(x,y); return c==='#' || ((c==='D' ||
 // everyone still held on this floor: fights and the villagers asking “Is it true…?”
 function fightsLeft(){ return Object.values(caveMap(R.cave).mk).filter(m=>(m.t==='fight'||m.t==='truth') && !R.map.done.includes(m.id)).length; }
 
-// ---- Light: a few tiles around you, cut off by rock ----
-function inSight(hx,hy,x,y){
-  const dx = x-hx, dy = y-hy; if(Math.abs(dx)<=1 && Math.abs(dy)<=1) return true;
-  if(dx*dx+dy*dy > SIGHT*SIGHT) return false;
-  const n = Math.ceil(Math.hypot(dx,dy)*4);
-  for(let s=1;s<n;s++){ const tx = Math.floor(hx+.5+dx*s/n), ty = Math.floor(hy+.5+dy*s/n);
-    if((tx!==x || ty!==y) && (tx!==hx || ty!==hy) && blocksSight(tx,ty)) return false; }
-  return true;
-}
-// recompute what's lit; marks it seen, redraws tiles that changed, returns the tiles seen for the first time
-function updateSight(){
-  const M = R.map, m = caveMap(R.cave), [hx,hy] = M.pos, r = Math.ceil(SIGHT), vis = new Set(), fresh = [];
-  for(let y=hy-r;y<=hy+r;y++) for(let x=hx-r;x<=hx+r;x++){
-    if(x<0||y<0||x>=m.W||y>=m.H || !inSight(hx,hy,x,y)) continue;
-    const k = y*m.W+x; vis.add(k); if(!M.seen[k]){ M.seen[k]=1; fresh.push(k); } }
-  const changed = new Set([...vis].filter(k=>!M.vis.has(k)).concat([...M.vis].filter(k=>!vis.has(k))));
-  M.vis = vis; changed.forEach(k=>redrawTile(k)); return fresh;
-}
-function redrawTile(k){ const el = document.getElementById('t'+k); if(!el) return; const m = caveMap(R.cave), x = k%m.W, y = (k-x)/m.W;
-  el.className = tileCls(x,y); el.innerHTML = tileInner(x,y); }
-
-// ---- Walking: BFS over tiles you've seen; a marker can end a path but not be walked through ----
-function reach(){
-  const M = R.map, m = caveMap(R.cave), [sx,sy] = M.pos, dist = new Map([[tid(sx,sy),0]]), from = new Map(), q = [[sx,sy]];
-  while(q.length){ const [x,y] = q.shift(), d = dist.get(tid(x,y));
-    if((x!==sx || y!==sy) && !walkable(x,y)) continue;   // markers are dead ends
-    for(const [nx,ny] of [[x,y-1],[x+1,y],[x,y+1],[x-1,y]]){ const id = tid(nx,ny);
-      if(dist.has(id) || nx<0||ny<0||nx>=m.W||ny>=m.H || !M.seen[ny*m.W+nx]) continue;
-      if(!walkable(nx,ny) && !markAt(nx,ny)) continue;
-      dist.set(id, d+1); from.set(id, [x,y]); q.push([nx,ny]); } }
-  return {dist, path(x,y){ const p = [[x,y]]; let id = tid(x,y); while(from.has(id)){ const f = from.get(id); p.unshift(f); id = tid(...f); } return p; }};
-}
-// tap a tile: walk there; tap a closed door to walk up to it and try it; tap the dark to go as near as you can
-function planTo([x,y]){
-  const M = R.map, m = caveMap(R.cave), Rc = reach(), seen = M.seen[y*m.W+x];
-  if(seen && closedAt(x,y)){
-    const next = [[x,y-1],[x+1,y],[x,y+1],[x-1,y]].filter(([a,b])=>Rc.dist.has(tid(a,b)) && walkable(a,b)).sort((a,b)=>Rc.dist.get(tid(...a))-Rc.dist.get(tid(...b)))[0];
-    if(next) return {path:Rc.path(...next), then:()=>bump(x,y)};
-  }
-  if(seen && Rc.dist.has(tid(x,y))) return {path:Rc.path(x,y)};
-  let best = null, score = Infinity;
-  Rc.dist.forEach((d,id)=>{ const [a,b] = id.split(',').map(Number); if(markAt(a,b)) return;
-    const s = Math.hypot(a-x,b-y)*1000 + d; if(s<score){ score=s; best=[a,b]; } });
-  return best ? {path:Rc.path(...best)} : null;
-}
-function mapTap(ev){
-  if(modal || R.room || R.node || screen!=='dive') return;   // R.node: a fight is starting
-  const r = document.getElementById('cmap').getBoundingClientRect();
-  const x = Math.floor((ev.clientX-r.left)/MAP_T), y = Math.floor((ev.clientY-r.top)/MAP_T);
-  const [hx,hy] = R.map.pos;
-  if(x===hx && y===hy && !R.map.walking) return;
-  R.map.goal = [x,y]; if(!R.map.walking) walkLoop();
-}
-async function walkLoop(){
-  const M = R.map; M.walking = true; heroEl('add');
-  try{
-    while(M.goal && screen==='dive' && !modal && !R.room){
-      const plan = planTo(M.goal); M.goal = null; if(!plan) break;
-      let stop = false;
-      for(let i=1;i<plan.path.length && !stop;i++){
-        const next = plan.path[i], m = markAt(...next);
-        if(m && m.t==='scrap'){ stepTo(...next); await sleep(STEP_MS); if(screen!=='dive' || R.map!==M) return; trigger(m); stop = true; break; }
-        if(m){ face(next); trigger(m); stop = true; break; }   // you stop in front of it, facing it
-        const fresh = stepTo(...next); await sleep(STEP_MS);
-        if(screen!=='dive' || R.map!==M) return;
-        stop = arrive(fresh, plan.path[plan.path.length-1]);
-        if(M.goal) break;   // tapped somewhere else mid-walk: replan from here
-      }
-      if(!stop && !M.goal && plan.then && plan.path.length) plan.then();
-    }
-  } finally { M.walking = false; heroEl('remove'); }
-  if(screen==='dive' && R.map===M) saveRun();
-}
-function stepTo(x,y){ face([x,y]); R.map.pos = [x,y]; const fresh = updateSight(); placeHero(); return fresh; }
-// only back and front frames exist, so a sideways step keeps the last up/down facing
-function face([x,y]){ const M = R.map, py = M.pos[1]; if(y<py) M.face='back'; else if(y>py) M.face='front'; placeHero(); }
 // after each step: a lever underfoot gets pulled; something new in the light gets a line
-function arrive(fresh, goal){
+function caveArrive(fresh, goal){
   const M = R.map, [x,y] = M.pos, c = tileAt(x,y);
   if(LEVERS[c] && !isOpen(x,y)){ pullLever(x,y); return true; }
   const m2 = caveMap(R.cave), spots = fresh.map(k=>[k%m2.W, Math.floor(k/m2.W)]);
@@ -254,16 +178,6 @@ function markHint(m){ const D = TEXT.dive;
   if(m.t==='truth') return TEXT.truths.villagerHint;
   if(m.t==='hurt') return TEXT.living.hint;
   return D.hints[m.t==='fight' && m.e.length>1 ? 'fightMany' : m.t]; }
-function say(msg){ R.map.msg = msg; const el = document.getElementById('cavemsg'); if(el) el.innerHTML = msg; }
-function heroEl(op){ const h = document.getElementById('chero'); if(h) h.classList[op]('walking'); }
-function placeHero(){
-  const h = document.getElementById('chero'), mp = document.getElementById('cmap'); if(!h || !mp) return;
-  const [x,y] = R.map.pos; h.style.transform = `translate(${x*MAP_T}px,${y*MAP_T}px)`; h.style.zIndex = y*2+1; mp.style.transform = camera();
-  if(h.dataset.face!==R.map.face){ h.dataset.face = R.map.face; h.querySelector('.hs').innerHTML = heroSprite(); }
-}
-function heroSprite(){ return sprite(R.map.face==='back'?'back':'player',0,0.8); }
-function camera(){ const [x,y] = R.map.pos; return `translate(${-(x+.5)*MAP_T}px,${-(y+.5)*MAP_T}px)`; }
-
 // ---- Markers, doors and levers ----
 function trigger(m){
   R.node = m;
@@ -313,6 +227,11 @@ function caveDoneHTML(){
   return `${caveScene()}${talk('cavedone'+R.cave, C.done, `<button class="primary wide" onclick="${next}">${TEXT.dive.home}</button>`)}`;
 }
 
+// the cave as a place to walk (tilemap.js)
+PLACES.dive = {grid:()=>caveMap(R.cave), st:()=>R.map, lit:false, walkable, mark:markAt, closed:closedAt, blocksSight,
+  trigger, bump, arrive:caveArrive, busy:()=>!!(R.room || R.node), tileCls, tileInner, prep:caveTiles, save:saveRun,
+  cls:()=>'c-'+CAVES[R.cave].id, viewCls:()=>R.room?'short':'', name:()=>TEXT.caves[R.cave].name, overlay:'<div class="torch"></div>'};
+
 // ---- Drawing the map: tiles drawn in code (placeholder art until a tileset is approved) ----
 // base look of a tile: rock top, rock face (rock with open ground below it), floor, floor in a wall's shadow
 function baseOf(x,y){
@@ -342,17 +261,7 @@ function tileInner(x,y){
   if(mk.t==='boss' && standIn(mk.e[0])===mk.e[0]){ const E = ENEMY_IMG[mk.e[0]]; return `<img class="mk who boss" src="${E.f[0]}" alt="">`; }
   return mk.e.map((e,i)=>`<img class="mk who shade n${mk.e.length}-${i}" src="${FREED_IMG['freed'+((x+y+i*3)%6)].f[0]}" alt="">`).join('');
 }
-function mapHTML(){
-  const M = R.map, m = caveMap(R.cave), C = TEXT.caves[R.cave]; caveTiles();
-  M.vis = new Set(); const [hx,hy] = M.pos;
-  for(let y=0;y<m.H;y++) for(let x=0;x<m.W;x++) if(inSight(hx,hy,x,y)){ const k=y*m.W+x; M.vis.add(k); M.seen[k]=1; }
-  let tiles = '';
-  for(let y=0;y<m.H;y++) for(let x=0;x<m.W;x++) tiles += `<div class="${tileCls(x,y)}" id="t${y*m.W+x}" style="left:${x*MAP_T}px;top:${y*MAP_T}px;z-index:${y*2}">${tileInner(x,y)}</div>`;
-  const hero = `<div id="chero" class="chero" data-face="${M.face}" style="transform:translate(${hx*MAP_T}px,${hy*MAP_T}px);z-index:${hy*2+1}"><div class="hs">${heroSprite()}</div></div>`;
-  return `<div class="cave-view ${R.room?'short':''}" onclick="mapTap(event)" role="application" aria-label="${C.name}">
-    <div id="cmap" class="cmap c-${CAVES[R.cave].id}" style="width:${m.W*MAP_T}px;height:${m.H*MAP_T}px;transform:${camera()}">${tiles}${hero}</div>
-    <div class="torch"></div><div class="cavename">${C.name}</div></div>`;
-}
+function mapHTML(){ return mapView(PLACES.dive); }
 function diveHTML(){
   const D = TEXT.dive, T = TEXT.rooms;
   if(!R.map) R.map = freshMap(R.cave);
@@ -383,8 +292,6 @@ const CAVE_PAL = {
   deep:  {fl:['#3a3430','#443d37','#4e463e','#5a5148','#6a6054'], rk:['#1d2027','#262a33','#31353f'], rf:['#16181e','#2a2d36','#383c48','#4a4f5e','#606678']},
 };
 const artCache = {};
-function pxCanvas(w,h,draw){ const c = document.createElement('canvas'); c.width=w; c.height=h; const g = c.getContext('2d'); draw((x,y,col,ww=1,hh=1)=>{ g.fillStyle=col; g.fillRect(x,y,ww,hh); }); return c.toDataURL(); }
-function rnd(seed){ let s = seed>>>0 || 1; return ()=>((s = (s*1664525+1013904223)>>>0) / 4294967296); }
 function caveTiles(){
   const id = CAVES[R.cave].id; if(document.getElementById('tiles-'+id)) return;
   const P_ = CAVE_PAL[id], css = [];
@@ -433,7 +340,7 @@ const ART = {
   doorOpen:['..kkkkkkkkkkkk..','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.',
             '.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.'],
 };
-function caveArt(){ if(!artCache.done){ Object.entries(ART).forEach(([n,rows])=>artCache[n]=pxCanvas(16,16,px=>rows.forEach((row,y)=>Array.from(row).forEach((c,x)=>{ if(c!=='.') px(x,y,ART_PAL[c]); })))); artCache.done=true; } return artCache; }
+function caveArt(){ if(!artCache.done){ Object.entries(ART).forEach(([n,rows])=>artCache[n]=pxArt(rows, ART_PAL)); artCache.done=true; } return artCache; }
 
 // ---- Rooms that open under the map ----
 function rewardHTML(){

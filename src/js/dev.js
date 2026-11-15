@@ -27,8 +27,11 @@ function testHero(afterTutorial){
 }
 const TEST_JUMPS = [
   ['Tutorial: the Furnace', ()=>{ testHero(false); startTutorial(); }],
-  ['Amos’s town tour', ()=>{ testHero(true); R.tourFrom='town'; goto('tour'); }],
-  ['Town, after the tutorial', ()=>{ testHero(true); goto('town'); }],
+  ['Town map: you wake in the square', ()=>{ testHero(false); R.deck = []; R.gear.hand = R.gear.shield = null; P.hero = null; save(); townPlace(townGrid().start); goto('town'); }],
+  ['Town map: out to the well with Amos', ()=>{ testHero(false); townPlace(frontOf(townSpot('door','church'))); goto('town'); }],
+  ['Amos’s town tour', ()=>{ testHero(true); startTour(true); }],
+  ['Town map, after the tutorial', ()=>{ testHero(true); P.toured = true; townPlace(frontOf(townSpot('door','church'))); goto('town'); }],
+  ['Town map, every door open', ()=>{ testHero(true); P.toured = true; CAVES.forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null; townPlace(tourAt('well')); goto('town'); }],
   ['The Hollow', ()=>{ testHero(true); startCave(0); }],
   ['The Old Quarry', ()=>{ testHero(true); P.caves.hollow = 1; startCave(1); }],
   ['The Deep Cave', ()=>{ testHero(true); P.caves.hollow = P.caves.quarry = 1; startCave(2); }],

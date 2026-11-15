@@ -58,7 +58,8 @@ function savesHTML(){
     <div class="dock"><button class="wide" onclick="goto('title')">Back</button></div>`;
 }
 function continueGame(){ loadHero();
-  if(!P.tutorialDone){ goto('tutorial'); return; }
+  if(!P.tutorialDone){ goto('town'); return; }   // Bram is still burning by the well, and Amos is with you
   if(P.run && P.run.cave!=null && CAVES[P.run.cave]){ resumeCave(P.run); return; }
   P.run = null;   // runs from the old square map can't resume
+  if(P.toured===false){ startTour(); return; }   // left in the middle of Amos's tour: he starts it again
   goto('town'); }

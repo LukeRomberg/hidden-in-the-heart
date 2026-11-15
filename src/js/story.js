@@ -48,7 +48,7 @@ function pro2HTML(){
   const T = TEXT.prologue.square, got = R.proFrac===1;
   return `${lineOf('pro2')===0 ? sceneHTML(IMG.scene.asleep) : sceneHTML(IMG.scene.square,[{src:IMG.hero.waking, x:204, y:94, w:64}])}${talk('pro2',
     [[null, got?T.firstRight:T.firstMissed], ...T.lines],
-    `<button class="primary wide" onclick="goto('pro3')">${T.button}</button>`)}`;
+    `<button class="primary wide" onclick="townPlace(townGrid().start);goto('town')">${T.button}</button>`)}`;   // you wake in the square: walk to the church
 }
 function pro3HTML(){
   const T = TEXT.prologue.church;
@@ -73,7 +73,7 @@ function chooseOpener(ref, group){ R.chosen[group] = R.chosen[group]===ref ? nul
 function tutorialHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('idle',40), {src:ENEMY_IMG.furnace.f[0], x:206, y:58, w:96}])}${talk('tut', T.lead,
-    `<button class="primary wide" onclick="startTutorial()">${T.start}</button>`)}`;
+    `<button class="primary wide" onclick="townPlace(frontOf(townSpot('door','church')));goto('town')">${T.start}</button>`)}`;   // out to the well on the map, Amos beside you
 }
 // The tutorial is the Furnace: Bram, burning by the well. Amos hands you Galatians 5:22-23 for the fires;
 // you start groggy, so you run dry and he hands you Romans 12:2 too.
@@ -123,14 +123,9 @@ function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.ti
 function tutendHTML(){
   const T = TEXT.tutorial;
   return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40), {src:ENEMY_IMG.hothead_f.f[0], x:236, y:92, w:48}])}${talk('tutend', T.after,
-    `<button class="primary wide" onclick="goto('tour')">${T.toTown}</button>`)}`;
+    `<button class="primary wide" onclick="startTour(true)">${T.toTown}</button>`)}`;
 }
-// Amos shows you the town once, after the Furnace (and again from the church, if you ask)
-function tourHTML(){
-  const T = TEXT.tour;
-  return `${sceneHTML(IMG.scene.square,[AT_PRIEST('welcome',40)])}${talk('tour', T.lines,
-    `<button class="primary wide" onclick="P.toured=true;save();goto(R.tourFrom||'town')">${T.button}</button>`)}`;
-}
+// Amos's tour of the town (after the Furnace, and again from the church) walks the town map: startTour() in townmap.js
 const THANKS = TEXT.thanks;
 function victory(){
   // the Furnace is freed: Bram again. This is the end of the tutorial.
