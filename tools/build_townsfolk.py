@@ -3,7 +3,7 @@ hurt and badly-hurt states drawn here in code (generating a state costs 10 gener
 
 Sources: assets/source/townsfolk/<look>.png, one row of eight 64x64 rotations in PixelLab's order
 (south, south-east, east, north-east, north, north-west, west, south-west), straight from
-create_character (mode v3, view "low top-down", size 64). A look listed in LOOKS without a sheet yet
+create_character (mode v3, view "low top-down", size 64). A look listed in LOOKS without a sheet
 is skipped; the game falls back to the old placeholder townsfolk for it (freed.json).
 
 Per look this writes:
@@ -32,7 +32,7 @@ LOOKS = {
                   'old village shepherd, thin elderly man, dark brown skin, short white hair and a short white beard, undyed wool cloak over an olive green tunic, brown trousers, sandals'),
     'farmhand':  ('m', 'Ezra',   'c53b5eb0-979a-446d-977b-6a43f82e2f91',
                   'lanky young village farmhand, teenage man, olive skin, black curly hair under a frayed straw hat, green tunic with a rope belt, patched brown trousers, bare dusty feet in simple shoes'),
-    'carpenter': ('m', 'Jonas',  None,
+    'carpenter': ('m', 'Jonas',  'f7775922-575e-426c-bdde-cb5b162458b9',
                   'village carpenter, broad middle-aged man, tan skin, short black hair and a full black beard, leather apron with a hammer and tools on the belt, blue-grey shirt, dark trousers, boots'),
     'quarryman': ('m', 'Tobias', 'ba489e85-7cd6-4f8c-bf81-60a6e6b3dfb4',
                   'old quarryman, heavy-set elderly man, pale weathered skin, bald with grey stubble, stone dust on a faded brown vest over a rough linen shirt, dark trousers, heavy boots'),
@@ -42,9 +42,9 @@ LOOKS = {
                   'village cloth dyer, tall slender woman in her thirties, warm brown skin, long black hair in a single braid over one shoulder, plum purple dress with a dark sash, purple-stained hands, brown shoes'),
     'grandmother': ('f', 'Mara', '2194e092-95b2-4c75-9132-b68105fb4fae',
                   'village grandmother, small elderly woman, dark brown skin, grey hair in a bun, knitted mustard shawl over a long dark green dress, soft brown shoes'),
-    'dairymaid': ('f', 'Naomi',  None,
+    'dairymaid': ('f', 'Naomi',  'bb8f227a-bc29-4247-840c-37ccf4fe902e',
                   'young village dairymaid, woman in her twenties, freckled fair skin, blonde hair in two braids, sky blue dress with a white apron, wooden clogs'),
-    'girl':      ('f', 'Hannah', None,
+    'girl':      ('f', 'Hannah', 'e7b1fb69-fc91-4dac-80c3-2d2c3289ddc1',
                   'village girl of about twelve, small and thin, light brown skin, dark brown hair in a loose braid, faded yellow dress, scuffed brown shoes'),
 }
 # standing relaxed with arms at the sides, full body, is appended to every description
@@ -62,6 +62,9 @@ ANCHORS = {
     'dyer':     dict(band=(8, 25, 39), cheek=(34, 16), bruise=(27, 15), arm=(18, 22, 33), arm2=(41, 45, 33), sit=(43, 52)),
     'quarryman': dict(band=(7, 0, 63), cheek=(33, 3), bruise=(33, 14), arm=(12, 17, 37), arm2=(45, 50, 37), sit=(44, 52)),
     'grandmother': dict(band=(11, 23, 41), cheek=(36, 17), bruise=(26, 16), arm=(20, 25, 38), arm2=(39, 44, 38), sit=(42, 52)),
+    'carpenter': dict(band=(5, 0, 63), cheek=(36, 11), bruise=(27, 11), arm=(12, 17, 36), arm2=(44, 49, 36), sit=(43, 51)),
+    'dairymaid': dict(band=(6, 25, 39), cheek=(36, 14), bruise=(28, 13), arm=(16, 20, 34), arm2=(43, 47, 34), sit=(44, 54)),
+    'girl':      dict(band=(9, 25, 39), cheek=(35, 17), bruise=(27, 16), arm=(17, 21, 33), arm2=(42, 46, 33), sit=(44, 54)),
     'farmhand': dict(band=None, cheek=(34, 19), bruise=(27, 18), arm=(16, 21, 40), arm2=(41, 46, 40), sit=(45, 53)),
 }
 

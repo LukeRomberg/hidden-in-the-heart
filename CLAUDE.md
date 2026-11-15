@@ -178,7 +178,7 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
   `assets/source/townsfolk/`, 8 directions), into `townsfolk.json` (`FOLK`): front idle + hop, hurt and
   badly hurt (bandages drawn in code, hand-placed per look in `ANCHORS`), and east/north/west for the town
   map. Each person in `TEXT.villagers` and `TEXT.living.people` has a `look`; held villagers are their own
-  sprite under the red CSS tint. Ten looks planned (`LOOKS`); a look without a sheet yet falls back to:
+  sprite under the red CSS tint. All ten looks are done (`LOOKS`); a new look without a sheet falls back to:
 - `build_villagers.py`: six recolored townsfolk (`freed.json`, the old placeholders).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
   card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
@@ -210,8 +210,7 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 ## Art still wanted
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
-- The rest of the townsfolk: seven of ten looks done; still to generate: carpenter (Jonas),
-  dairymaid (Naomi), girl (Hannah). Prompts in `LOOKS` in `tools/build_townsfolk.py`.
+- Townsfolk walking frames (animate_character, template "walk", ~1 generation per direction) for the town map.
 - Cave map tileset (rock, rock face, floor per cave; doors, gate, lever, chest, campfire) and hero
   walking frames, about 6 PixelLab generations. Waiting for Luke's OK after he tries the
   code-drawn placeholders on his phone.
