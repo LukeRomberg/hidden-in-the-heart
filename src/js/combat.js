@@ -14,7 +14,7 @@ const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', hi
 function makeEnemy(id, i){
   const e = ENEMIES[id], base = {id, hp:e.hp, max:e.hp, atk:e.atk, pattern:e.pattern, step:i%e.pattern.length, freed:false, boss:!!e.boss};
   let en;
-  if(e.villager){ const k = pickFreed(), v = TEXT.villagers[k]; en = {...base, villager:true, name:v.name, pron:v.pronoun, spr:'freed'+k, fk:k}; }
+  if(e.villager){ const k = pickFreed(), v = TEXT.villagers[k]; en = {...base, villager:true, name:v.name, pron:v.pronoun, spr:folkSpr(v), fk:k}; }
   else en = {...base, name:TEXT.enemies[id].name, pron:TEXT.enemies[id].pronoun, spr:e.spr, freedSpr:e.freedSpr};
   en.move = moveFor(en); return en;
 }
@@ -131,7 +131,7 @@ function arenaHTML(mini){
     const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':''].join(' ');
     let sn, ssc, top, f0=0, f1=1, held='';
     if(e.villager || (e.freed && !ENEMY_IMG[e.spr+'_f'])){   // townsfolk sprites: same person held (tinted) and freed
-      sn = e.villager ? e.spr : 'freed'+(e.fk||0); ssc = mini?0.8:1.6*k; top = mini?11:Math.round(8*k); if(!e.freed){ f1=0; held=' held'; } }
+      sn = e.villager ? e.spr : 'freed'+((e.fk||0)%6); ssc = mini?0.8:1.6*k; top = mini?11:Math.round(8*k); if(!e.freed){ f1=0; held=' held'; } }
     else { const own = e.freed; sn = own ? (e.freedSpr || e.spr+'_f') : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
       top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, Math.round(106*k-EI.h*enemyK(sc))); }
     return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');

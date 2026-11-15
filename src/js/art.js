@@ -25,10 +25,25 @@ function heroRects(view, frame, ox, oy, s, freed){
 const ENEMY_IMG = __DATA__('enemies.json');
 function enemyK(scale){ return scale*0.28; }
 const FREED_IMG = __DATA__('freed.json');
+// Philadelphia's townsfolk (tools/build_townsfolk.py): one look each, used held (tinted) and freed in fights,
+// hurt in the caves, and on their feet once helped. A look not generated yet falls back to the old
+// placeholder of the same name, or of the same sex.
+const FOLK = __DATA__('townsfolk.json').folk;
+function folkSpr(p){   // a sprite() name for a person in TEXT ({name, look, pronoun})
+  if(FOLK[p.look]) return 'folk_'+p.look;
+  const keys = Object.keys(FREED_IMG), same = keys.find(k=>FREED_IMG[k].name===p.name);
+  return same || keys[p.pronoun==='she' ? 3 : 0];
+}
+function folkSrc(p, state){   // state: idle, hurt or badly
+  const f = FOLK[p.look]; if(f) return state==='idle' ? f.f[0] : f[state];
+  return FREED_IMG[folkSpr(p)].f[0];
+}
+function spriteImg(name){ return name.startsWith('folk_') ? FOLK[name.slice(5)] : FREED_IMG[name]; }
 let lastFreed=-1;
-function pickFreed(){ let k; do{ k=Math.floor(Math.random()*6); }while(k===lastFreed); lastFreed=k; return k; }
+function pickFreed(){ let k; do{ k=Math.floor(Math.random()*TEXT.villagers.length); }while(k===lastFreed); lastFreed=k; return k; }
 function sprite(name, frame, scale, cls){
-  if(FREED_IMG[name]){ return `<img class="sprite ${cls||''}" src="${FREED_IMG[name].f[frame]}" width="${Math.round(64*scale)}" height="${Math.round(64*scale)}" alt="" style="image-rendering:pixelated">`; }
+  const F = spriteImg(name);
+  if(F){ return `<img class="sprite ${cls||''}" src="${F.f[frame]}" width="${Math.round(64*scale)}" height="${Math.round(64*scale)}" alt="" style="image-rendering:pixelated">`; }
   if(ENEMY_IMG[name]){ const E=ENEMY_IMG[name], k=enemyK(scale); return `<img class="sprite ${cls||''}" src="${E.f[frame]}" width="${Math.round(E.w*k)}" height="${Math.round(E.h*k)}" alt="" style="image-rendering:pixelated">`; }
   if(name==='player'||name==='back'||name==='freed'){
     const view = name==='back'?'back':'front';

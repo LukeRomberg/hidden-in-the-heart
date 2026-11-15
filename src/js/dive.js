@@ -335,7 +335,7 @@ function tileInner(x,y){
   const mk = markAt(x,y); if(!mk) return '';
   if(mk.t==='lock') return art('chest');
   if(mk.t==='scrap') return art('note');
-  if(mk.t==='hurt') return `<img class="mk who hurt" src="${FREED_IMG['freed'+((x*3+y)%6)].f[0]}" alt="">`;
+  if(mk.t==='hurt') return `<img class="mk who hurt" src="${hurtSrc(mk.who)}" alt="">`;
   if(mk.t==='rest') return art('logs')+`<img class="mk flame" src="${caveArt().flame}" alt="">`;
   // people: still held, so a shadow with an angry glow; the named townsperson is drawn as themselves
   if(mk.t==='truth') return `<img class="mk who shade" src="${FREED_IMG['freed'+((x+y)%6)].f[0]}" alt="">`;
