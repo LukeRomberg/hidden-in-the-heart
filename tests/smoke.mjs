@@ -180,6 +180,7 @@ try {
     }
     const s = await page.evaluate(() => ({ tour: !!R.tour, toured: P.toured, amos: !!townMark(...townSpot('npc', 'priest')), follow: !!document.getElementById('camos') }));
     const want = await page.evaluate(() => TEXT.tour.stops.length);
+    if (!(await page.locator('.tabs').count())) throw new Error('no tab bar on the town map after the Furnace');
     if (s.tour || !s.toured || !s.amos || s.follow || new Set(stops).size !== want) throw new Error('after the tour: ' + JSON.stringify({ ...s, stops }));
   });
   await step('town: in and out of the Forge', async () => {
