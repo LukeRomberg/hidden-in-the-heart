@@ -467,13 +467,17 @@ const TEXT = {
     furnace: { name: 'The Furnace', pronoun: 'he' },   // Bram, burning
   },
   // Townsfolk held by anger who fled into the caves. Order matches the six villager sprites.
+  // look: their sprite in src/data/townsfolk.json (tools/build_townsfolk.py), men to men, women to women.
+  // Jonas and Naomi are drafts (Claude): rename or rewrite them freely; keep each look's sex.
   villagers: [
-    { name: 'Tomas', pronoun: 'he', thanks: 'Tomas sits down on the curb and laughs, a little shaky. “I was going to put my fist through my own window.”' },
-    { name: 'Abel', pronoun: 'he', thanks: 'Abel rubs his face like a man waking up. “How long was I standing here?”' },
-    { name: 'Ezra', pronoun: 'he', thanks: 'Ezra looks at his hands. “I said things to my brother I can’t take back. I’m going to try anyway.”' },
-    { name: 'Ruth', pronoun: 'she', thanks: 'Ruth lets out a breath she seems to have been holding for a month. “Thank you. Thank God.”' },
-    { name: 'Mara', pronoun: 'she', thanks: 'Mara wipes her eyes. “I thought I was right. I was only angry. I need to go find my sister.”' },
-    { name: 'Lydia', pronoun: 'she', thanks: 'Lydia unclenches her fists one finger at a time. “I’m going home. I think I remember where it is.”' },
+    { name: 'Tomas', look: 'baker', pronoun: 'he', thanks: 'Tomas sits down on the curb and laughs, a little shaky. “I was going to put my fist through my own window.”' },
+    { name: 'Abel', look: 'shepherd', pronoun: 'he', thanks: 'Abel rubs his face like a man waking up. “How long was I standing here?”' },
+    { name: 'Ezra', look: 'farmhand', pronoun: 'he', thanks: 'Ezra looks at his hands. “I said things to my brother I can’t take back. I’m going to try anyway.”' },
+    { name: 'Ruth', look: 'washer', pronoun: 'she', thanks: 'Ruth lets out a breath she seems to have been holding for a month. “Thank you. Thank God.”' },
+    { name: 'Mara', look: 'grandmother', pronoun: 'she', thanks: 'Mara wipes her eyes. “I thought I was right. I was only angry. I need to go find my sister.”' },
+    { name: 'Lydia', look: 'dyer', pronoun: 'she', thanks: 'Lydia unclenches her fists one finger at a time. “I’m going home. I think I remember where it is.”' },
+    { name: 'Jonas', look: 'carpenter', pronoun: 'he', thanks: 'Jonas sets down the plank he was swinging and stares at it. “I built half the pews in that church. What was I going to do with this?”' },
+    { name: 'Naomi', look: 'dairymaid', pronoun: 'she', thanks: 'Naomi laughs and cries at once. “The goats! Nobody’s milked the goats in days. Thank God. Thank you.”' },
   ],
   // what each person says once they are freed
   thanks: {
@@ -763,10 +767,11 @@ const TEXT = {
       [null, 'Amos catches up with you, lantern swinging.'],
       ['priest', '“I wanted to be here for this one.” He looks at the man on the ground, then at you. “We can talk about Scripture all day, son. He needs his ankle wrapped.”'],
     ],
+    // look: their sprite (townsfolk.json); hurt: how they look until helped, 'hurt' (standing) or 'badly' (sat down)
     people: [
-      {id:'tobias', name:'Tobias', story:'An old quarryman sits against the rock, one ankle swollen twice its size. His lantern has gone out. He ran in with the others, fell, and has been sitting in the dark since. He does not ask for anything.',
+      {id:'tobias', name:'Tobias', look:'quarryman', hurt:'badly', story:'An old quarryman sits against the rock, one ankle swollen twice its size. His lantern has gone out. He ran in with the others, fell, and has been sitting in the dark since. He does not ask for anything.',
         helped:'You bind his ankle with your sleeve and get him on his feet. He leans on you all the way to the light. “Didn’t think anyone would stop,” he says. “Nobody stops.”'},
-      {id:'hannah', name:'Hannah', story:'A girl of about twelve is curled up in a crack in the wall, scraped knees, shaking. She followed her father in and lost him in the dark.',
+      {id:'hannah', name:'Hannah', look:'girl', hurt:'hurt', story:'A girl of about twelve is curled up in a crack in the wall, scraped knees, shaking. She followed her father in and lost him in the dark.',
         helped:'You clean her knees and give her your water, and you sing her something badly until she laughs. She holds your hand the whole way back to the tunnel. “Will you find my dad?”'},
     ],
   },

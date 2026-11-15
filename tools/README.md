@@ -38,9 +38,10 @@ in `tools/out/` (gitignored).
 | `.venv/bin/python tools/build_hero_layers.py` | `hero_starter_sheet.png`, `hero_armor_sheet.png` | `hero.json` (`HERO`), `hero-alpha.json` (`ALPHA`) |
 | `.venv/bin/python tools/build_enemies.py` | `enemies_freed_48x64.png`, `furnace_96x96.png` | `enemies.json` (`ENEMY_IMG`) |
 | `.venv/bin/python tools/build_villagers.py` | `hero_starter_sheet.png` | `freed.json` (`FREED_IMG`, placeholder townsfolk) |
+| `.venv/bin/python tools/build_townsfolk.py` | `townsfolk/<look>.png` | `townsfolk.json` (`FOLK`), preview `tools/out/townsfolk_sheet.png` |
 | `.venv/bin/python tools/build_ui_frames.py` | nothing (drawn in code) | `ui-frames.json` (`__FRAME__(name)` in `styles.css`) |
 
-All four reproduce the shipped art pixel for pixel. The PNG bytes inside the data URIs can
+All of them reproduce the shipped art pixel for pixel. The PNG bytes inside the data URIs can
 change with the Pillow version, which is harmless.
 
 Sheet layouts:
@@ -50,6 +51,14 @@ Sheet layouts:
   pixel-identical in both sheets.
 - Enemy sheets: 4 cols (idle, attack, freed idle, freed wave). `enemies_freed_48x64.png`
   rows are hothead, grudge, brawler, slanderer; `furnace_96x96.png` is one row.
+- Townsfolk: one sheet per look, a row of eight 64x64 rotations in PixelLab's order (south,
+  south-east, east, north-east, north, north-west, west, south-west), saved from the character's
+  download ZIP (`Idle/rotations/*.png`). `LOOKS` in the script lists all ten looks with the
+  `create_character` description (mode v3, view low top-down, size 64, 2 generations each) and the
+  PixelLab id of the ones made so far. To add one: generate it, save its sheet as
+  `assets/source/townsfolk/<look>.png`, put its id in `LOOKS`, read bandage positions for `ANCHORS`
+  off a zoom of the south frame (head band row and width, cheek, both forearms, the rows to cut so
+  they sit), and rerun. Hurt and badly hurt are drawn by the script; held is the CSS tint.
 
 `assets/source/` also holds the scenes, battle backgrounds, town buildings, portraits, cards
 and icons. These need no tool: `src/data/images.js` lists them as `__IMG__('scenes/x.png')`

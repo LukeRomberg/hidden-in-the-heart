@@ -376,6 +376,9 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .hand.hscroll .card .ref{ font-size:14px; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 /* test mode (?test) */
+#folkgallery{ position:fixed; inset:0; z-index:80; overflow:auto; background:#2a211b; color:#f3e7cf; padding:calc(env(safe-area-inset-top,0px) + 8px) 8px 24px; }
+#folkgallery table{ border-collapse:collapse; margin-top:8px; } #folkgallery th{ font-size:11px; text-align:left; padding:2px 3px; font-weight:normal; } #folkgallery td{ padding:0; }
+#folkgallery img{ image-rendering:pixelated; display:block; }
 #testpanel{ position:fixed; right:8px; top:calc(env(safe-area-inset-top,0px) + 6px); z-index:70; width:230px; display:flex; flex-direction:column; align-items:flex-end; }
 #testpanel .testbtn{ font-size:12px; padding:4px 10px; opacity:.85; }
 #testpanel .testlist{ display:none; margin-top:6px; padding:8px; max-height:60vh; overflow:auto; background:#1d1410; border:2px solid var(--gold); }
@@ -463,11 +466,13 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 @media (prefers-reduced-motion: reduce){ .cmap, .chero{ transition:none; } .torch, .tl .mk.flame, .tl .glow, .chero.walking .hs{ animation:none; } }
 
 /* cave encounters (encounters.js) */
-.tl .mk.who.hurt{ transform:rotate(-12deg); transform-origin:50% 90%; filter:saturate(.75) brightness(.9); }
+.tl .mk.who.hurt{ filter:saturate(.85); }   /* the sprite is already the hurt person (townsfolk.json) */
 .panel.truth .q{ font-size:19px; line-height:1.35; margin:4px 0 8px; }
 .tline{ margin:0 0 8px; } .tline b{ font-family:'Nunito',system-ui,sans-serif; font-weight:400; color:var(--gold); margin-right:4px; }
 .verse.truthverse{ margin:6px 0 8px; } .verse.truthverse .ref{ display:block; margin-top:4px; font-family:'Nunito',system-ui,sans-serif; font-size:13px; opacity:.8; }
 .panel.scrap{ background:#efe2bf; color:#3a2414; } .panel.scrap .scraptext{ font-style:italic; }
+.panel.hurt .hurtpic{ float:right; margin:-6px -6px 4px 8px; image-rendering:pixelated; filter:drop-shadow(0 2px 0 rgba(0,0,0,.25)); }
+.panel.hurt::after{ content:''; display:block; clear:both; }
 .tfbtns{ gap:8px; } .tfbtns button{ flex:1; margin:0; }
 
 /* shops */

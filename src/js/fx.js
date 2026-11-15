@@ -74,7 +74,7 @@ function turnBanner(text, mine){
 function thanksBeat(e, text){
   return new Promise(res=>{
     const a=document.getElementById('arena'); if(!a){ res(); return; } const r=a.getBoundingClientRect();
-    const who=FREED_AS[e.id], spr=FREED_IMG['freed'+e.fk];   // a portrait for the named, the freed sprite for villagers
+    const who=FREED_AS[e.id], spr=spriteImg(e.villager ? e.spr : 'freed'+(e.fk%6));   // a portrait for the named, the freed sprite for villagers
     const pic=!e.villager && IMG.portrait[who] ? `<img src="${IMG.portrait[who]}" width="40" height="40" alt="">` : e.villager && spr ? `<img class="spr" src="${spr.f[0]}" width="40" height="40" alt="">` : '';
     const d=document.createElement('div'); d.className='beat'; d.setAttribute('role','status');
     d.style.left=(r.left+10)+'px'; d.style.width=(r.width-20)+'px'; d.style.top=(r.top+r.height*0.14)+'px';

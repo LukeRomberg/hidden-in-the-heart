@@ -39,6 +39,9 @@ const TEST_JUMPS = [
   ['Boss: the Brawler', ()=>testBoss(1)],
   ['Boss: the Slanderer', ()=>testBoss(2)],
   ['Villager fight', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
+  ['Townsfolk: every look and state', testFolk],
+  ['Someone hurt: Tobias (badly)', ()=>testHurt(1, 'tobias')],
+  ['Someone hurt: Hannah', ()=>testHurt(2, 'hannah')],
   ['Level-up popup', ()=>{ testHero(true); goto('town', ()=>gainXP(xpNeed(R.level))); }],
   // shops, at the point in the chapter each one opens: tick "Strong hero" for a rich one (200 talents)
   ['Shop: the Forge', ()=>testShop('forge', 0, 30)],
@@ -62,6 +65,22 @@ function testChapterEnd(){
   CAVES.forEach(c=>P.caves[c.id] = 1); P.creed = 5;
   P.notes = TEXT.truths.list.slice(0,4).map(t=>t.id); P.truthsRight = TEXT.truths.list.slice(2,6).map(t=>t.id); P.helpedAll = ['tobias'];
   R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero(); goto('cavedone');
+}
+// the hurt-person panel in the cave they're in, straight away (Amos's first visit already done)
+function testHurt(cave, who){
+  testHero(true); for(let k=0;k<cave;k++) P.caves[CAVES[k].id] = 1; P.firstHurt = true;
+  startCave(cave); setTimeout(()=>goto('dive', ()=>{ R.node = {t:'hurt', who}; startHurt(); R.room = 'hurt'; }), 400);
+}
+// every townsperson (TEXT.villagers, TEXT.living.people) in every state, over whatever screen is up
+function testFolk(){
+  const people = [...TEXT.villagers, ...TEXT.living.people], pic = (src, cls='')=>`<img class="${cls}" src="${src}" width="44" height="44" alt="">`;
+  const rows = people.map(p=>{ const f = FOLK[p.look], d = f ? f.dir : {};
+    return `<tr><th>${p.name}<br><span class="small mute">${p.look}${f?'':' (not yet drawn)'}</span></th>
+      <td>${pic(folkSrc(p,'idle'))}</td><td>${pic(folkSrc(p,'idle'),'sprite held')}</td><td>${pic(folkSrc(p,'hurt'))}</td><td>${pic(folkSrc(p,'badly'))}</td>
+      ${['e','n','w'].map(k=>`<td>${d[k]?pic(d[k]):''}</td>`).join('')}</tr>`; }).join('');
+  const el = document.createElement('div'); el.id = 'folkgallery';
+  el.innerHTML = `<button class="wide" onclick="this.parentNode.remove()">Close</button><table><tr><th></th><th>freed</th><th>held</th><th>hurt</th><th>badly</th><th>E</th><th>N</th><th>W</th></tr>${rows}</table>`;
+  document.body.appendChild(el);
 }
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;

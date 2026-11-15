@@ -63,10 +63,13 @@ function endTruth(){ if(R.tf.first){ P.firstTruth = true; save(); } R.tf = null;
 function truthFight(){ const m = R.node; R.tf = null; R.node = {...m, t:'fight', e:['villager']}; R.room = null; saveRun(); startFight(R.node.e); }
 
 // ---- living it out ----
+// the hurt person as they are now (TEXT.living.people[].look / .hurt), or on their feet once helped
+function hurtSrc(id, helped){ const p = TEXT.living.people.find(q=>q.id===id); return folkSrc(p, helped ? 'idle' : p.hurt||'hurt'); }
+function hurtPic(helped){ return `<img class="hurtpic${helped?' up':''}" src="${hurtSrc(R.node.who, helped)}" width="96" height="96" alt="">`; }
 function hurtPanel(){ const L = TEXT.living, who = L.people.find(p=>p.id===R.node.who), h = R.hurt||{};
-  if(h.phase==='amos') return `<div class="panel hurt">${linesHTML(L.amosFirst)}</div>`;
-  if(h.phase==='helped') return `<div class="panel hurt"><p class="tline">${who.helped}</p><p class="small mute">${fill(L.helpedNote,{name:who.name})}</p></div>`;
-  return `<div class="panel hurt"><h2>${L.heading}</h2><p class="tline">${who.story}</p>${R.hp<=HURT_COST?`<p class="small mute">${L.tooHurt}</p>`:''}</div>`; }
+  if(h.phase==='amos') return `<div class="panel hurt">${hurtPic()}${linesHTML(L.amosFirst)}</div>`;
+  if(h.phase==='helped') return `<div class="panel hurt">${hurtPic(true)}<p class="tline">${who.helped}</p><p class="small mute">${fill(L.helpedNote,{name:who.name})}</p></div>`;
+  return `<div class="panel hurt">${hurtPic()}<h2>${L.heading}</h2><p class="tline">${who.story}</p>${R.hp<=HURT_COST?`<p class="small mute">${L.tooHurt}</p>`:''}</div>`; }
 function hurtDock(){ const L = TEXT.living, h = R.hurt||{};
   if(h.phase==='amos') return `<button class="primary wide" onclick="R.hurt.phase='ask';render()">${TEXT.truths.goOn}</button>`;
   if(h.phase==='helped') return `<button class="primary wide" onclick="endHurt()">${TEXT.truths.goOn}</button>`;
