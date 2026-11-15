@@ -1,5 +1,6 @@
-// Headless click-through: title -> New game -> prologue -> pick two verses -> the Furnace (tutorial) ->
-// Bram -> town -> church -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
+// Headless click-through: title -> New game -> prologue -> wake on the town map, bump into Bram, walk to the church ->
+// Amos, the lid, pick two verses -> walk out to Bram and fight the Furnace (tutorial) -> Amos's tour on the map ->
+// walk into the Forge and out, a boarded door, reload on the town map -> walk to the Hollow's mouth -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
 // truth villager (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
@@ -87,33 +88,36 @@ async function winFight() {
   await page.evaluate(() => { if (modal && modal.kind === 'levelup') closeLevelUp(); });
 }
 
-// ---- Cave map: walking is done by tapping the screen, like a player ----
+// ---- Walking maps (caves and the town): walking is done by tapping the screen, like a player ----
 // tile [x,y] of the first map glyph g (S, D, V, L, a marker digit…) in the current cave
 const findGlyph = g => page.evaluate(g => { const m = caveMap(R.cave); for (let y = 0; y < m.H; y++) { const x = m.rows[y].indexOf(g); if (x >= 0) return [x, y]; } return null; }, g);
-const mapIdle = () => page.waitForFunction(() => !document.getElementById('wipe').className && !(R.map && R.map.walking), null, { timeout: 15000 });
+// a marker on the town map: spot('door', 'forge'), spot('cave', 0), spot('npc', 'furnace'), spot('road')
+const spot = (t, id) => page.evaluate(([t, id]) => townSpot(t, id), [t, id]);
+const mapIdle = () => page.waitForFunction(() => !document.getElementById('wipe').className && !(PLACES[screen] && PLACES[screen].st().walking), null, { timeout: 15000 });
 // Walk to a tile (or up to a closed door, which also taps it). Each tap goes to the furthest tile of the real route
 // that is already lit or remembered and on screen, so fog and the tap-to-walk path are exercised for real.
 async function walkTo(goal) {
   for (let i = 0; i < 80; i++) {
     await mapIdle();
-    const s = await page.evaluate(([gx, gy]) => {
-      if (screen !== 'dive' || R.room || modal) return { stop: true };
-      const [hx, hy] = R.map.pos; if (hx === gx && hy === gy) return { stop: true };
-      const m = caveMap(R.cave), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
-      while (q.length) { const [x, y] = q.shift(); if (x === gx && y === gy) break; if ((x !== hx || y !== hy) && !walkable(x, y)) continue;
-        for (const [a, b] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) { if (prev.has(a + ',' + b) || (!walkable(a, b) && !(a === gx && b === gy) && !markAt(a, b))) continue; prev.set(a + ',' + b, [x, y]); q.push([a, b]); } }
+    const s = await page.evaluate(([[gx, gy], tapped]) => {
+      const pl = PLACES[screen]; if (!pl || pl.busy() || modal) return { stop: true };
+      const M = pl.st(), [hx, hy] = M.pos; if (hx === gx && hy === gy) return { stop: true };
+      if (tapped && pl.mark(gx, gy) && Math.abs(hx - gx) + Math.abs(hy - gy) === 1) return { stop: true };   // walked into it and stayed (a boarded door)
+      const m = pl.grid(), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
+      while (q.length) { const [x, y] = q.shift(); if (x === gx && y === gy) break; if ((x !== hx || y !== hy) && !pl.walkable(x, y)) continue;
+        for (const [a, b] of [[x, y - 1], [x + 1, y], [x, y + 1], [x - 1, y]]) { if (prev.has(a + ',' + b) || (!pl.walkable(a, b) && !(a === gx && b === gy) && !pl.mark(a, b))) continue; prev.set(a + ',' + b, [x, y]); q.push([a, b]); } }
       if (!prev.has(gx + ',' + gy)) return { err: 'no route' };
       const path = []; for (let p = [gx, gy]; p; p = prev.get(p.join(','))) path.unshift(p);
       const r = document.getElementById('cmap').getBoundingClientRect(), v = document.querySelector('.cave-view').getBoundingClientRect();
       let best = null;
       path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
-        if (R.map.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
+        if (M.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
       return best ? { best } : { err: 'nothing on the route is lit' };
-    }, goal);
+    }, [goal, i > 0]);
     if (s.stop) return;
     if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
     await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
-    if (s.best.x === goal[0] && s.best.y === goal[1] && await page.evaluate(([x, y]) => closedAt(x, y), goal)) { await mapIdle(); return; }   // tapped a shut door
+    if (s.best.x === goal[0] && s.best.y === goal[1] && await page.evaluate(([x, y]) => here().closed(x, y), goal)) { await mapIdle(); return; }   // tapped a shut door
   }
   throw new Error(`never got to ${goal}`);
 }
@@ -129,7 +133,17 @@ try {
   await step('pro1 recall Psalm 119:11', async () => {
     await finishDialogue(); await act().click(); await solveRecall(); await waitScreen('pro2');
   });
-  await step('pro2', async () => { await finishDialogue(); await act().click(); await waitScreen('pro3'); });
+  await step('pro2: wake in the square', async () => {
+    await finishDialogue(); await act().click(); await waitScreen('town');
+    const s = await page.evaluate(() => ({ hud: !!document.querySelector('.hud'), bram: !!townMark(...townSpot('npc', 'furnace')), amos: !!townMark(...townSpot('npc', 'priest')) }));
+    if (s.hud || !s.bram || s.amos) throw new Error('waking in the square: ' + JSON.stringify(s));
+  });
+  await step('town: Bram drives you back', async () => {
+    await walkTo(await spot('npc', 'furnace')); await page.waitForSelector('#talkpop');
+    await finishDialogue(); await act().click(); await mapIdle();
+    if (await page.evaluate(() => screen !== 'town' || !!modal)) throw new Error('walking into Bram unarmed should only talk');
+  });
+  await step('town: walk to the church', async () => { await walkTo(await spot('door', 'church')); await waitScreen('pro3'); });
   await step('pro3', async () => { await finishDialogue(); await act().click(); await waitScreen('pro4'); });
   await step('pro4', async () => { await finishDialogue(); await act().click(); await waitScreen('intro'); });
   await step('pick two verses', async () => {
@@ -138,24 +152,54 @@ try {
     await hands.nth(1).locator('.card').first().click();
     await btn('Those two').click(); await waitScreen('tutorial');
   });
-  await step('tutorial: the Furnace', async () => {
+  await step('town: out to the well with Amos', async () => {
+    await finishDialogue(); await act().click(); await waitScreen('town');
+    if (!(await page.locator('#camos').count())) throw new Error('Amos is not walking with you');
+    await walkTo(await spot('npc', 'furnace')); await page.waitForSelector('#talkpop');
     await finishDialogue(); await act().click(); await waitScreen('fight');
+  });
+  await step('tutorial: the Furnace', async () => {
     await page.waitForSelector('.overlay.tip', { timeout: 5000 }).catch(() => { throw new Error('no tutorial popup shown'); });
     if (!(await page.evaluate(() => R.boss && R.enemies[0].id === 'furnace'))) throw new Error('the tutorial is not the Furnace');
     await winFight();
     await page.evaluate(() => TEXT.afterFight.afterBoss).then(t => btn(t).click()); await waitScreen('victory');
     if (await page.locator('.overlay.levelup').count()) await page.locator('.overlay .lvopt').first().click();   // grow a fruit
     await page.locator('.dock button').first().click(); await waitScreen('tutend');
-    await finishDialogue(); await act().click(); await waitScreen('tour');
-    await finishDialogue(); await act().click(); await waitScreen('town');   // Amos's town tour
+    await finishDialogue(); await act().click(); await waitScreen('town');
     const s = await page.evaluate(() => ({ forge: P.town.forge, done: P.tutorialDone, gift: owns(BRAM_GIFT), romans: R.deck.some(c => c.ref === 'Romans 12:2') }));
     if (!s.forge || !s.done || !s.gift || !s.romans) throw new Error('after the Furnace: ' + JSON.stringify(s));
   });
-  await step('town -> church', async () => {
-    await page.locator('.town [onclick="enterBuilding(\'church\')"]').click(); await waitScreen('church');
+  await step('town: Amos’s tour', async () => {
+    const stops = [];
+    for (let i = 0; i < 400 && await page.evaluate(() => !!R.tour); i++) {
+      if (await page.locator('#talkpop').count()) { stops.push(await page.evaluate(() => R.tmap.pos.join(','))); await finishDialogue(); await act().click(); }
+      await page.waitForTimeout(60);
+    }
+    const s = await page.evaluate(() => ({ tour: !!R.tour, toured: P.toured, amos: !!townMark(...townSpot('npc', 'priest')), follow: !!document.getElementById('camos') }));
+    const want = await page.evaluate(() => TEXT.tour.stops.length);
+    if (s.tour || !s.toured || !s.amos || s.follow || new Set(stops).size !== want) throw new Error('after the tour: ' + JSON.stringify({ ...s, stops }));
   });
-  await step('into the first cave', async () => {
-    await page.locator('#app button[onclick="startCave(0)"]').click(); await waitScreen('caveintro');
+  await step('town: in and out of the Forge', async () => {
+    const door = await spot('door', 'forge');
+    await walkTo(door); await waitScreen('forge');
+    await page.evaluate(() => { if (modal && modal.kind === 'tip') closeTip(); });   // Bram's one-time popup
+    await page.locator('#app .dock button', { hasText: 'Back' }).click(); await waitScreen('town');
+    const pos = await page.evaluate(() => R.tmap.pos);
+    if (Math.abs(pos[0] - door[0]) + Math.abs(pos[1] - door[1]) !== 1) throw new Error(`back from the Forge at ${pos}, not by its door ${door}`);
+  });
+  await step('town: a boarded door', async () => {
+    await walkTo(await spot('door', 'inn')); await mapIdle();
+    const s = await page.evaluate(() => ({ screen, msg: R.tmap.msg, want: TEXT.town.boarded.inn }));
+    if (s.screen !== 'town' || s.msg !== s.want) throw new Error('the boarded inn: ' + JSON.stringify(s));
+  });
+  await step('town: reload puts you back on the map', async () => {
+    const before = await page.evaluate(() => R.tmap.pos.join(','));
+    await page.reload(); await btn('Continue').click(); await waitScreen('town');
+    const after = await page.evaluate(() => R.tmap.pos.join(','));
+    if (after !== before) throw new Error(`town position ${before} -> ${after} across a reload`);
+  });
+  await step('town: walk into the Hollow', async () => {
+    await walkTo(await spot('cave', 0)); await waitScreen('caveintro');
     await finishDialogue(); await act().click(); await waitScreen('dive');
   });
   await step('walk to the first fight', async () => {

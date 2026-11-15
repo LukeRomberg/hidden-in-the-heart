@@ -72,7 +72,7 @@ function planTo(goal){
 }
 function mapTap(ev){
   const pl = PLACES[screen];
-  if(!pl || modal || pl.busy()) return;
+  if(!pl || modal || pl.busy() || (pl.noTap && pl.noTap())) return;
   const r = document.getElementById('cmap').getBoundingClientRect();
   const x = Math.floor((ev.clientX-r.left)/MAP_T), y = Math.floor((ev.clientY-r.top)/MAP_T);
   walkToward([x,y]);

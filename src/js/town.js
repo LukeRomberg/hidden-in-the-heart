@@ -1,4 +1,4 @@
-/* Philadelphia (Emberford until 2026-11): town map, church, and the buildings freed enemies reopen. */
+/* Philadelphia (Emberford until 2026-11): the church and the buildings freed enemies reopen. The map you walk is townmap.js. */
 const UNLOCKS = {furnace:['forge',TEXT.town.unlocked.furnace], grudge:['inn',TEXT.town.unlocked.grudge], brawler:['training',TEXT.town.unlocked.brawler], slanderer:['scriptorium',TEXT.town.unlocked.slanderer]};
 function townUnlock(id){ const u=UNLOCKS[id]; if(u && !P.town[u[0]]){ P.town[u[0]]=true; R.unlockMsg=u[1]; save(); } }
 const BUILD = {
@@ -8,27 +8,12 @@ const BUILD = {
   training:{name:TEXT.town.buildings.training},
   scriptorium:{name:TEXT.town.buildings.scriptorium},
 };
-// The town square: forge, church, inn on top; training yard, you (and the road out), scriptorium below.
-// The church looks abandoned until the square is cleared the first time.
-function townMap(){
-  const tap = act => `role="button" tabindex="0" onclick="${act}" onkeydown="if(event.key==='Enter')${act}"`;
-  const bld = id => { const usable = BUILD[id].always || P.town[id]; const lit = id==='church' ? !!P.town.church : usable;
-    return `<div class="bld ${usable?'':'shut'}" ${tap(`enterBuilding('${id}')`)}><img src="${IMG.town[id][lit?1:0]}" alt="${BUILD[id].name}${usable?'':', boarded up'}"><span class="nm">${usable?BUILD[id].name:TEXT.town.boardedLabel}</span></div>`; };
-  return `<div class="town">${bld('forge')}${bld('church')}${bld('inn')}${bld('training')}<div class="bld you" ${tap("goto('world')")}>${sprite('player',0,1)}<span class="nm">${TEXT.town.road}</span></div>${bld('scriptorium')}</div>`;
-}
 function enterBuilding(id){
   if(!(BUILD[id].always || P.town[id])){ toast(TEXT.town.boarded[id]); return; }
   // the first time you walk into a building you get its introduction (TEXT.<building>.firstVisit)
   R.firstVisit = (!P.met[id] && TEXT[id] && TEXT[id].firstVisit) ? id : null; P.met[id] = true; save();
   if(id==='training') R.trainFrom='yard';
   goto(id==='forge'?'forge':id);
-}
-function townHTML(){
-  saveHero(); R.firstVisit = null;
-  const open = ['forge','inn','training','scriptorium'].filter(k=>P.town[k]).length;
-  return `<h1>${TEXT.town.heading}</h1><div class="panel scene">${townMap()}</div>
-    <div class="small mute" style="margin-bottom:8px">${open===4?TEXT.town.allOpen: open===3?TEXT.town.stillBoardedOne: fill(TEXT.town.stillBoardedMany,{n:4-open})}</div>
-    <div class="row"><button onclick="R.codexFrom='town';goto('codex')">Codex</button><button onclick="goto('title')">Title</button></div>`;
 }
 function churchHTML(){
   const done = allCavesDone(), T = TEXT.church;
@@ -37,7 +22,7 @@ function churchHTML(){
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('church'+(done?1:0),[done?T.lineAfter:T.lineBefore],'',false)}
     <h2>${T.missions}</h2>${caves}
     <button class="wide" disabled>${done?T.nextOpen:T.nextLocked}</button>
-    <button class="wide" onclick="R.tourFrom='church';TW={key:null};goto('tour')">${TEXT.tour.again}</button>
+    <button class="wide" onclick="startTour()">${TEXT.tour.again}</button>
     <h2 style="margin-top:12px">${T.pews}</h2>
     <button class="wide" onclick="R.trainFrom='church';goto('training')">${T.pray}<br><span class="sub">${T.prayBlurb}</span></button>
     ${R.hp<R.maxHp?`<button class="wide" ${R.talents<5?'disabled':''} onclick="R.talents-=5; R.hp=R.maxHp; saveHero(); toast(TEXT.church.restDone); render()">${T.rest}</button>`:''}

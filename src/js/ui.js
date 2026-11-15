@@ -33,7 +33,7 @@ const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','
 const TABS = [['town','Town','town'],['church','Church','church'],['gear','Gear','gear'],['tree','Tree','tree'],['deck','Deck','deck']];
 const TAB_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','codex']);
 function hudHTML(){
-  if(!R || !R.deck) return '';
+  if(!R || !R.deck || !R.deck.length) return '';   // nothing to show before you've picked your verses (waking in the square)
   return `<div class="hud" role="status"><span class="lv">Lv ${R.level}</span>
     <span class="grow"><span class="it tiny">${icon('soul',1.6)} ${R.xp}/${xpNeed(R.level)} souls</span><div class="bar mn"><i style="width:${100*R.xp/xpNeed(R.level)}%"></i></div></span>
     <span class="it">${icon('heart',1.8)} ${R.hp}/${R.maxHp}</span><span class="it" title="${TEXT.fight.focus}">${icon('mana',1.8)} ${R.maxFocus}</span><span class="it">${icon('coin',1.8)} ${R.talents}</span></div>`;
@@ -44,17 +44,18 @@ function tabsHTML(){
 }
 function tab(id){ if(modal) return; R.treeFrom='town'; R.gearFrom='town'; R.deckFrom='town'; R.codexFrom='town'; if(id==='tree') R.treeSel=null; goto(id); }
 function render(){
-  const S = {tour:tourHTML, town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
+  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   const tabs = R && R.deck && R.deck.length && TAB_ON.has(screen); document.body.classList.toggle('has-tabs', !!tabs); if(tabs) html += tabsHTML();
   if(modal && modal.once && modal.once.screen!==screen) modal = null;   // a one-time popup belongs to its screen; unseen, it comes back next visit
   if(!modal && levelUpDue()) modal = {kind:'levelup'};
   if(!modal){ const tip = tutorialTip(); if(tip) modal = {kind:'tip', key:tip}; }
-  if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : modal.kind==='tip'? tipHTML() : assemblyHTML(); }
+  if(modal){ html += modal.kind==='recall'? recallHTML() : modal.kind==='levelup'? levelUpHTML() : modal.kind==='tip'? tipHTML() : modal.kind==='talk'? talkPopHTML() : assemblyHTML(); }
   document.getElementById('app').innerHTML = html;
   // pinned buttons sit just above the tab bar when it shows
   const nav = document.querySelector('.tabs'); document.body.style.setProperty('--dock-bottom', (tabs && nav ? nav.offsetHeight : 0) + 'px');
   const inp = document.getElementById('ans'); if(inp) inp.focus();
   if(document.getElementById('tw')) typeIt();
+  if(screen==='town') townAfterRender();
 }

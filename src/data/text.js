@@ -144,22 +144,33 @@ const TEXT = {
   },
 
   // ---------- Amos walks you through town, once, after the Furnace (and again from the church) ----------
+  // He walks you round the town on the map, stopping at each place to say his piece. Each stop: where you
+  // stand ('well', a building: forge inn church training scriptorium, or a cave: hollow quarry deep) and what is said there.
   tour: {
-    lines: [
-      [null, 'Amos walks you up the main street. Most of the shutters are still nailed shut, but there is smoke coming from the forge chimney.'],
-      ['priest', '“Before you go anywhere, son, a word. Nobody walks into a fire in his slippers. Paul told the church in Ephesus: ‘Put on the full armor of God, so that you can make your stand against the devil’s schemes.’ You get equipped here, in town. Then you go out.”'],
-      ['you', '“So I get ready here, before every cave.”'],
-      ['priest', '“Every time.” He nods at the forge. “Bram makes plain gear, for talents. Bring a piece back and say the right passage over it, and it becomes something more than leather.”'],
-      ['priest', '“The inn, the training yard, the scriptorium: all boarded. The people who kept them are out in the caves. Every one you bring home opens a door, and every door has something for you behind it.”'],
-      ['priest', '“And the church is always open. Come back hurt, come back tired, come back with nothing to say. That is what it is there for.”'],
-      ['you', '“What do I need to know about the caves?”'],
-      ['priest', '“Walk the whole cave before you face the one at the end. I preached a long time to those people, and some of them took my notes with them when they ran. You will find scraps that may give insight into their troubles.”'],
-      ['priest', '“The ones down there are held by things that sound true and are not.”'],
-      ['you','“Why did God choose me?”'],
-      ['priest',"‘It is the glory of God to conceal a matter and the glory of kings to search it out.’"],
-      ['priest', '“This town has only a little strength, son. But it kept His word. That is enough to start with.”'],
+    stops: [
+      {at: 'well', lines: [
+        [null, 'Amos walks you up the main street. Most of the shutters are still nailed shut, but there is smoke coming from the forge chimney.'],
+        ['priest', '“Before you go anywhere, son, a word. Nobody walks into a fire in his slippers. Paul told the church in Ephesus: ‘Put on the full armor of God, so that you can make your stand against the devil’s schemes.’ You get equipped here, in town. Then you go out.”'],
+        ['you', '“So I get ready here, before every cave.”'],
+      ]},
+      {at: 'forge', lines: [
+        ['priest', '“Every time.” He nods at the forge. “Bram makes plain gear, for talents. Bring a piece back and say the right passage over it, and it becomes something more than leather.”'],
+      ]},
+      {at: 'inn', lines: [
+        ['priest', '“The inn, the training yard, the scriptorium: all boarded. The people who kept them are out in the caves. Every one you bring home opens a door, and every door has something for you behind it.”'],
+      ]},
+      {at: 'church', lines: [
+        ['priest', '“And the church is always open. Come back hurt, come back tired, come back with nothing to say. That is what it is there for.”'],
+      ]},
+      {at: 'hollow', lines: [
+        ['you', '“What do I need to know about the caves?”'],
+        ['priest', '“Walk the whole cave before you face the one at the end. I preached a long time to those people, and some of them took my notes with them when they ran. You will find scraps that may give insight into their troubles.”'],
+        ['priest', '“The ones down there are held by things that sound true and are not.”'],
+        ['you','“Why did God choose me?”'],
+        ['priest',"‘It is the glory of God to conceal a matter and the glory of kings to search it out.’"],
+        ['priest', '“This town has only a little strength, son. But it kept His word. That is enough to start with.”'],
+      ]},
     ],
-    button: 'Continue',
     again: 'Walk the town with Amos again',
   },
 
@@ -188,6 +199,47 @@ const TEXT = {
       grudge: 'The innkeeper heads home to unbar his doors.',
       brawler: 'The drill master heads back to the training yard.',
       slanderer: 'The scribe hurries back to the scriptorium to set right what he wrote.',
+    },
+  },
+  // walking the town map (townmap.js). DRAFT lines for Luke to edit.
+  townMap: {
+    ok: 'Go on',
+    walkHint: 'Tap where you want to go. Walk into a door to go in, or into someone to talk.',
+    woke: 'Every door on the square is barred. Up the lane to the north-west, an old church has a light in the window.',
+    toTheWell: 'Amos walks beside you. Bram is still burning by the well.',
+    notTonight: 'Not tonight. Not with a man burning in the square.',
+    caveShut: '{name}: bring the last one home first.',
+    tourDone: 'Amos heads back to the church. The town is yours to walk.',
+    // walking into Bram before Amos has given you anything
+    bramShouting: [
+      [null, 'Bram rounds on you. Sparks spit off his sleeves and the heat hits you like an open oven.'],
+      ['blacksmith', '“Back! Get back! Nobody comes near this well!”'],
+      [null, 'You stumble back a step. Not like this. Not with nothing in your hands.'],
+    ],
+    // walking into Bram with the lid, Amos beside you: the fight starts
+    bramFight: [
+      ['blacksmith', '“You again. And the priest. Come to tell me I’m wrong?”'],
+      ['priest', '“Now, son,” Amos says quietly. “Speak the truth over him.”'],
+    ],
+    // the church door between the lid and the Furnace
+    churchAfterLid: [
+      ['priest', '“We have said our prayers, son. Now, Bram. He is by the well.”'],
+    ],
+    // walking into someone once they're home, by their door
+    people: {
+      blacksmith: [
+        ['blacksmith', '“Forge is hot. Boots holding up?”'],
+        ['blacksmith', '“Need something, it’s inside. Don’t stand in the door. Letting the heat out.”'],
+      ],
+      innkeeper: [
+        ['innkeeper', '“There you are! I’ve started a new list. Only good things on it this time. You’re on it twice!”'],
+      ],
+      drill: [
+        ['drill', '“Recruit! Shoulders back. The yard’s open, and drills don’t run themselves.”'],
+      ],
+      scribe: [
+        ['scribe', '“I have been copying Scripture since I came home. Slowly. I check every word twice now.”'],
+      ],
     },
   },
   church: {

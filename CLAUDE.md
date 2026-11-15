@@ -26,7 +26,8 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   cave ends with a held townsperson whose freeing reopens one building: The Hollow (the
   Grudge, Wendell, Inn), The Old Quarry (the Brawler, Hale, Training Yard), The Deep Cave
   (the Slanderer, Silas, Scriptorium). After all three, the road to Ephesus opens. After the
-  Furnace, Amos walks you through town once (`tourHTML`, `TEXT.tour`; replayable from the church).
+  Furnace, Amos walks you round the town map once, stopping at each place (`startTour` in townmap.js,
+  `TEXT.tour.stops`; replayable from the church).
 - **The chapter ending** (`chapterEndHTML` in story.js, screen `chapterend`, text `TEXT.chapterEnd`)
   plays once: the first clear that finishes the last cave sends `caveDoneHTML`'s button there
   instead of town. A full church, the bell, a line each from Bram, Wendell, Hale and Silas, then
@@ -100,6 +101,13 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   and before the Galatians pieces.
 - **Provoked** (vex) raises verse costs by 1 for one turn only, then wears off whatever you
   do; otherwise a player at 0 focus could never cast again.
+- **The town map** (`TOWN` in townmap.js) replaced the town menu: Philadelphia is a lit tile map on the cave
+  engine (tilemap.js). Buildings (`IMG.town` art over their footprints) have a door tile; walk into it to enter
+  the building's screen (`enterBuilding`), boarded ones say why under the map. Cave mouths sit on the edges (1 2 3),
+  the road east (E) leads to the world map screen. People (Amos, Bram burning by the well before the Furnace,
+  each shopkeeper by their door once it's open) talk in a popup over the map (`talkPop`, lines in `TEXT.townMap`).
+  The opening plays on it: you wake in the square, walk to the church (prologue scenes), then out to Bram with
+  Amos beside you. Where you stand is `P.town.pos` / `P.town.face` (P.town also holds the building flags).
 - **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,
   `B` the held townsperson, `D` boss door, `V` verse door, `L`/`K` levers for `G`/`H` gates,
   digits = that cave's `marks`: fights, chests, campfire; lowercase letters = the encounters in
