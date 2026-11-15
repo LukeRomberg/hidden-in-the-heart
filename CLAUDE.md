@@ -50,7 +50,7 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   `npm run script` prints the story as a readable script to `tools/out/script.md`.
 - **Test mode**: add `?test` to the URL (local `dist/index.html`, `npm run dev`, or the live
   site). A Test button (top right) jumps straight to the tutorial, town, any cave, any cave
-  boss, a villager fight, the level-up popup or the Forge with a throwaway hero ("Strong hero"
+  boss, a villager fight, a hurt person, every townsperson in every state, the level-up popup or the Forge with a throwaway hero ("Strong hero"
   for a late-game one). `src/js/dev.js`; it saves under `hidden-in-the-heart-test`, so the
   real save is never read or written. Add a jump there whenever a new section lands.
 - `src/js/*.js` are plain scripts sharing one global scope (inline onclick handlers call
@@ -174,8 +174,12 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
 - `build_enemies.py`: `enemies_freed_48x64.png` (rows hothead, grudge, brawler, slanderer;
   cols idle, attack, freed idle, freed wave) and `furnace_96x96.png` (same 4 columns) become
   `ENEMY_IMG` entries `name` and `name_f` in `enemies.json`.
-- `build_villagers.py`: six recolored townsfolk (`freed.json`, placeholder; only shown for
-  a freed enemy without its own freed sprite, which no current enemy lacks).
+- `build_townsfolk.py`: Philadelphia's townsfolk, one PixelLab v3 character per look (5 men, 5 women,
+  `assets/source/townsfolk/`, 8 directions), into `townsfolk.json` (`FOLK`): front idle + hop, hurt and
+  badly hurt (bandages drawn in code, hand-placed per look in `ANCHORS`), and east/north/west for the town
+  map. Each person in `TEXT.villagers` and `TEXT.living.people` has a `look`; held villagers are their own
+  sprite under the red CSS tint. Ten looks planned (`LOOKS`); a look without a sheet yet falls back to:
+- `build_villagers.py`: six recolored townsfolk (`freed.json`, the old placeholders).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
   card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
 
@@ -206,7 +210,9 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 ## Art still wanted
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
-- Held-villager sprites (today the villagers are tinted townsfolk; on the cave map, red-rimmed shadows).
+- The rest of the townsfolk: five of ten looks done (baker, shepherd, farmhand, washer, dyer); still to
+  generate: carpenter (Jonas), quarryman (Tobias), grandmother (Mara), dairymaid (Naomi), girl (Hannah).
+  Prompts in `LOOKS` in `tools/build_townsfolk.py`.
 - Cave map tileset (rock, rock face, floor per cave; doors, gate, lever, chest, campfire) and hero
   walking frames, about 6 PixelLab generations. Waiting for Luke's OK after he tries the
   code-drawn placeholders on his phone.

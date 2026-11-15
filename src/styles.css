@@ -388,7 +388,7 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 
 /* test mode (?test) */
 #folkgallery{ position:fixed; inset:0; z-index:80; overflow:auto; background:#2a211b; color:#f3e7cf; padding:calc(env(safe-area-inset-top,0px) + 8px) 8px 24px; }
-#folkgallery table{ border-collapse:collapse; margin-top:8px; } #folkgallery th{ font-size:12px; text-align:left; padding:2px 4px; } #folkgallery td{ padding:0; }
+#folkgallery table{ border-collapse:collapse; margin-top:8px; } #folkgallery th{ font-size:11px; text-align:left; padding:2px 3px; font-weight:normal; } #folkgallery td{ padding:0; }
 #folkgallery img{ image-rendering:pixelated; display:block; }
 #testpanel{ position:fixed; right:8px; top:calc(env(safe-area-inset-top,0px) + 6px); z-index:70; width:230px; display:flex; flex-direction:column; align-items:flex-end; }
 #testpanel .testbtn{ font-size:12px; padding:4px 10px; opacity:.85; }

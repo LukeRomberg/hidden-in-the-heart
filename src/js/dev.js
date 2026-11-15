@@ -66,17 +66,17 @@ function testChapterEnd(){
 // the hurt-person panel in the cave they're in, straight away (Amos's first visit already done)
 function testHurt(cave, who){
   testHero(true); for(let k=0;k<cave;k++) P.caves[CAVES[k].id] = 1; P.firstHurt = true;
-  startCave(cave); setTimeout(()=>{ R.node = {t:'hurt', who}; startHurt(); R.room = 'hurt'; render(); }, 400);
+  startCave(cave); setTimeout(()=>goto('dive', ()=>{ R.node = {t:'hurt', who}; startHurt(); R.room = 'hurt'; }), 400);
 }
 // every townsperson (TEXT.villagers, TEXT.living.people) in every state, over whatever screen is up
 function testFolk(){
-  const people = [...TEXT.villagers, ...TEXT.living.people], pic = (src, cls='')=>`<img class="${cls}" src="${src}" width="64" height="64" alt="">`;
+  const people = [...TEXT.villagers, ...TEXT.living.people], pic = (src, cls='')=>`<img class="${cls}" src="${src}" width="44" height="44" alt="">`;
   const rows = people.map(p=>{ const f = FOLK[p.look], d = f ? f.dir : {};
     return `<tr><th>${p.name}<br><span class="small mute">${p.look}${f?'':' (not yet drawn)'}</span></th>
       <td>${pic(folkSrc(p,'idle'))}</td><td>${pic(folkSrc(p,'idle'),'sprite held')}</td><td>${pic(folkSrc(p,'hurt'))}</td><td>${pic(folkSrc(p,'badly'))}</td>
       ${['e','n','w'].map(k=>`<td>${d[k]?pic(d[k]):''}</td>`).join('')}</tr>`; }).join('');
   const el = document.createElement('div'); el.id = 'folkgallery';
-  el.innerHTML = `<button class="wide" onclick="this.parentNode.remove()">Close</button><table><tr><th></th><th>freed</th><th>held</th><th>hurt</th><th>badly</th><th>east</th><th>north</th><th>west</th></tr>${rows}</table>`;
+  el.innerHTML = `<button class="wide" onclick="this.parentNode.remove()">Close</button><table><tr><th></th><th>freed</th><th>held</th><th>hurt</th><th>badly</th><th>E</th><th>N</th><th>W</th></tr>${rows}</table>`;
   document.body.appendChild(el);
 }
 function testBoss(i){
