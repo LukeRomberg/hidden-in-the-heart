@@ -34,8 +34,19 @@ section.sheet{ background:var(--sheet); border:1px solid var(--line); border-rad
 .shead p{ margin:2px 0 0; color:var(--mute); font-size:14px; }
 .clear{ display:flex; gap:6px; align-items:center; font-size:14px; font-weight:700; white-space:nowrap; cursor:pointer; padding:4px 10px; border:1px solid var(--line); border-radius:999px; }
 .clear input{ width:18px; height:18px; accent-color:var(--edited); }
-.sheet.done .shead h2::after{ content:" ✓"; color:var(--edited); }
-.group{ margin-top:12px; }
+.sheet.done .shead h2::after, .group.done .ghead::after{ content:" ✓"; color:var(--edited); }
+details > summary{ list-style:none; cursor:pointer; }
+details > summary::-webkit-details-marker{ display:none; }
+.shead{ position:relative; padding-right:26px; padding-bottom:6px; }
+.shead::after, .gsum::before{ content:"▸"; color:var(--mute); transition:transform .15s; }
+.shead::after{ position:absolute; right:2px; top:4px; font-size:18px; }
+details[open] > .shead::after, details[open] > .gsum::before{ transform:rotate(90deg); }
+.gsum{ display:flex; gap:10px; align-items:center; padding:8px 0; }
+.gsum::before{ font-size:14px; flex:none; display:inline-block; }
+.gleft{ flex:1; min-width:0; }
+.group{ margin-top:4px; border-top:1px solid var(--line); }
+.group.done .gsum{ opacity:.7; }
+.gbody{ padding-bottom:6px; }
 .ghead{ font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
 .gwhen{ font-size:13px; color:var(--mute); margin:1px 0 4px; }
 .ln{ display:grid; grid-template-columns:minmax(0,1fr); gap:2px; padding:8px 0 8px 10px; border-left:3px solid transparent; border-top:1px solid var(--line); }
@@ -67,48 +78,63 @@ button:focus-visible, select:focus-visible, input:focus-visible{ outline:2px sol
       <span class="save" id="save"></span>
     </div>
   </header>
-  <p class="intro">Every line of text in the Philadelphia chapter, in story order. Tap a line to rewrite it; it saves when you tap away. Leave a note instead if you want Claude to rewrite it. Tick a section off when you’re happy with it. When you’re done, tell Claude to apply your text edits.</p>
+  <p class="intro">Every line of text in the Philadelphia chapter, in story order. Tap a line to rewrite it; it saves when you tap away. Leave a note instead if you want Claude to rewrite it. Tick “Clear” on a scene when you’re happy with it and it folds away. When you’re done, tell Claude to apply your text edits.</p>
   <div id="banner"></div>
   <main id="sheets"></main>
 </div>
 
 <script>
 const DATA = /*__DATA__*/null;
-const S = { edits:{}, cleared:[], onlyChanged:false, db:null, local:false };
+const S = { edits:{}, scenes:[], onlyChanged:false, db:null, local:false };
 const docId = p => p.replace(/[^A-Za-z0-9_.~:@+-]/g, '_');
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if(cls) e.className = cls; if(txt!=null) e.textContent = txt; return e; };
 const LINES = {}; DATA.sections.forEach(s=>s.groups.forEach(g=>g.lines.forEach(l=>{ LINES[l.p] = l; })));
 function current(p){ const e = S.edits[p]; return e && e.text!=null ? e.text : LINES[p].t; }
 function fit(t){ t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
 
+// A scene (one group of lines, e.g. prologue › bedroom › lines) is an accordion you tick off; a ticked scene
+// folds shut. A section folds shut once every scene in it is ticked. Opening or closing one by hand sticks.
+const OPEN = {};   // key -> true/false when opened or closed by hand
+const nice = k => k.split('.').map(s=>s.charAt(0).toUpperCase()+s.slice(1).replace(/([a-z])([A-Z])/g,'$1 $2').toLowerCase()).join(' › ');
+const isOpen = (key, dflt) => key in OPEN ? OPEN[key] : dflt;
 function render(){
-  const root = document.getElementById('sheets'); root.textContent = '';
+  const root = document.getElementById('sheets');
+  const y = window.scrollY; root.textContent = '';
   const jump = document.getElementById('jump'); const keep = jump.value; jump.textContent = '';
   const changed = Object.keys(S.edits).filter(p=>S.edits[p].text!=null && S.edits[p].text!==LINES[p]?.t).length;
   const notes = Object.values(S.edits).filter(e=>e.note).length;
-  document.getElementById('prog').textContent = `${S.cleared.length} of ${DATA.sections.length} sections cleared · ${changed} changed · ${notes} noted`;
+  const scenes = DATA.sections.reduce((n,s)=>n+s.groups.length,0);
+  document.getElementById('prog').textContent = `${S.scenes.length} of ${scenes} scenes cleared · ${changed} changed · ${notes} noted`;
   DATA.sections.forEach(sec=>{
-    const n = sec.groups.reduce((m,g)=>m+g.lines.length,0), done = S.cleared.includes(sec.id);
-    const o = el('option', null, `${done?'✓ ':''}${sec.title} (${n})`); o.value = sec.id; jump.appendChild(o);
-    const sh = el('section', 'sheet' + (done?' done':'')); sh.id = sec.id;
-    const head = el('div', 'shead'), left = el('div');
-    left.append(el('h2', null, sec.title), el('p', null, `${sec.blurb} ${n} lines.`));
-    const lab = el('label', 'clear'), cb = el('input'); cb.type = 'checkbox'; cb.checked = done; cb.id = 'clr-' + sec.id;
-    cb.onchange = () => toggleCleared(sec.id, cb.checked); lab.append(cb, document.createTextNode('Cleared'));
-    head.append(left, lab); sh.appendChild(head);
+    const n = sec.groups.reduce((m,g)=>m+g.lines.length,0), cleared = sec.groups.filter(g=>S.scenes.includes(g.key)).length, done = cleared===sec.groups.length;
+    const o = el('option', null, `${done?'✓ ':''}${sec.title} (${cleared}/${sec.groups.length})`); o.value = sec.id; jump.appendChild(o);
+    const sh = el('details', 'sheet' + (done?' done':'')); sh.id = sec.id; sh.open = isOpen('s:'+sec.id, !done);
+    sh.ontoggle = () => { OPEN['s:'+sec.id] = sh.open; };
+    const sum = el('summary', 'shead'), left = el('div');
+    left.append(el('h2', null, sec.title), el('p', null, `${sec.blurb} ${cleared} of ${sec.groups.length} scenes cleared · ${n} lines.`));
+    sum.appendChild(left); sh.appendChild(sum);
     let shown = 0;
     sec.groups.forEach(g=>{
       const lines = g.lines.filter(l=>!S.onlyChanged || S.edits[l.p]);
       if(!lines.length) return;
-      const gd = el('div', 'group'); gd.appendChild(el('div', 'ghead', g.key.split('.').join(' › ')));
-      if(g.when) gd.appendChild(el('div', 'gwhen', g.when));
-      lines.forEach(l=>{ gd.appendChild(lineRow(l)); shown++; });
+      const gdone = S.scenes.includes(g.key);
+      const gd = el('details', 'group' + (gdone?' done':'')); gd.open = isOpen('g:'+g.key, !gdone || S.onlyChanged);
+      gd.ontoggle = () => { OPEN['g:'+g.key] = gd.open; };
+      const gs = el('summary', 'gsum'), gl = el('div', 'gleft');
+      gl.append(el('div', 'ghead', nice(g.key)), el('div', 'gwhen', `${g.when ? g.when + ' · ' : ''}${g.lines.length} line${g.lines.length===1?'':'s'}`));
+      const lab = el('label', 'clear'), cb = el('input'); cb.type = 'checkbox'; cb.checked = gdone; cb.id = 'clr-' + docId(g.key);
+      lab.onclick = e => e.stopPropagation();   // ticking doesn't also fold/unfold the scene
+      cb.onchange = () => toggleScene(g.key, cb.checked); lab.append(cb, document.createTextNode(gdone ? 'Cleared' : 'Clear'));
+      gs.append(gl, lab); gd.appendChild(gs);
+      const body = el('div', 'gbody'); lines.forEach(l=>{ body.appendChild(lineRow(l)); shown++; }); gd.appendChild(body);
       sh.appendChild(gd);
     });
     if(shown || !S.onlyChanged) root.appendChild(sh);
   });
   if(keep) jump.value = keep;
-  root.querySelectorAll('textarea.tx').forEach(fit);
+  root.querySelectorAll('details[open] textarea.tx').forEach(fit);
+  root.querySelectorAll('details').forEach(d=>d.addEventListener('toggle', ()=>d.querySelectorAll('textarea.tx').forEach(fit)));
+  window.scrollTo(0, y);
 }
 function lineRow(l){
   const e = S.edits[l.p] || {}, edited = e.text!=null && e.text!==l.t;
@@ -141,20 +167,22 @@ function saveLine(p, text, note){
   const empty = e.text==null && !e.note;
   if(empty) delete S.edits[p]; else S.edits[p] = e;
   render();
-  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, cleared:S.cleared})); setSave('Saved in this browser'); }catch(x){ setSave('Not saved'); } return; }
+  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, scenes:S.scenes})); setSave('Saved in this browser'); }catch(x){ setSave('Not saved'); } return; }
   const ref = S.db.collection('edits').doc(docId(p));
   setSave('Saving…');
   saving = saving.then(() => empty ? ref.delete() : ref.set(e)).then(() => setSave('Saved'), err => setSave('Not saved: ' + (err && err.code || 'error')));
 }
-function toggleCleared(id, on){
-  S.cleared = S.cleared.filter(x=>x!==id); if(on) S.cleared.push(id); render();
-  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, cleared:S.cleared})); }catch(x){} return; }
+function toggleScene(key, on){
+  S.scenes = S.scenes.filter(x=>x!==key); if(on) S.scenes.push(key);
+  delete OPEN['g:'+key];   // a scene you just ticked folds shut; unticking opens it again
+  render();
+  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, scenes:S.scenes})); }catch(x){} return; }
   setSave('Saving…');
-  saving = saving.then(() => S.db.doc('progress/sections').set({cleared:S.cleared})).then(() => setSave('Saved'), err => setSave('Not saved: ' + (err && err.code || 'error')));
+  saving = saving.then(() => S.db.doc('progress/scenes').set({cleared:S.scenes})).then(() => setSave('Saved'), err => setSave('Not saved: ' + (err && err.code || 'error')));
 }
 
 // ---- controls ----
-document.getElementById('jump').onchange = e => { const s = document.getElementById(e.target.value); if(s) s.scrollIntoView(); };
+document.getElementById('jump').onchange = e => { const s = document.getElementById(e.target.value); if(s){ s.open = true; OPEN['s:'+s.id] = true; s.scrollIntoView(); } };
 document.getElementById('fChanged').onclick = e => { S.onlyChanged = !S.onlyChanged; e.target.setAttribute('aria-pressed', S.onlyChanged); render(); };
 
 // ---- start: show the script at once, then bring in saved edits ----
@@ -163,7 +191,7 @@ render();
   let db = null; try{ db = await claude.use('db'); }catch(x){}
   if(!db){
     S.local = true;
-    try{ const s = JSON.parse(localStorage.getItem('hith-script-edits')||'{}'); S.edits = s.edits||{}; S.cleared = s.cleared||[]; }catch(x){}
+    try{ const s = JSON.parse(localStorage.getItem('hith-script-edits')||'{}'); S.edits = s.edits||{}; S.scenes = s.scenes||[]; }catch(x){}
     document.getElementById('banner').innerHTML = '<div class="banner">Saving to Claude isn’t available in this view (sign in to claude.ai to fix that). Your changes are kept in this browser only.</div>';
     render(); return;
   }
@@ -175,6 +203,6 @@ render();
     const focused = document.activeElement && /^(tx|nt)-/.test(document.activeElement.id);
     S.edits = fresh; if(!focused) render(); setSave('Saved');
   }, err => { clearTimeout(timer); setSave('Couldn’t load saved edits: ' + (err && err.code || 'error')); });
-  db.doc('progress/sections').onSnapshot(d => { const v = d.exists ? d.data() : null; S.cleared = (v && v.cleared) || []; render(); }, ()=>{});
+  db.doc('progress/scenes').onSnapshot(d => { const v = d.exists ? d.data() : null; S.scenes = (v && v.cleared) || []; render(); }, ()=>{});
 })();
 </script>
