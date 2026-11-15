@@ -110,7 +110,8 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   hand-back combat.js calls), chests and the campfire open a panel under the map, and a cleared
   marker is gone. A verse door opens on any verse you carry said without a slip; the boss door
   stays barred until everyone held on the map is free (fights and truth villagers). Placeholder tiles and objects are drawn
-  in code (`CAVE_PAL`, `ART`). `P.caves` counts clears; `P.run` ({v:2, cave, pos, face, seen,
+  in code (`CAVE_PAL`, `ART`). The walking itself (BFS, light, camera, drawing) is `tilemap.js`, shared with the
+  town map; a place registers its rules in `PLACES`. `P.caves` counts clears; `P.run` ({v:2, cave, pos, face, seen,
   done, open}) resumes on the map after a reload; an older run restarts at the cave mouth.
 - **Encounters** (`encounters.js`, plan in `docs/encounters.md`): Amos's **sermon scraps**
   (“You have heard it said, brothers…”) are walked over and picked up (`P.notes`) and teach one
