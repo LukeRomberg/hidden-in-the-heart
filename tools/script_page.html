@@ -1,0 +1,180 @@
+<title>Philadelphia Script</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
+<style>
+/* Layout: one reading column; a sticky bar with progress and a section picker; each section a parchment sheet of lines grouped by moment. */
+:root{
+  --bg:#efe3c6; --sheet:#fbf3df; --ink:#2b1d12; --mute:#7a6248; --line:#d9c49c; --wood:#6b4426;
+  --accent:#b8860b; --edited:#3f7a2a; --edited-bg:#eaf3dc; --note:#9a4a1c; --chip:#e9d8b4;
+  --font:'Nunito', 'Avenir Next', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1c140e; --sheet:#2a1f16; --ink:#f1e4c8; --mute:#b39b7c; --line:#4a3826; --wood:#8a5a32;
+  --accent:#e0b04a; --edited:#9fd07e; --edited-bg:#24331b; --note:#f0a070; --chip:#3a2b1d; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#1c140e; --sheet:#2a1f16; --ink:#f1e4c8; --mute:#b39b7c; --line:#4a3826; --wood:#8a5a32;
+  --accent:#e0b04a; --edited:#9fd07e; --edited-bg:#24331b; --note:#f0a070; --chip:#3a2b1d; color-scheme:dark }
+body{ background:var(--bg); color:var(--ink); font-family:var(--font); font-size:16px; line-height:1.5; margin:0; }
+.wrap{ max-width:760px; margin:0 auto; padding-block:0 64px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+body::before{ content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--wood); }
+header{ position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--wood); color:#fbf3df; margin:0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 18px; padding:10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); box-shadow:0 2px 0 rgba(0,0,0,.25); }
+header h1{ margin:0; font-size:19px; font-weight:800; letter-spacing:.01em; text-wrap:balance; }
+.bar{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin-top:6px; font-size:14px; }
+.bar .stat{ font-variant-numeric:tabular-nums; opacity:.92; }
+.bar select, .bar button{ font:inherit; font-size:14px; border-radius:6px; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.18); color:#fbf3df; padding:4px 8px; }
+.bar select{ max-width:100%; min-width:0; flex:1 1 220px; }
+.bar button[aria-pressed="true"]{ background:#fbf3df; color:var(--wood); font-weight:700; }
+.save{ font-size:13px; opacity:.85; }
+.intro{ color:var(--mute); font-size:15px; margin:0 0 18px; }
+.banner{ background:var(--sheet); border:1px dashed var(--note); color:var(--note); padding:10px 12px; border-radius:8px; margin-bottom:16px; font-size:14px; }
+section.sheet{ background:var(--sheet); border:1px solid var(--line); border-radius:10px; padding:14px 14px 6px; margin-bottom:22px; scroll-margin-top:110px; }
+.shead{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+.shead h2{ margin:0; font-size:21px; font-weight:800; text-wrap:balance; }
+.shead p{ margin:2px 0 0; color:var(--mute); font-size:14px; }
+.clear{ display:flex; gap:6px; align-items:center; font-size:14px; font-weight:700; white-space:nowrap; cursor:pointer; padding:4px 10px; border:1px solid var(--line); border-radius:999px; }
+.clear input{ width:18px; height:18px; accent-color:var(--edited); }
+.sheet.done .shead h2::after{ content:" ✓"; color:var(--edited); }
+.group{ margin-top:12px; }
+.ghead{ font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+.gwhen{ font-size:13px; color:var(--mute); margin:1px 0 4px; }
+.ln{ display:grid; grid-template-columns:minmax(0,1fr); gap:2px; padding:8px 0 8px 10px; border-left:3px solid transparent; border-top:1px solid var(--line); }
+.ln.ed{ border-left-color:var(--edited); background:var(--edited-bg); }
+.ln .meta{ display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; font-size:13px; }
+.who{ font-weight:800; background:var(--chip); padding:0 7px; border-radius:5px; }
+.who.narr{ font-weight:600; font-style:italic; background:none; padding:0; color:var(--mute); }
+.when{ color:var(--mute); }
+textarea.tx{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; line-height:1.45; color:var(--ink); background:transparent; border:1px solid transparent; border-radius:6px; padding:3px 6px; margin-left:-6px; resize:none; overflow:hidden; }
+textarea.tx:hover{ border-color:var(--line); }
+textarea.tx:focus{ outline:none; border-color:var(--accent); background:var(--sheet); }
+.tools{ display:flex; flex-wrap:wrap; gap:12px; font-size:13px; }
+.tools button{ font:inherit; font-size:13px; background:none; border:0; padding:0; color:var(--mute); text-decoration:underline; cursor:pointer; }
+.was{ font-size:13px; color:var(--mute); }
+.was s{ text-decoration-color:var(--note); }
+input.nt{ width:100%; box-sizing:border-box; font:inherit; font-size:14px; color:var(--note); background:var(--sheet); border:1px dashed var(--note); border-radius:6px; padding:4px 8px; }
+.path{ font-size:11px; color:var(--mute); opacity:.7; word-break:break-all; }
+button:focus-visible, select:focus-visible, input:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+@media (prefers-reduced-motion: no-preference){ html{ scroll-behavior:smooth; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Philadelphia script</h1>
+    <div class="bar">
+      <span class="stat" id="prog">…</span>
+      <select id="jump" aria-label="Go to a section"></select>
+      <button id="fChanged" aria-pressed="false">Changed only</button>
+      <span class="save" id="save"></span>
+    </div>
+  </header>
+  <p class="intro">Every line of text in the Philadelphia chapter, in story order. Tap a line to rewrite it; it saves when you tap away. Leave a note instead if you want Claude to rewrite it. Tick a section off when you’re happy with it. When you’re done, tell Claude to apply your text edits.</p>
+  <div id="banner"></div>
+  <main id="sheets"></main>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const S = { edits:{}, cleared:[], onlyChanged:false, db:null, local:false };
+const docId = p => p.replace(/[^A-Za-z0-9_.~:@+-]/g, '_');
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if(cls) e.className = cls; if(txt!=null) e.textContent = txt; return e; };
+const LINES = {}; DATA.sections.forEach(s=>s.groups.forEach(g=>g.lines.forEach(l=>{ LINES[l.p] = l; })));
+function current(p){ const e = S.edits[p]; return e && e.text!=null ? e.text : LINES[p].t; }
+function fit(t){ t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+
+function render(){
+  const root = document.getElementById('sheets'); root.textContent = '';
+  const jump = document.getElementById('jump'); const keep = jump.value; jump.textContent = '';
+  const changed = Object.keys(S.edits).filter(p=>S.edits[p].text!=null && S.edits[p].text!==LINES[p]?.t).length;
+  const notes = Object.values(S.edits).filter(e=>e.note).length;
+  document.getElementById('prog').textContent = `${S.cleared.length} of ${DATA.sections.length} sections cleared · ${changed} changed · ${notes} noted`;
+  DATA.sections.forEach(sec=>{
+    const n = sec.groups.reduce((m,g)=>m+g.lines.length,0), done = S.cleared.includes(sec.id);
+    const o = el('option', null, `${done?'✓ ':''}${sec.title} (${n})`); o.value = sec.id; jump.appendChild(o);
+    const sh = el('section', 'sheet' + (done?' done':'')); sh.id = sec.id;
+    const head = el('div', 'shead'), left = el('div');
+    left.append(el('h2', null, sec.title), el('p', null, `${sec.blurb} ${n} lines.`));
+    const lab = el('label', 'clear'), cb = el('input'); cb.type = 'checkbox'; cb.checked = done; cb.id = 'clr-' + sec.id;
+    cb.onchange = () => toggleCleared(sec.id, cb.checked); lab.append(cb, document.createTextNode('Cleared'));
+    head.append(left, lab); sh.appendChild(head);
+    let shown = 0;
+    sec.groups.forEach(g=>{
+      const lines = g.lines.filter(l=>!S.onlyChanged || S.edits[l.p]);
+      if(!lines.length) return;
+      const gd = el('div', 'group'); gd.appendChild(el('div', 'ghead', g.key.split('.').join(' › ')));
+      if(g.when) gd.appendChild(el('div', 'gwhen', g.when));
+      lines.forEach(l=>{ gd.appendChild(lineRow(l)); shown++; });
+      sh.appendChild(gd);
+    });
+    if(shown || !S.onlyChanged) root.appendChild(sh);
+  });
+  if(keep) jump.value = keep;
+  root.querySelectorAll('textarea.tx').forEach(fit);
+}
+function lineRow(l){
+  const e = S.edits[l.p] || {}, edited = e.text!=null && e.text!==l.t;
+  const row = el('div', 'ln' + (edited?' ed':''));
+  const meta = el('div', 'meta');
+  if(l.w) meta.appendChild(el('span', l.w==='Narration' ? 'who narr' : 'who', l.w));
+  if(l.n) meta.appendChild(el('span', 'when', l.n));
+  if(meta.childNodes.length) row.appendChild(meta);
+  const t = el('textarea', 'tx'); t.rows = 1; t.value = current(l.p); t.id = 'tx-' + docId(l.p); t.setAttribute('aria-label', (l.w ? l.w + ': ' : '') + l.p);
+  t.oninput = () => fit(t); t.onchange = () => saveLine(l.p, t.value, undefined);
+  row.appendChild(t);
+  if(edited) { const w = el('div', 'was'); w.append('Was: '); w.appendChild(el('s', null, l.t)); row.appendChild(w); }
+  const tools = el('div', 'tools');
+  if(e.note!==undefined && e.note!==null && e.note!==''){ const nt = noteInput(l.p, e.note); row.appendChild(nt); }
+  else { const b = el('button', null, 'Add a note for Claude'); b.onclick = () => { b.remove(); const nt = noteInput(l.p, ''); row.insertBefore(nt, tools); nt.focus(); }; tools.appendChild(b); }
+  if(edited){ const u = el('button', null, 'Undo my change'); u.onclick = () => saveLine(l.p, l.t, undefined); tools.appendChild(u); }
+  tools.appendChild(el('span', 'path', l.p));
+  row.appendChild(tools);
+  return row;
+}
+function noteInput(p, v){ const i = el('input', 'nt'); i.value = v; i.id = 'nt-' + docId(p); i.placeholder = 'Too cheesy, wrong, make it drier…'; i.onchange = () => saveLine(p, undefined, i.value.trim()); return i; }
+
+// ---- saving ----
+let saving = Promise.resolve();
+function setSave(msg){ document.getElementById('save').textContent = msg; }
+function saveLine(p, text, note){
+  const prev = S.edits[p] || {};
+  const e = { path:p, orig:LINES[p].t, text: text!==undefined ? text : (prev.text ?? null), note: note!==undefined ? note : (prev.note || '') };
+  if(e.text===e.orig) e.text = null;
+  const empty = e.text==null && !e.note;
+  if(empty) delete S.edits[p]; else S.edits[p] = e;
+  render();
+  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, cleared:S.cleared})); setSave('Saved in this browser'); }catch(x){ setSave('Not saved'); } return; }
+  const ref = S.db.collection('edits').doc(docId(p));
+  setSave('Saving…');
+  saving = saving.then(() => empty ? ref.delete() : ref.set(e)).then(() => setSave('Saved'), err => setSave('Not saved: ' + (err && err.code || 'error')));
+}
+function toggleCleared(id, on){
+  S.cleared = S.cleared.filter(x=>x!==id); if(on) S.cleared.push(id); render();
+  if(S.local){ try{ localStorage.setItem('hith-script-edits', JSON.stringify({edits:S.edits, cleared:S.cleared})); }catch(x){} return; }
+  setSave('Saving…');
+  saving = saving.then(() => S.db.doc('progress/sections').set({cleared:S.cleared})).then(() => setSave('Saved'), err => setSave('Not saved: ' + (err && err.code || 'error')));
+}
+
+// ---- controls ----
+document.getElementById('jump').onchange = e => { const s = document.getElementById(e.target.value); if(s) s.scrollIntoView(); };
+document.getElementById('fChanged').onclick = e => { S.onlyChanged = !S.onlyChanged; e.target.setAttribute('aria-pressed', S.onlyChanged); render(); };
+
+// ---- start: show the script at once, then bring in saved edits ----
+render();
+(async () => {
+  let db = null; try{ db = await claude.use('db'); }catch(x){}
+  if(!db){
+    S.local = true;
+    try{ const s = JSON.parse(localStorage.getItem('hith-script-edits')||'{}'); S.edits = s.edits||{}; S.cleared = s.cleared||[]; }catch(x){}
+    document.getElementById('banner').innerHTML = '<div class="banner">Saving to Claude isn’t available in this view (sign in to claude.ai to fix that). Your changes are kept in this browser only.</div>';
+    render(); return;
+  }
+  S.db = db; setSave('Loading your edits…');
+  const timer = setTimeout(()=>setSave('Can’t reach your saved edits yet'), 10000);
+  db.collection('edits').onSnapshot(snap => {
+    if(!snap.metadata.fromCache) clearTimeout(timer);
+    const fresh = {}; snap.docs.forEach(d => { const v = d.data(); if(v && v.path && LINES[v.path]) fresh[v.path] = v; });
+    const focused = document.activeElement && /^(tx|nt)-/.test(document.activeElement.id);
+    S.edits = fresh; if(!focused) render(); setSave('Saved');
+  }, err => { clearTimeout(timer); setSave('Couldn’t load saved edits: ' + (err && err.code || 'error')); });
+  db.doc('progress/sections').onSnapshot(d => { const v = d.exists ? d.data() : null; S.cleared = (v && v.cleared) || []; render(); }, ()=>{});
+})();
+</script>

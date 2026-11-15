@@ -49,6 +49,12 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   and wins the first fight, opens a chest, verse door, lever, bumps the boss door, reloads)
   headless and fails on any console error. `npm test` = verify + smoke. Run it after every change.
   `npm run script` prints the story as a readable script to `tools/out/script.md`.
+- **Editing the text** (Luke): the Philadelphia Script artifact (https://claude.ai/artifact/GPYx53DWfndGnKLH1HA6Ft,
+  private) lists every line by section with who says it and when; his edits and notes save in its database
+  (`edits`, `progress/sections`). Rebuild it after text.js changes with `node tools/script_page.mjs` and republish
+  `tools/out/script-editor.html` to that URL. To apply: read the `edits` collection with ArtifactData
+  (`out_dir`), run `node tools/apply_text_edits.mjs <dir>` (checks each line's path, curls quotes, lists notes),
+  then `npm test`, rewrite the noted lines, and clear applied edits from the store.
 - **Test mode**: add `?test` to the URL (local `dist/index.html`, `npm run dev`, or the live
   site). A Test button (top right) jumps straight to the tutorial, town, any cave, any cave
   boss, a villager fight, a hurt person, every townsperson in every state, the level-up popup or the Forge with a throwaway hero ("Strong hero"
