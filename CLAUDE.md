@@ -210,9 +210,8 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 ## Art still wanted
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
-- The rest of the townsfolk: five of ten looks done (baker, shepherd, farmhand, washer, dyer); still to
-  generate: carpenter (Jonas), quarryman (Tobias), grandmother (Mara), dairymaid (Naomi), girl (Hannah).
-  Prompts in `LOOKS` in `tools/build_townsfolk.py`.
+- The rest of the townsfolk: seven of ten looks done; still to generate: carpenter (Jonas),
+  dairymaid (Naomi), girl (Hannah). Prompts in `LOOKS` in `tools/build_townsfolk.py`.
 - Cave map tileset (rock, rock face, floor per cave; doors, gate, lever, chest, campfire) and hero
   walking frames, about 6 PixelLab generations. Waiting for Luke's OK after he tries the
   code-drawn placeholders on his phone.

@@ -34,13 +34,13 @@ LOOKS = {
                   'lanky young village farmhand, teenage man, olive skin, black curly hair under a frayed straw hat, green tunic with a rope belt, patched brown trousers, bare dusty feet in simple shoes'),
     'carpenter': ('m', 'Jonas',  None,
                   'village carpenter, broad middle-aged man, tan skin, short black hair and a full black beard, leather apron with a hammer and tools on the belt, blue-grey shirt, dark trousers, boots'),
-    'quarryman': ('m', 'Tobias', None,
+    'quarryman': ('m', 'Tobias', 'ba489e85-7cd6-4f8c-bf81-60a6e6b3dfb4',
                   'old quarryman, heavy-set elderly man, pale weathered skin, bald with grey stubble, stone dust on a faded brown vest over a rough linen shirt, dark trousers, heavy boots'),
     'washer':    ('f', 'Ruth',   '6018414e-4688-4170-b5a4-c560bb1a85cd',
                   'village washerwoman, sturdy middle-aged woman, rosy fair skin, red hair tied up under a faded blue kerchief, long brown skirt, cream blouse with rolled sleeves, grey work apron'),
     'dyer':      ('f', 'Lydia',  'dc4aeea1-cefe-4fba-8b85-cf6965d3266a',
                   'village cloth dyer, tall slender woman in her thirties, warm brown skin, long black hair in a single braid over one shoulder, plum purple dress with a dark sash, purple-stained hands, brown shoes'),
-    'grandmother': ('f', 'Mara', None,
+    'grandmother': ('f', 'Mara', '2194e092-95b2-4c75-9132-b68105fb4fae',
                   'village grandmother, small elderly woman, dark brown skin, grey hair in a bun, knitted mustard shawl over a long dark green dress, soft brown shoes'),
     'dairymaid': ('f', 'Naomi',  None,
                   'young village dairymaid, woman in her twenties, freckled fair skin, blonde hair in two braids, sky blue dress with a white apron, wooden clogs'),
@@ -52,7 +52,7 @@ LOOKS = {
 # Hand-placed, in south-frame pixels:
 #   band   (y, x0, x1): first row of the head bandage (two rows) and how far it reaches across the
 #          head, or None when a hat covers the forehead
-#   cheek  where the sticking plaster goes; bruise  a pixel under one eye (the bruise is two pixels)
+#   cheek  where the sticking plaster goes (Tobias: his bald scalp); bruise  a pixel under one eye (the bruise is two pixels)
 #   arm    (x0, x1, y): the viewer's-left forearm, three rows down from y; arm2 the other one
 #   sit    (top, bottom): rows cut out of the legs so the person sinks down to sit
 ANCHORS = {
@@ -60,6 +60,8 @@ ANCHORS = {
     'washer':   dict(band=(9, 22, 38), cheek=(32, 18), bruise=(25, 16), arm=(16, 21, 35), arm2=(40, 45, 35), sit=(44, 53)),
     'shepherd': dict(band=(7, 0, 63),  cheek=(28, 14), bruise=(36, 13), arm=(17, 21, 40), arm2=(42, 46, 40), sit=(45, 54)),
     'dyer':     dict(band=(8, 25, 39), cheek=(34, 16), bruise=(27, 15), arm=(18, 22, 33), arm2=(41, 45, 33), sit=(43, 52)),
+    'quarryman': dict(band=(7, 0, 63), cheek=(33, 3), bruise=(33, 14), arm=(12, 17, 37), arm2=(45, 50, 37), sit=(44, 52)),
+    'grandmother': dict(band=(11, 23, 41), cheek=(36, 17), bruise=(26, 16), arm=(20, 25, 38), arm2=(39, 44, 38), sit=(42, 52)),
     'farmhand': dict(band=None, cheek=(34, 19), bruise=(27, 18), arm=(16, 21, 40), arm2=(41, 46, 40), sit=(45, 53)),
 }
 
