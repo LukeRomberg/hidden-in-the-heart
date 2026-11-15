@@ -13,9 +13,13 @@ function linesHTML(lines){ return lines.map(([who,text])=>`<p class="tline">${wh
 function oneOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 // ---- scraps of Amos's notes ----
+// Each note also carries, in Amos's hand, the piece of the Creed the next chest will ask for, so you meet
+// it before you're tested on it (until you've opened a chest with it; then the next note has the next piece).
+function creedOnNote(){ const N = CREED.sections.length; if(P.creed >= N) return '';
+  return `<div class="creednote"><p class="small mute">${fill(TEXT.truths.creedLead,{n:P.creed+1, total:N})}</p><p class="creedtext">${CREED.sections[P.creed].join(' ')}</p></div>`; }
 function scrapPanel(){ const t = TRUTHS[R.node.truth], T = TEXT.truths;
-  return `<div class="panel scrap"><h2>${T.scrapHeading}</h2><p class="scraptext">${t.scrap}</p>${verseBox(t.id)}</div>`; }
-function takeScrap(){ const id = R.node.truth; P.notes = P.notes||[]; if(!P.notes.includes(id)) P.notes.push(id); save(); toast(TEXT.truths.scrapFound); clearColumn(); }
+  return `<div class="panel scrap"><h2>${T.scrapHeading}</h2><p class="scraptext">${t.scrap}</p>${verseBox(t.id)}${creedOnNote()}</div>`; }
+function takeScrap(){ const id = R.node.truth; P.notes = P.notes||[]; if(!P.notes.includes(id)){ P.notes.push(id); reward({kind:'note', id}); } save(); clearColumn(); }
 
 // ---- “Is it true that…?” ----
 // The question: something you missed before comes back first; the villager's own question waits its turn.

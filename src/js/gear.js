@@ -72,9 +72,9 @@ function consecrateList(){
 function consecrate(){
   const a = nextArmor(); if(!a || !owns(a.from) || R.talents<a.price) return;
   openRecall({ref:'ARMOR', type:'Armor', cost:0, text:''}, (frac)=>{
-    if(frac===1){ R.talents-=a.price; equip(a.up); saveHero(); Object.keys(heroCache).forEach(k=>delete heroCache[k]); toast(fill(TEXT.gear.fits,{name:ITEMS[a.up].name})); }
+    if(frac===1){ const before={...R.gear}; R.talents-=a.price; equip(a.up); saveHero(); reward({kind:'gear', id:a.up, before, how:'consecrated'}); }
     else toast(TEXT.gear.failed);
     render();
   }, 1, TEXT.gear.recallTitle, a.n, 1);
 }
-function buy(id){ if(!ITEMS[id].price || owns(id) || R.talents<ITEMS[id].price) return; R.talents-=ITEMS[id].price; equip(id); saveHero(); Object.keys(heroCache).forEach(k=>delete heroCache[k]); toast(fill(TEXT.gear.bought,{name:ITEMS[id].name})); render(); }
+function buy(id){ if(!ITEMS[id].price || owns(id) || R.talents<ITEMS[id].price) return; const before={...R.gear}; R.talents-=ITEMS[id].price; equip(id); saveHero(); reward({kind:'gear', id, before, how:'bought'}); render(); }

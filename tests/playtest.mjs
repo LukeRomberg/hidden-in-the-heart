@@ -102,6 +102,7 @@ async function playOne(acc, style) {
       if (s.screen === targetScreen) return;
       if (s.modal === 'levelup') { await levelUp(); continue; }
       if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
+      if (s.modal === 'reward') { await ev(() => closeReward()); continue; }   // “you got…” popups
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.modal === 'assembly') { await solveAssembly(); continue; }
       if (s.dlg) { await finishDialogue(); if (s.acts) await page.locator('#acts button').first().click(); else if (s.dock) await page.locator('#app .dock button').first().click(); }
@@ -172,11 +173,13 @@ async function playOne(acc, style) {
         if (!stats) stats = { minPct: Math.max(0, Math.min(1, await ev(() => window.__minPct ?? 1))), lost: false, result: 'won', names: info.names, boss: info.boss, tut: info.tut, turns: s.turn, hpStart: info.hp, hpEnd: s.hp, casts: s.castLog.length, slips: s.castLog.filter(f => f < 0.75).length };
         if (s.modal === 'levelup') { await levelUp(); continue; }
       if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
+      if (s.modal === 'reward') { await ev(() => closeReward()); continue; }   // “you got…” popups
         return stats;
       }
       if (s.screen !== 'fight') { if (s.screen === 'dive' || s.screen === 'victory') { await page.waitForTimeout(100); if (s.screen === 'victory') return stats || { result: 'won', names: info.names }; continue; } return stats || { result: 'left', names: info.names }; }
       if (s.modal === 'levelup') { await levelUp(); continue; }
       if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
+      if (s.modal === 'reward') { await ev(() => closeReward()); continue; }   // “you got…” popups
       if (s.modal === 'assembly') { await solveAssembly(); await until(() => !R.busy || R.after || screen !== 'fight'); continue; }
       if (s.modal === 'recall') { await solveRecall(); continue; }
       if (s.busy) { await page.waitForTimeout(60); continue; }
@@ -269,10 +272,12 @@ async function playOne(acc, style) {
       await dockPrimary(); await until(() => modal && modal.kind === 'assembly'); await solveAssembly();
       for (let i = 0; i < 40; i++) {
         await tick(); const s = await ev(() => ({ screen, room: R.room, modal: modal && modal.kind }));
+        if (s.modal === 'reward') { await ev(() => closeReward()); continue; }   // the chest's popup first, then pick a verse
         if (s.screen === 'reward') { await page.locator('#app .hand > div').first().click(); await until(() => screen !== 'reward'); continue; }
         if (s.screen === 'dive' && !s.room && !s.modal) break;
         if (s.modal === 'levelup') { await levelUp(); continue; }
       if (s.modal === 'tip') { await ev(() => closeTip()); continue; }   // tutorial popups
+      if (s.modal === 'reward') { await ev(() => closeReward()); continue; }   // “you got…” popups
         await page.waitForTimeout(80);
       }
       const after = await ev(() => ({ tal: R.talents, creed: P.creed }));
@@ -334,6 +339,7 @@ async function playOne(acc, style) {
       if (st.screen === 'cavedone') return 'cleared';
       if (st.screen === 'defeat') return 'defeat';
       if (st.modal === 'levelup') { await levelUp(); continue; }
+      if (st.modal === 'reward') { await ev(() => closeReward()); continue; }
       if (st.modal === 'recall') { await solveRecall(); continue; }
       if (st.modal === 'assembly') { await solveAssembly(); continue; }
       if (st.screen === 'fight') {
@@ -370,10 +376,11 @@ async function playOne(acc, style) {
         return null;
       });
       if (!act) break;
-      if (act.buy) { await page.locator(`#app button[onclick="buy('${act.buy}')"]`).click(); bought.push(act.buy); await page.waitForTimeout(80); }
+      if (act.buy) { await page.locator(`#app button[onclick="buy('${act.buy}')"]`).click(); bought.push(act.buy); await page.waitForTimeout(80); await page.locator('.overlay.reward button').click(); }   // tap OK on “Bought”
       else {
         await page.locator('#app button[onclick="consecrate()"]').click(); await solveRecall();
         const ok = await ev(id => owns(id) && has(id), act.cons); bought.push(act.cons + (ok ? '' : ' (recital failed)')); await page.waitForTimeout(80);
+        if (ok) await page.locator('.overlay.reward button').click();   // tap OK on “Consecrated”
       }
     }
     if (bought.length) rec.purchases.push(`${where}: ${bought.join(', ')}`);

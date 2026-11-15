@@ -628,6 +628,8 @@ const TEXT = {
     itsFalse: 'It’s false.',
     scrapHeading: 'A scrap of sermon notes',
     scrapFound: 'You found one of Amos’s sermon notes. It goes in your pocket.',
+    // under each note, the Creed piece the next chest asks for
+    creedLead: 'At the bottom, in Amos’s hand, a piece of the Creed ({n} of {total}):',
     scrapHint: 'A scrap of paper, weighted down with a stone.',
     villagerHint: 'Someone up ahead is muttering a question to the dark.',
     remember: 'You remember Amos’s note about this.',
@@ -839,6 +841,26 @@ const TEXT = {
     nextConsecrate: 'Next: the {up}. {n} talents at the Forge, and recite {ref} perfectly.',
     laterConsecrate: 'Becomes the {up}, after the {prev}.',
     consecratedWith: 'Consecrated with {ref}.',
+  },
+
+  // ---------- the “you got…” popup (rewards.js): one each time you earn something ----------
+  reward: {
+    ok: 'OK',
+    bought: 'Bought',
+    consecrated: 'Consecrated',
+    before: 'Before',
+    after: 'Now',
+    verse: 'A new verse',
+    tier: 'Remembered better',
+    tierLine: 'It is {tier} now.',
+    grew: 'Your verse grew',
+    grewLine: 'It carries on into the next verse: {spell}.',
+    chest: 'The chest opens',
+    talents: '+{n} talents',
+    creedPiece: 'A piece of the Creed, {n} of {total}',
+    note: 'One of Amos’s notes',
+    notesSoFar: '{n} of {total} of his notes so far.',
+    paid: 'Paid',
   },
 
   // ---------- Spells, recall, the tree ----------

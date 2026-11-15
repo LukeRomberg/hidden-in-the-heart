@@ -22,8 +22,8 @@ function recordResult(ref, frac){
   if(frac===1){
     s.fails=0; s.perf++;
     if(s.perf>=3){ s.perf=0;
-      if(s.tier<3){ s.tier++; toast(fill(TEXT.spells.promoted,{spell:name(), tier:TIER_NAME[s.tier]})); }
-      else if(s.n<maxN(ref)){ s.n++; s.tier=0; toast(fill(TEXT.spells.grew,{spell:name()})); }
+      if(s.tier<3){ s.tier++; reward({kind:'spell', ref}); }   // popups wait until the fight is over
+      else if(s.n<maxN(ref)){ s.n++; s.tier=0; reward({kind:'spell', ref, grew:true}); }
     }
   } else if(frac>=SLIP_BELOW){
     s.fails=0;

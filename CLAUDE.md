@@ -125,6 +125,12 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   (`tests/out/playtest.md`). Targets: 50% and 60% fail, 70% scrapes through (with gear), 85% is
   fairly comfortable. Numbers and what set them: `docs/mvp.md`, Balance. Rerun it after any change
   to enemies, damage, healing or prices (about 15 minutes; `node tests/playtest.mjs 0.7 shopper` for one).
+- **Reward popups** (`rewards.js`): anything earned shows a “you got…” popup (`reward({kind,…})` queues
+  one; render() shows them one at a time, never mid-fight): gear bought or consecrated (hero before and
+  after, what it does), a new verse, a verse leveling up, a chest (talents + Creed piece), a sermon note,
+  drill pay. Text in `TEXT.reward`.
+- **Sermon notes teach the Creed too**: each note ends with the Creed piece the next chest asks for
+  (`creedOnNote()` in encounters.js), so you meet it before the chest tests it.
 - **Souls level you up** (level N needs N+1 souls). Each level = one fruit on the tree, picked
   in a level-up popup that opens when the fight ends.
 - **Chests** hold a scrambled section of the Nicene Creed (ELLC 1988, 8 sections, `creed.json`)

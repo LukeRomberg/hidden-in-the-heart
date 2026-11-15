@@ -592,3 +592,26 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .changed figure{ margin:0; display:flex; flex-direction:column; align-items:center; gap:6px; }
 .changed img{ image-rendering:pixelated; width:132px; height:auto; }
 .changed figcaption{ font-size:16px; font-weight:800; color:#5a3418; }
+
+/* the “you got…” popup (rewards.js) */
+.overlay.reward .panel{ text-align:center; position:relative; }
+.overlay.reward .rkick{ font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#a87a10; margin-bottom:2px; }
+.overlay.reward h2{ margin:0 0 10px; text-transform:none; letter-spacing:0; font-size:22px; color:#3a2414; }
+.overlay.reward .rgear{ display:flex; align-items:center; justify-content:center; gap:10px; }
+.overlay.reward .rgear figure{ margin:0; display:flex; flex-direction:column; align-items:center; }
+.overlay.reward .rgear figure:first-child{ opacity:.7; }
+.overlay.reward .rgear figcaption{ font-size:14px; font-weight:800; color:#7a4a24; }
+.overlay.reward .rarrow{ font-size:28px; font-weight:900; color:#7a4a24; }
+.overlay.reward .ricon{ width:56px; height:56px; image-rendering:pixelated; background:#e8d6aa; border:2px solid #d8a630; padding:4px; box-sizing:border-box; margin:6px auto 0; display:block; }
+.overlay.reward .rcard{ display:flex; justify-content:center; margin:4px 0; }
+.overlay.reward .rcoin{ margin:6px 0; }
+.overlay.reward .rcoin .ico{ width:64px; height:64px; image-rendering:pixelated; }
+.overlay.reward .rbody{ font-size:18px; line-height:1.4; margin:10px 0 12px; }
+.overlay.reward .rcreed{ display:block; margin-top:6px; font-style:italic; color:#5a3418; }
+@media (prefers-reduced-motion: no-preference){ .overlay.reward .panel{ animation:rewardIn .25s ease-out; } }
+@keyframes rewardIn{ from{ transform:scale(.9); opacity:0; } }
+
+/* a sermon note's Creed piece (encounters.js creedOnNote) */
+.scrap .creednote{ margin-top:10px; padding-top:8px; border-top:2px dashed rgba(122,82,50,.35); }
+.scrap .creednote p{ margin:2px 0; }
+.scrap .creedtext{ font-style:italic; font-size:17px; line-height:1.4; color:#5a3418; }

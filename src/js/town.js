@@ -125,7 +125,7 @@ function drill(ref, yard){
   openRecall(BY_REF[ref], frac=>{
     const T = TEXT.training, before = sp(ref);
     recordResult(ref, frac); const now = sp(ref);
-    if(frac===1){ if(yard && !drillPaid(ref)){ payDrill(ref); toast(fill(T.cleanYard,{n:DRILL_PAY})); } else toast(yard?T.cleanUnpaid:T.clean); }
+    if(frac===1){ if(yard && !drillPaid(ref)){ payDrill(ref); reward({kind:'talents', n:DRILL_PAY, line:fill(T.cleanYard,{n:DRILL_PAY})}); } else toast(yard?T.cleanUnpaid:T.clean); }
     else if(now.tier<before.tier || now.n<before.n) toast(T.dropped);
     else toast(now.fails ? fill(T.shaky,{n:now.fails}) : T.close);
     saveHero(); render();
@@ -146,7 +146,7 @@ function scriptoriumHTML(){
     <div class="small mute shopnote">${fill(T.owned,{refs:shelf.filter(mine).map(v=>v.ref).join(', ')})}</div></div>
     <div class="dock"><button class="wide" onclick="goto('town')">Back</button></div>`;
 }
-function learn(ref){ const v=BY_REF[ref], c=versePrice(v); if(R.talents<c || R.deck.some(d=>d.ref===ref)) return; R.talents-=c; addVerse(ref); saveHero(); toast(fill(TEXT.scriptorium.learned,{ref})); render(); }
+function learn(ref){ const v=BY_REF[ref], c=versePrice(v); if(R.talents<c || R.deck.some(d=>d.ref===ref)) return; R.talents-=c; addVerse(ref); saveHero(); reward({kind:'verse', ref}); render(); }
 function worldHTML(){
   const cleared = allCavesDone();
   const N = TEXT.world.towns, towns = [[30,70,N.philadelphia,'Wrath',true],[78,52,N.ephesus,'???',false],[112,30,N.sardis,'???',false],[54,22,N.smyrna,'???',false]];

@@ -484,9 +484,9 @@ function pickLock(){
 function finishChest(m){
   const T = TEXT.rooms, spec = CHEST[m.tier];
   if(m.mistakes > m.allowed){ toast(T.lockHeld); clearColumn(); return; }
-  R.talents += spec.talents; let msg = fill(T.chestTalents,{n:spec.talents});
-  if(m.sec===P.creed && P.creed < CREED.sections.length){ P.creed++; msg += ' ' + fill(T.creedGained,{n:P.creed, total:CREED.sections.length}); }
-  toast(msg); saveHero();
+  R.talents += spec.talents; let creed = 0;
+  if(m.sec===P.creed && P.creed < CREED.sections.length){ P.creed++; creed = P.creed; }
+  reward({kind:'chest', talents:spec.talents, creed}); saveHero();
   if(spec.verse){ R.reward = pick(VERSES.filter(x=>!x.ref.startsWith('Galatians') && !R.deck.some(d=>d.ref===x.ref)).map(x=>x.ref),3); if(R.reward.length){ screen='reward'; render(); return; } }
   clearColumn();
 }

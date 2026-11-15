@@ -41,6 +41,10 @@ async function finishDialogue() {
   throw new Error('dialogue never finished');
 }
 
+// Tap OK on any “you got…” popups (rewards.js) that are showing, one at a time.
+async function dismissRewards() {
+  for (let i = 0; i < 10 && await page.evaluate(() => modal && modal.kind === 'reward'); i++) { await page.locator('.overlay.reward button').click(); await page.waitForTimeout(80); }
+}
 // Answer an open recall modal correctly by clicking the right option / typing first letters.
 async function solveRecall() {
   await page.waitForSelector('.overlay');
@@ -84,6 +88,7 @@ async function winFight() {
     await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
   }
   await page.waitForFunction(() => R.after, null, { timeout: 15000 });
+  await dismissRewards();   // a verse that leveled up during the fight
   await page.evaluate(() => { if (modal && modal.kind === 'levelup') closeLevelUp(); });
 }
 
@@ -95,7 +100,7 @@ const mapIdle = () => page.waitForFunction(() => !document.getElementById('wipe'
 // that is already lit or remembered and on screen, so fog and the tap-to-walk path are exercised for real.
 async function walkTo(goal) {
   for (let i = 0; i < 80; i++) {
-    await mapIdle();
+    await mapIdle(); await dismissRewards();   // a sermon note picked up on the way
     const s = await page.evaluate(([gx, gy]) => {
       if (screen !== 'dive' || R.room || modal) return { stop: true };
       const [hx, hy] = R.map.pos; if (hx === gx && hy === gy) return { stop: true };
@@ -144,6 +149,7 @@ try {
     if (!(await page.evaluate(() => R.boss && R.enemies[0].id === 'furnace'))) throw new Error('the tutorial is not the Furnace');
     await winFight();
     await page.evaluate(() => TEXT.afterFight.afterBoss).then(t => btn(t).click()); await waitScreen('victory');
+    await dismissRewards();
     if (await page.locator('.overlay.levelup').count()) await page.locator('.overlay .lvopt').first().click();   // grow a fruit
     await page.locator('.dock button').first().click(); await waitScreen('tutend');
     await finishDialogue(); await act().click(); await waitScreen('tour');
@@ -180,6 +186,8 @@ try {
       const i = await page.evaluate(() => modal.order.indexOf(modal.next)); await page.locator('.overlay .chip').nth(i).click();
     }
     await waitScreen('dive');
+    if (!(await page.evaluate(() => modal && modal.kind === 'reward' && modal.r.kind === 'chest'))) throw new Error('no reward popup after the chest');
+    await dismissRewards();
     const after = await page.evaluate(([c, x, y]) => ({ creed: P.creed === c + 1, gone: !markAt(x, y) }), [creed, ...await findGlyph('3')]);
     if (!after.creed || !after.gone) throw new Error('after the chest: ' + JSON.stringify(after));
   });
