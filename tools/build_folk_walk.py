@@ -45,6 +45,7 @@ out = {}
 for look in IDS:
     strips = {k: os.path.join(WALK, f'{look}_{k}.png') for k in DIRS}
     if all(os.path.exists(p) for p in strips.values()):
-        out[look] = {k: data_uri(Image.open(p)) for k, p in strips.items()}
+        # palette PNGs: a third the size, and these sprites have far fewer than 128 colours anyway
+        out[look] = {k: data_uri(Image.open(p).convert('RGBA').quantize(colors=128, method=Image.Quantize.FASTOCTREE)) for k, p in strips.items()}
 print('walk cycles for', ', '.join(out) or 'nobody yet')
 write_data('folkwalk.json', out, separators=(',', ':'))

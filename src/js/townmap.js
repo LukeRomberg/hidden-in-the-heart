@@ -255,9 +255,11 @@ const FOLK_WALK = __DATA__('folkwalk.json');
 const FACE_KEY = {front:'s', back:'n', east:'e', west:'w'};
 function folkStand(look, face){ const f = FOLK[look]; if(!f) return ''; const k = FACE_KEY[face]||'s'; return k==='s' ? f.f[0] : f.dir[k]; }
 function folkWalkStrip(look, face){ const w = FOLK_WALK[look]; return w ? w[FACE_KEY[face]||'s'] : null; }
+// a doorstep or the step in front of a cave mouth: nobody stands there, so every door can always be reached
+function isStep(x,y){ const c = townChar(x,y-1); return c==='+' || '123'.includes(c); }
 // where each one stands: beside their front step (not on it, so the door stays free)
 function folkHomeSpot(look){ const b = townGrid().bld['house:'+look]; if(!b) return null; const [dx,dy] = b.door, fy = dy+1;
-  return [[dx+1,fy],[dx-1,fy],[dx,fy+1],[dx+2,fy],[dx-2,fy]].find(([a,c])=>townWalkable(a,c) && !townGrid().mk[tid(a,c)]) || null; }
+  return [[dx+1,fy],[dx-1,fy],[dx,fy+1],[dx+2,fy],[dx-2,fy]].find(([a,c])=>townWalkable(a,c) && !townGrid().mk[tid(a,c)] && !isStep(a,c)) || null; }
 function townFolkInit(){
   if(R.finale){ R.folk = []; return; }
   const out = townsfolk().filter(p=>FOLK[p.look] && isHome(p.look)), keep = R.folk || [];
@@ -269,7 +271,7 @@ function folkHTML(){ townFolkInit(); return R.folk.map(folkEl).join(''); }
 // one step for one of them: a free tile next to them, within 3 of home, not next to you
 function folkStep(f){
   const M = townSt(), [hx,hy] = M.pos, opts = [[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>[f.pos[0]+dx, f.pos[1]+dy])
-    .filter(([x,y])=>townWalkable(x,y) && !townGrid().mk[tid(x,y)] && Math.abs(x-f.home[0])+Math.abs(y-f.home[1])<=3 && Math.abs(x-hx)+Math.abs(y-hy)>1);
+    .filter(([x,y])=>townWalkable(x,y) && !townGrid().mk[tid(x,y)] && !isStep(x,y) && Math.abs(x-f.home[0])+Math.abs(y-f.home[1])<=3 && Math.abs(x-hx)+Math.abs(y-hy)>1);
   if(!opts.length) return;
   const to = opts[Math.floor(Math.random()*opts.length)]; folkMove(f, to);
 }
