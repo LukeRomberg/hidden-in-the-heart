@@ -56,8 +56,13 @@ function sprite(name, frame, scale, cls){
 }
 function pxg(rows,x,y,s){ let r=''; rows.forEach((row,yy)=>{ for(let xx=0;xx<row.length;xx++){ const c=row[xx]; if(c!=='.') r+=`<rect x="${x+xx*s}" y="${y+yy*s}" width="${s}" height="${s}" fill="var(${PAL[c]})"/>`; } }); return r; }
 function stoneBG(W,H){ let r=`<rect width="${W}" height="${H}" fill="var(--stone)"/>`; for(let y=0;y<H;y+=6) for(let x=0;x<W;x+=6){ const v=(x*7+y*13+x*y)%11; if(v<2) r+=`<rect x="${x}" y="${y}" width="6" height="6" fill="var(--stone2)"/>`; else if(v===5) r+=`<rect x="${x+1}" y="${y+1}" width="4" height="4" fill="var(--stone3)"/>`; } return r; }
-// Battle backdrop: the square at night, or the Furnace's lair for the boss.
-function arenaBG(boss){ if(R && R.cave!=null && !boss) return `<img class="abg" src="${IMG.battle.cave}" alt="">`; return `<img class="abg" src="${boss && !R.tutorial ? IMG.battle.lair : IMG.battle.square}" alt="">`; }   // the Furnace burns in the square
+// Battle backdrop, matched to the place: the cave you're in (its boss too), the square at night for the Furnace,
+// the square by day for any other fight in town.
+function arenaBG(){   // (R.enemies decides: the Furnace burns in the square)
+  const furnace = R && R.enemies && R.enemies.some(e=>e.id==='furnace');
+  const cave = R && R.cave!=null && !furnace && CAVES[R.cave] && IMG.battle[CAVES[R.cave].id];
+  return `<img class="abg" src="${cave || (furnace ? IMG.battle.square : IMG.battle.day)}" alt="">`;
+}
 // A framed 320-wide scene with sprites placed in the scene's own pixel coordinates,
 // so they scale with it: layers = [{src|html, x, y, w}].
 function sceneHTML(src, layers=[], H=160){

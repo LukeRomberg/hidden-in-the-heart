@@ -99,7 +99,9 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   (`thanksBeat`, tap to skip), then the log. The after-fight panel lists who was freed and
   each cast as perfect / steady / slipped; the level-up popup opens over it. Effects
   live in `#fxtop` so a render() doesn't cut them off. `prefers-reduced-motion` drops the
-  lunge, knockback, hit-stop and slides. Styles are in the `/* battle feel */` block.
+  lunge, knockback, hit-stop and slides. Styles are in the `/* battle feel */` block. The held, the hurt
+  and Amos (when he stands with you) breathe: a slow stepped rise and sway on the sprite (`/* battle faces */`
+  block, off under reduced motion). The truth villager's and the hurt person's face sits in the box under the arena.
 - **The Furnace** (tutorial boss): an ordinary fight until his HP hits 0; then the player says
   Galatians 5:22-23 over him by tapping its pieces in order (Amos hands it over before the fight), and
   that frees him. In the tutorial slips don't count: Amos says it with you. Amos's rules come as popups
@@ -213,8 +215,12 @@ Tool reference: https://api.pixellab.ai/mcp/docs
 
 ## Art in the game (assets/source/, listed in src/data/images.js)
 
-Scenes, battle backgrounds, cave scenes and the cave battle background (PixelLab, in
-`assets/source/caves/` and `battle/cave.png`), town buildings (boarded/open), priest, portraits, hero poses,
+Scenes, cave scenes (PixelLab, `assets/source/caves/`), battle backgrounds matched to the place
+(`IMG.battle`, picked by `arenaBG()` in art.js: `square_day` for fights in town, `square_night` for the
+Furnace, `hollow`/`quarry`/`deep` per cave, cave bosses included), town buildings (boarded/open), priest,
+portraits for every speaker in `TEXT.speakers` (48x48; the ten townsfolk in `portraits/folk/` by look, keyed
+by name in lowercase; Amos has three faces: `priest` warm, `priestGrave`, `priestGlad`, picked per line by
+using that speaker id in `TEXT`; `faceOf(person)` in story.js finds a townsperson's), hero poses,
 HUD icons, all nine fruit icons (Joy, Kindness, Faithfulness from PixelLab, cut to 16x16)
 seven card frames (six fruit plus Armor, PixelLab, recolored to steel), the fruit tree, and
 one icon per gear item (`IMG.gear`, cut from `icons/gear_sheet.png`, shown in the Forge and on the

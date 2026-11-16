@@ -140,7 +140,7 @@ function arenaHTML(mini){
   const t = infoTarget();
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp">${barHTML('ebar', t?100*Math.max(0,t.hp)/t.max:0)}</div><div class="small" id="ebarn">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp">${barHTML('pbar', 100*Math.max(0,R.hp)/R.maxHp)}</div><div class="small" id="pbarn">${playerHPText()}</div><div class="bar mn">${barHTML('fbar', 100*R.focus/R.maxFocus)}</div><div class="small" id="fbarn">${TEXT.fight.focus} ${R.focus}/${R.maxFocus}</div></div>`;
-  return `<div class="arena ${mini?'mini':''}" id="arena" ${mini?'':`style="height:${H}px;--k:${k.toFixed(3)}"`}><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
+  return `<div class="arena ${mini?'mini':''}" id="arena" ${mini?'':`style="height:${H}px;--k:${k.toFixed(3)}"`}><div class="bg">${arenaBG()}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
     ${R.shield&&!mini?'<div class="barrier"></div>':''}${R.vexed&&!mini?'<div class="vex">#!?</div>':''}
     ${mini?'':amosArenaHTML(k)}<div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2*k,'f0')}${sprite('back',1,mini?1:2.2*k,'f1')}</div>

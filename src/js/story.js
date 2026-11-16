@@ -31,6 +31,9 @@ function talkTap(total){
   if(TW.typing){ stopTyping(); const el=document.getElementById('tw'); el.innerHTML=el.dataset.full; doneTyping(); return; }
   if(TW.i < total-1){ TW.i++; render(); }
 }
+// A speaker's face (IMG.portrait, keyed by speaker id). Amos has moods: priest, priestGrave, priestGlad.
+// The townsfolk are keyed by name in lowercase; faceOf(person) finds theirs from {name}.
+function faceOf(p){ return p && p.name ? IMG.portrait[String(p.name).toLowerCase()] : null; }
 function portrait(who){
   if(IMG.portrait[who]) return `<img src="${IMG.portrait[who]}" width="48" height="48" alt="" style="image-rendering:pixelated">`;
   if(who==='you') return `<svg viewBox="17 1 30 30" width="54" height="54" shape-rendering="crispEdges">${heroRects('front',0,0,0,1)}</svg>`;

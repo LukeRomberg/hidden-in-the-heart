@@ -38,6 +38,8 @@ function meetHTML(){
   const body = R.tf ? truthBox() : R.hurt ? hurtBox() : '', dock = R.busy ? '' : R.tf ? truthDock() : R.hurt ? hurtDock() : '';
   return `${arenaHTML(false)}<div class="textbox meetbox">${body}</div><div class="dock fightdock meetdock">${dock}</div>`;
 }
+// the person you're facing, their face beside what's going on (story.js faceOf)
+function meetFace(p){ const f = faceOf(p); return f ? `<img class="mface" src="${f}" width="48" height="48" alt="">` : ''; }
 // Amos in the arena, just behind you (arenaHTML calls this; k = the arena's scale)
 function amosArenaHTML(k){ return R.amos ? `<div class="amosin"><img src="${IMG.priest.idle}" width="${Math.round(48*1.7*k)}" height="${Math.round(64*1.7*k)}" alt="${TEXT.speakers.priest}"></div>` : ''; }
 
@@ -71,7 +73,7 @@ function truthBox(){
   if(tf.phase==='amosQ'){ const a = TRUTHS[tf.amosQ];
     return `<div class="tq">${a.q}</div><div class="small">${T.amosAnswers} <b>${a.answer?T.itsTrue:T.itsFalse}</b> ${a.why}</div>${verseBox(a.id)}`; }
   const known = (P.notes||[]).includes(t.id) ? `<div class="small mute">${T.remember}</div>` : '';
-  if(tf.phase==='ask') return `<div class="th">${T.heading}</div><div class="tq">${t.q}</div>${known}`;
+  if(tf.phase==='ask') return `${meetFace(e)}<div class="th">${T.heading}</div><div class="tq">${t.q}</div>${known}`;
   if(tf.result==='right') return `<div class="small">${t.answer?T.rightTrue:T.rightFalse}</div>${verseBox(t.id)}<div class="small mute">${t.why}</div>${e.freed?`<div>${fill(TEXT.fight.freed, foeVars(e))}</div>`:''}`;
   return `<div>${tf.lost}</div><div class="small mute">${T.lostAfter} ${T.comesBack}</div>`;
 }
@@ -115,7 +117,7 @@ async function runHurt(){ const h = R.hurt; if(!h || screen!=='meet') return;
   R.busy = false; render(); }
 function hurtBox(){ const L = TEXT.living, who = L.people.find(p=>p.id===R.enemies[0].who), h = R.hurt;
   if(h.phase==='helped') return `<div class="small">${who.helped}</div><div class="small mute">${fill(L.helpedNote,{name:who.name})}</div>`;
-  return `<div class="th">${L.heading}</div><div class="small">${who.story}</div>${h.phase==='ask' && R.hp<=HURT_COST?`<div class="small mute">${L.tooHurt}</div>`:''}`; }
+  return `${meetFace(who)}<div class="th">${L.heading}</div><div class="small">${who.story}</div>${h.phase==='ask' && R.hp<=HURT_COST?`<div class="small mute">${L.tooHurt}</div>`:''}`; }
 function hurtDock(){ const L = TEXT.living, h = R.hurt;
   if(h.phase==='helped') return `<button class="primary wide" onclick="endHurt()">${TEXT.truths.goOn}</button>`;
   if(h.phase!=='ask') return '';

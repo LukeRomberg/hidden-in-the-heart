@@ -38,7 +38,11 @@ const TEST_JUMPS = [
   ['Boss: the Grudge', ()=>testBoss(0)],
   ['Boss: the Brawler', ()=>testBoss(1)],
   ['Boss: the Slanderer', ()=>testBoss(2)],
-  ['Villager fight', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
+  ['Villager fight (town square, by day)', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
+  ['Villager fight in the Hollow', ()=>testCaveFight(0)],
+  ['Villager fight in the Old Quarry', ()=>testCaveFight(1)],
+  ['Villager fight in the Deep Cave', ()=>testCaveFight(2)],
+  ['Faces: everyone who speaks', testFaces],
   ['Townsfolk: every look and state', testFolk],
   ['Truth villager: the first, with Amos', ()=>testMeet(0, 'truth', true)],
   ['Truth villager', ()=>testMeet(0, 'truth')],
@@ -88,6 +92,17 @@ function testFolk(){
   const el = document.createElement('div'); el.id = 'folkgallery';
   el.innerHTML = `<button class="wide" onclick="this.parentNode.remove()">Close</button><table><tr><th></th><th>freed</th><th>held</th><th>hurt</th><th>badly</th><th>E</th><th>N</th><th>W</th></tr>${rows}</table>`;
   document.body.appendChild(el);
+}
+// a plain fight inside cave i, on that cave's backdrop
+function testCaveFight(i){
+  testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
+  startCave(i); setTimeout(()=>{ R.node = {t:'fight'}; startFight(['villager','villager_strong'].slice(0, i ? 2 : 1), false); }, 400);
+}
+// every speaker's portrait, one line each, in the talk popup (Amos's three faces first)
+function testFaces(){
+  testHero(true); P.toured = true; townPlace(frontOf(townSpot('door','church'))); goto('town');
+  const ids = ['priest','priestGrave','priestGlad', ...Object.keys(TEXT.speakers).filter(id=>!/^priest/.test(id))];
+  setTimeout(()=>talkPop('testfaces', ids.map(id=>[id, `${TEXT.speakers[id]} (${id})`])), 300);
 }
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
