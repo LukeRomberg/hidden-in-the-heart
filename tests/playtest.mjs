@@ -61,7 +61,10 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
   const rng = mulberry(seed * 7919 + 13);
   const tag = `acc${Math.round(acc * 100)}-${style}-${play}-${route}`;
   const started = Date.now();
-  const browser = await chromium.launch();
+  // no timer throttling: a long run's page can be treated as hidden, and Chrome then fires chained timers about once
+  // a minute, which froze a fight mid-turn ("Their turn" still up 60s later) and read as a stall
+  const browser = await chromium.launch({ args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows', '--disable-features=IntensiveWakeUpThrottling'] });
   const ctx = await browser.newContext({ viewport: { width: 430, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   await ctx.addInitScript(s0 => { let s = s0; Math.random = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }, seed * 31 + 7);
   await ctx.addInitScript(() => { setInterval(() => { try { if (R && R.enemies && screen === 'fight' && !R.after) window.__minPct = Math.min(window.__minPct ?? 9, R.hp / R.maxHp); } catch (e) {} }, 15); });
@@ -184,13 +187,16 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
   async function packSatchel() {
     await idle(); if ((await ev(() => screen)) !== 'pack') return null;
     if (await ev(() => modal && modal.kind === 'tip')) await ev(() => closeTip());   // Amos explains it the first time
-    const want = await ev(() => {
+    const want = await ev(smart => {
       const all = knownRefs(), m = ref => spellMult(ref), best = (refs, f) => refs.sort((a, b) => f(b) - f(a))[0];
       const heal = best(all.filter(r => BY_REF[r].heal), r => BY_REF[r].heal * m(r)), focus = best(all.filter(r => BY_REF[r].focus), r => BY_REF[r].focus * m(r));
-      const score = ref => { const v = BY_REF[ref]; if (v.dmg) return v.dmg * m(ref); if (v.shield) return v.shield * m(ref) * 0.5; return 0; };
+      // smart packs for the cave: damage weighed by the matchup against its boss (twice) and the villagers
+      const c = CAVES[R.pack.cave], foes = [{ id: c.boss }, { id: c.boss }, { id: 'villager' }, { id: 'villager_strong' }];
+      const mu = v => smart ? foes.reduce((a, e) => a + matchup(v, e), 0) / foes.length : 1;
+      const score = ref => { const v = BY_REF[ref]; if (v.dmg) return v.dmg * m(ref) * mu(v); if (v.shield) return v.shield * m(ref) * 0.5; return 0; };
       const pack = [heal, focus].filter(Boolean);
       return [...pack, ...all.filter(r => !pack.includes(r)).sort((a, b) => score(b) - score(a))].slice(0, SATCHEL);
-    });
+    }, play === 'smart');
     const card = ref => page.locator(`.packhand .card[onclick="togglePack('${ref}')"]`);
     for (const ref of await ev(() => R.pack.sel.slice())) if (!want.includes(ref)) await card(ref).click();
     for (const ref of want) if (!(await ev(r => R.pack.sel.includes(r), ref))) await card(ref).click();
