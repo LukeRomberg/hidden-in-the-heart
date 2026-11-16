@@ -188,8 +188,8 @@ const TEXT = {
     buildings: { church: 'Church', forge: 'Forge', inn: 'Inn', training: 'Training Yard', scriptorium: 'Scriptorium' },
     boardedLabel: 'Boarded',
     road: 'Road',
-    stillBoardedOne: '1 building is still boarded up. The people who ran them are still out in the square.',
-    stillBoardedMany: '{n} buildings are still boarded up. The people who ran them are still out in the square.',
+    stillBoardedOne: '1 building is still boarded up. The people who ran them are still out in the caves.',
+    stillBoardedMany: '{n} buildings are still boarded up. The people who ran them are still out in the caves.',
     allOpen: 'Every door in town is open.',
     // shown when you tap a building that is still boarded up
     boarded: {
@@ -219,11 +219,11 @@ const TEXT = {
     bramShouting: [
       [null, 'Bram rounds on you. Sparks spit off his sleeves and the heat hits you like an open oven.'],
       ['blacksmith', '“Back! Get back! Nobody comes near this well!”'],
-      [null, 'You stumble back a step. Not like this. Not with nothing in your hands.'],
+      [null, 'You stumble back a step. Not like this. Not without a way to defend yourself.'],
     ],
     // walking into Bram with the lid, Amos beside you: the fight starts
     bramFight: [
-      ['blacksmith', '“You again. And the priest. Come to tell me I’m wrong?”'],
+      ['blacksmith', '“You and the priest come to tell me I’m wrong?”'],
       ['priestGrave', '“Now, son,” Amos says quietly. “Speak the truth over him.”'],
     ],
     // the church door between the lid and the Furnace
@@ -237,13 +237,13 @@ const TEXT = {
         ['blacksmith', '“Need something, it’s inside. Don’t stand in the door. Letting the heat out.”'],
       ],
       innkeeper: [
-        ['innkeeper', '“There you are! I’ve started a new list. Only good things on it this time. You’re on it twice!”'],
+        ['innkeeper', '“There you are! I’ve started a new list. Only good things on it this time. What can I get you?”'],
       ],
       drill: [
-        ['drill', '“Recruit! Shoulders back. The yard’s open, and drills don’t run themselves.”'],
+        ['drill', '“Recruit! The yard’s open, and drills don’t run themselves.”'],
       ],
       scribe: [
-        ['scribe', '“I have been copying Scripture since I came home. Slowly. I check every word twice now.”'],
+        ['scribe', '“I have many scriptures copied and ready for you.”'],
       ],
     },
     // DRAFTS (Claude), for Luke to rewrite. Each cottage on the map, by the look of who lives there
@@ -252,7 +252,7 @@ const TEXT = {
     homes: {
       baker: {
         shut: 'The baker’s door is boarded over. No smoke from the oven.',
-        open: [[null, 'Tomas leans in the doorway, flour to the elbows. “First loaf in a month. It’s ugly. I’m eating it anyway.”']],
+        open: [[null, 'Tomas leans in the doorway, flour to the elbows. “First loaf in a month. Thanks again.”']],
       },
       shepherd: {
         shut: 'Abel’s cottage. The shutters are nailed and the sheep pen is empty.',
@@ -264,11 +264,11 @@ const TEXT = {
       },
       carpenter: {
         shut: 'The carpenter’s cottage. Even the boards across the door are crooked, like they went up in a temper.',
-        open: [[null, 'Jonas runs a thumb along a plank. “Taking the boards off my own door. Best work I’ve done all year.”']],
+        open: [[null, 'Jonas runs a thumb along a plank. “Taking the boards off my own door. It’s good to be back.”']],
       },
       quarryman: {
         shut: 'Tobias’s stone cottage is shut tight. There is quarry dust on the step.',
-        open: [[null, 'Tobias sits on his step with his bad leg stretched out. “Still sore. But I walked home on it. Didn’t think I would.”']],
+        open: [[null, 'Tobias sits on his step with his bad leg stretched out. “Still sore, but I managed to get home. Thank you.”']],
       },
       washer: {
         shut: 'Ruth’s washing line is bare. The door is nailed shut.',
@@ -276,15 +276,15 @@ const TEXT = {
       },
       dyer: {
         shut: 'The dyer’s cottage. Purple cloth hangs stiff on the line, faded from a month in the sun.',
-        open: [[null, 'Lydia’s hands are purple to the wrist. “I’m dyeing everything I own. I wanted something to look new.”']],
+        open: [[null, 'Lydia’s hands are purple to the wrist. “I’m dyeing everything I own. I wanted my clothes to look as new as I feel.”']],
       },
       grandmother: {
         shut: 'A round green door, boarded. The flower pots have gone dry.',
-        open: [[null, 'Mara waves you over. “My sister is coming for supper. We haven’t eaten together in nine years. Pray it goes well.”']],
+        open: [[null, 'Mara waves you over. “I just planted new flowers, I feel so peaceful. Thank you.”']],
       },
       dairymaid: {
         shut: 'The timber cottage is shut up. Somewhere behind it, a goat complains.',
-        open: [[null, 'Naomi has a pail on each arm. “The goats have forgiven me. Mostly. One of them is still sulking.”']],
+        open: [[null, 'Naomi has a pail on each arm. “The goats have forgiven me. Mostly. Claude is still sulking.”']],
       },
       girl: {
         shut: 'A tall brick house, boarded at the door. Someone has drawn a chalk cat on the step.',
@@ -294,7 +294,7 @@ const TEXT = {
     // DRAFT (Claude). After the last cave: back in town the bell rings and everyone walks to church, you and Amos last.
     finale: {
       bell: [
-        [null, 'The church bell rings. Once, twice, then on and on, the way it hasn’t rung in years.'],
+        [null, 'The church bell rings, the sound ringing out loud and clear.'],
         [null, 'All round the square, doors open.'],
       ],
       walking: 'The whole town is walking up the lane to the church.',
