@@ -1,7 +1,7 @@
 // Headless click-through: title -> New game -> prologue -> wake on the town map, bump into Bram, walk to the church ->
 // Amos, the lid, pick two verses -> walk out to Bram and fight the Furnace (tutorial) -> Amos's tour on the map ->
 // walk into the Forge and out, a boarded door, reload on the town map -> walk to the Hollow's mouth -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
-// truth villager (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
+// truth villager on the battle screen (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
@@ -239,16 +239,35 @@ try {
     const after = await page.evaluate(([c, x, y]) => ({ creed: P.creed === c + 1, gone: !markAt(x, y) }), [creed, ...await findGlyph('3')]);
     if (!after.creed || !after.gone) throw new Error('after the chest: ' + JSON.stringify(after));
   });
-  await step('true/false villager, with Amos', async () => {
-    await walkTo(await findGlyph('t')); await page.waitForFunction(() => R.room === 'truth');
-    const dockBtn = t => page.locator('.dock button', { hasText: t });
-    await dockBtn('Go on').click(); await dockBtn('Go on').click();   // Amos arrives, Amos answers the first
+  await step('true/false villager, with Amos, in the arena', async () => {
+    const t = await findGlyph('t');
+    await walkTo(t); await waitScreen('meet');
+    // Amos's popups: tap through their lines and OK until the game reaches `pred`
+    const talkUntil = async pred => {
+      for (let i = 0; i < 200; i++) {
+        if (await page.evaluate(pred)) return;
+        if (await page.evaluate(() => modal && modal.kind === 'talk')) {
+          if (await page.locator('.talkpop #acts:not(.hide) button').count()) await page.locator('.talkpop #acts button').click();
+          else await page.locator('.talkpop .dlg').click();
+        }
+        await page.waitForTimeout(60);
+      }
+      throw new Error('stuck in Amos’s popups: ' + JSON.stringify(await page.evaluate(() => ({ tf: R.tf, busy: R.busy, modal: modal && modal.kind }))));
+    };
+    const asking = () => R.tf && R.tf.phase === 'ask' && !R.busy && !modal;
+    await talkUntil(asking);   // Amos arrives, Amos answers the first
+    const s0 = await page.evaluate(() => ({ amos: !!document.querySelector('#arena .amosin'), held: !!document.querySelector('#en0 .sprite.held'), q: R.tf.q }));
+    if (!s0.amos || !s0.held) throw new Error('arena at the question: ' + JSON.stringify(s0));
     const ans = await page.evaluate(() => TRUTHS[R.tf.q].answer);
-    await dockBtn(ans ? 'False' : 'True').click();                   // a wrong answer: Amos points you back
-    if (await page.evaluate(() => R.tf.phase) !== 'ask') throw new Error('with Amos there, a wrong answer should not end it');
-    await dockBtn(ans ? 'True' : 'False').click(); await dockBtn('Go on').click(); await mapIdle();
-    const st = await page.evaluate(() => ({ room: R.room, first: P.firstTruth }));
-    if (st.room || !st.first) throw new Error('after the truth: ' + JSON.stringify(st));
+    const tf = t => page.locator('.dock .tfbtns button', { hasText: t });
+    await tf(ans ? 'False' : 'True').click();   // a wrong answer: Amos points you back
+    await page.waitForFunction(() => modal && modal.kind === 'talk'); await talkUntil(asking);
+    await tf(ans ? 'True' : 'False').click();   // right: freed, then Amos goes back up
+    await talkUntil(() => R.tf && R.tf.result === 'right' && !R.busy && !modal);
+    if (!(await page.evaluate(() => R.enemies[0].freed && !document.querySelector('#arena .amosin')))) throw new Error('after the right answer: not freed, or Amos still there');
+    await page.locator('.dock button', { hasText: 'Go on' }).click(); await waitScreen('dive'); await mapIdle();
+    const st = await page.evaluate(t => ({ room: R.room, first: P.firstTruth, gone: !markAt(...t), right: (P.truthsRight || []).length }), t);
+    if (st.room || !st.first || !st.gone || !st.right) throw new Error('after the truth: ' + JSON.stringify(st));
   });
   await step('verse door', async () => {
     const v = await findGlyph('V');

@@ -89,12 +89,13 @@ async function freeBeat(t, ti){
   await thanksBeat(t, quoted(th)); log(quoted(th));
 }
 const TYPE_MULT = {Patience:1.5, Gentleness:1.25};
-function startFight(ids, boss){
-  R.enemies = ids.map(makeEnemy);
+// ids: enemy ids, or an enemy already standing there (a truth villager, encounters.js); here: no wipe, the arena is already up
+function startFight(ids, boss, here){
+  R.enemies = ids.map((id,i)=>typeof id==='object' ? id : makeEnemy(id,i));
   R.boss = boss ? {} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.castLog=[]; R.unlockMsg=null; R.say=null; R.thoughtAt=-9; R.hurtSaid=false;
   R.spent=[]; R.focus = R.tutorial ? Math.min(R.maxFocus, TUTORIAL_FOCUS) : R.maxFocus; R.brace=false; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null;
-  log(openerLine()); if(!R.tutorial) think('start'); holdTips(TURN_BEAT); goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
+  log(openerLine()); if(!R.tutorial) think('start'); holdTips(TURN_BEAT); if(here){ screen='fight'; render(); } else goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
 }
 // One action a turn: say one verse (costs focus), Brace, or Charge. Then the enemies act.
 // Focus does not come back during a fight, except through a verse like Romans 12:2.
@@ -128,20 +129,21 @@ function arenaHTML(mini){
   const glow = boss ? 0.35 + 0.65*(1 - Math.max(0,boss.hp)/boss.max) : 0.25;
   const embers = mini ? '' : Array.from({length:14},(_,i)=>`<div class="ember" style="left:${8+(i*37)%84}%;animation-duration:${2.2+(i%5)*0.5}s;animation-delay:${(i*0.37)%2.5}s"></div>`).join('');
   const enemies = R.enemies.map((e,i)=>{ const sc = mini ? (e.boss?3.5:3) : (e.boss?6.2:7)*k; const right = mini ? 14 : Math.round((i===0 ? 24 : 128)*k);
-    const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':''].join(' ');
+    const cls = ['en', e.freed?'wave':'', (!e.freed && e.pattern[e.step]==='big')?'windup':'', e.cls||''].join(' ');
     let sn, ssc, top, f0=0, f1=1, held='';
     if(e.villager || (e.freed && !ENEMY_IMG[e.spr+'_f'])){   // townsfolk sprites: same person held (tinted) and freed
       sn = e.villager ? e.spr : 'freed'+((e.fk||0)%6); ssc = mini?0.8:1.6*k; top = mini?11:Math.round(8*k); if(!e.freed){ f1=0; held=' held'; } }
     else { const own = e.freed; sn = own ? (e.freedSpr || e.spr+'_f') : e.spr; ssc = sc; const EI=ENEMY_IMG[sn];
       top = mini ? Math.max(0, 62-Math.round(EI.h*enemyK(sc))) : Math.max(0, Math.round(106*k-EI.h*enemyK(sc))); }
-    return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${sprite(sn,f0,ssc,'f0'+held)}${sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
+    const pic = e.pic ? `<img class="sprite f0" src="${e.pic}" width="${Math.round(64*ssc)}" height="${Math.round(64*ssc)}" alt="" style="image-rendering:pixelated">` : '';   // a still picture (someone hurt, encounters.js)
+    return `<div class="${cls}" id="en${i}" style="right:${right}px;top:${top}px" onclick="if(!R.busy){R.target=${i};render()}">${pic || sprite(sn,f0,ssc,'f0'+held)+sprite(sn,f1,ssc,'f1'+held)}</div>`; }).join('');
   const t = infoTarget();
   const info = mini ? '' : `${t?'':'<!--'}<div class="info e"><div>${t?t.name:''}${R.enemies.length>1?'<span class="mute">(target)</span>':''}</div><div class="bar hp">${barHTML('ebar', t?100*Math.max(0,t.hp)/t.max:0)}</div><div class="small" id="ebarn">${t?Math.max(0,t.hp)+'/'+t.max:''}</div></div>
     ${t?'':'-->'}<div class="info p"><div>You</div><div class="bar hp">${barHTML('pbar', 100*Math.max(0,R.hp)/R.maxHp)}</div><div class="small" id="pbarn">${playerHPText()}</div><div class="bar mn">${barHTML('fbar', 100*R.focus/R.maxFocus)}</div><div class="small" id="fbarn">${TEXT.fight.focus} ${R.focus}/${R.maxFocus}</div></div>`;
   return `<div class="arena ${mini?'mini':''}" id="arena" ${mini?'':`style="height:${H}px;--k:${k.toFixed(3)}"`}><div class="bg">${arenaBG(!!boss)}<div class="glow" style="opacity:${glow}"></div>${embers}</div>
     <div class="plat e"></div><div class="plat p"></div>${enemies}
     ${R.shield&&!mini?'<div class="barrier"></div>':''}${R.vexed&&!mini?'<div class="vex">#!?</div>':''}
-    <div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2*k,'f0')}${sprite('back',1,mini?1:2.2*k,'f1')}</div>
+    ${mini?'':amosArenaHTML(k)}<div class="pl" id="pl" ${mini?'style="left:14px;bottom:8px"':''}>${sprite('back',0,mini?1:2.2*k,'f0')}${sprite('back',1,mini?1:2.2*k,'f1')}</div>
     ${info}${mini?'':sayHTML()}<div class="fx" id="fx"></div></div>`;
 }
 // Never more than max focus, so every verse can be said on a full mind.

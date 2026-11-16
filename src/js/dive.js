@@ -182,9 +182,9 @@ function markHint(m){ const D = TEXT.dive;
 function trigger(m){
   R.node = m;
   if(m.t==='fight'){ R.node = {...m, e:m.e.map(standIn)}; saveRun(); startFight(R.node.e); return; }
-  if(m.t==='truth') startTruth(m);
-  if(m.t==='hurt') startHurt();
-  R.room = m.t; render();   // lock, rest, boss, scrap, truth, hurt: a panel under the map
+  if(m.t==='truth'){ startTruth(m); return; }   // these two happen in the arena, like a fight (encounters.js)
+  if(m.t==='hurt'){ startHurt(); return; }
+  R.room = m.t; render();   // lock, rest, boss, scrap: a panel under the map
 }
 function notNow(){ R.room=null; R.node=null; render(); }
 function faceBoss(){ const n = R.node; R.node = {...n, t:'elite', caveBoss:true, e:n.e.map(standIn)}; R.room=null; saveRun(); startFight(R.node.e); helpersAtBoss(); }
@@ -257,7 +257,7 @@ function tileInner(x,y){
   if(mk.t==='hurt') return `<img class="mk who hurt" src="${hurtSrc(mk.who)}" alt="">`;
   if(mk.t==='rest') return art('logs')+`<img class="mk flame" src="${caveArt().flame}" alt="">`;
   // people: still held, so a shadow with an angry glow; the named townsperson is drawn as themselves
-  if(mk.t==='truth') return `<img class="mk who shade" src="${FREED_IMG['freed'+((x+y)%6)].f[0]}" alt="">`;
+  if(mk.t==='truth') return `<img class="mk who shade" src="${folkSrc(TEXT.villagers[truthFolk(mk)],'idle')}" alt="">`;   // the same person you meet in the arena
   if(mk.t==='boss' && standIn(mk.e[0])===mk.e[0]){ const E = ENEMY_IMG[mk.e[0]]; return `<img class="mk who boss" src="${E.f[0]}" alt="">`; }
   return mk.e.map((e,i)=>`<img class="mk who shade n${mk.e.length}-${i}" src="${FREED_IMG['freed'+((x+y+i*3)%6)].f[0]}" alt="">`).join('');
 }
@@ -272,8 +272,6 @@ function diveHTML(){
   else if(R.room==='rest'){ body = restPanel(); dock = back(D.notNow); }
   else if(R.room==='boss'){ body = `<div class="panel cavemsg">${TEXT.caves[R.cave].bossLead}</div>`; dock = `<button class="primary wide" onclick="faceBoss()">${D.face}</button>${back(D.notYet)}`; }
   else if(R.room==='scrap'){ body = scrapPanel(); dock = `<button class="primary wide" onclick="takeScrap()">${TEXT.truths.takeIt}</button>`; }
-  else if(R.room==='truth' && R.tf){ body = truthPanel(); dock = truthDock(); }
-  else if(R.room==='hurt' && R.hurt){ body = hurtPanel(); dock = hurtDock(); }
   else if(R.room==='verse'){ body = versePanel(); dock = `<button class="wide" onclick="R.room=null;R.node=null;render()">${D.notNow}</button>`; }
   else { body = `<div class="panel cavemsg" id="cavemsg">${R.map.msg || D.walkHint}</div>`; dock = tools; }
   return `${mapHTML()}${body}<div class="dock">${dock}</div>`;
