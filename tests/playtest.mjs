@@ -214,7 +214,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
       turnsDone++;
       await until(() => R.busy || R.after || screen !== 'fight' || (modal && modal.kind !== 'recall') || !modal); // the action has started...
       await page.waitForTimeout(30);
-      await until(() => !R.busy || R.after || screen !== 'fight');                                               // ...and finished
+      await until(() => !R.busy || R.after || screen !== 'fight' || (modal && modal.kind === 'tip'));        // ...and finished (or Amos stopped it to teach)
     }
   }
   async function afterFight() {
@@ -255,11 +255,12 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
     return { pick, left: fightsLeft(), pos: M.pos };
   }, { skip });
   // from smoke.mjs: tap tiles like a player (caves and the town); each tap goes to the furthest tile of the real route that is lit or remembered and on screen
-  async function walkTo(goal) {
+  async function walkTo(goal, onScreen) {
     let tappedGoal = false;   // the last tap was on the goal itself, not just the nearest tile on screen
     for (let i = 0; i < 80; i++) {
       await idle();
-      const s = await ev(([[gx, gy], tapped]) => {
+      const s = await ev(([[gx, gy], tapped, on]) => {
+        if (on && screen !== on) return { stop: true };   // the walk took us somewhere else (back into a cave, past its intro)
         const pl = PLACES[screen]; if (!pl || pl.busy() || modal) return { stop: true };
         const M = pl.st(), [hx, hy] = M.pos; if (hx === gx && hy === gy) return { stop: true };
         if (tapped && pl.mark(gx, gy) && Math.abs(hx - gx) + Math.abs(hy - gy) === 1) return { stop: true };   // walked into it and stayed (a boarded door)
@@ -273,7 +274,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
         path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
           if (M.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
         return best ? { best } : { err: 'nothing on the route is lit' };
-      }, [goal, tappedGoal]);
+      }, [goal, tappedGoal, onScreen]);
       if (s.stop) return;
       if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
       await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
@@ -442,7 +443,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
     throw new Stall('finale: never got into the church');
   }
   // walk into something on the town map: walkTown('door', 'forge'), walkTown('cave', 0), walkTown('npc', 'furnace')
-  async function walkTown(t, id) { await waitScreen('town'); await walkTo(await ev(([t, id]) => townSpot(t, id), [t, id])); }
+  async function walkTown(t, id) { await waitScreen('town'); await walkTo(await ev(([t, id]) => townSpot(t, id), [t, id]), 'town'); }
   // out of a building onto the map again: the Town tab (the church has no Back button), or the screen's Back
   async function townBack() { await idle(); if ((await ev(() => screen)) !== 'town') { await ev(() => tab('town')); } await waitScreen('town'); }
   // Amos's tour: tap through his lines at each stop until he heads back to the church

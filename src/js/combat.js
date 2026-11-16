@@ -2,13 +2,13 @@
 const STEADY_DMG = 0.65;   // a cast at least this accurate hits for its accuracy; below it, half that
 const ENEMIES = {
   hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
-  grudge:{hp:48, atk:4, spr:'grudge', pattern:['score','atk','doubt']},
-  brawler:{hp:60, atk:6, spr:'brawler', pattern:['atk','vex','big']},
-  slanderer:{hp:72, atk:5, spr:'slanderer', pattern:['twist','doubt','atk']},
+  grudge:{hp:54, atk:5, spr:'grudge', pattern:['score','atk','doubt']},
+  brawler:{hp:90, atk:8, spr:'brawler', pattern:['atk','vex','big']},
+  slanderer:{hp:130, atk:7, spr:'slanderer', pattern:['twist','doubt','atk']},
   furnace:{hp:28, atk:2, spr:'furnace', freedSpr:'hothead_f', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
-  villager:{hp:22, atk:4, pattern:['atk','heat'], villager:true},
-  villager_strong:{hp:38, atk:5, pattern:['vex','atk','doubt'], villager:true},
+  villager:{hp:28, atk:5, pattern:['atk','atk','heat'], villager:true},
+  villager_strong:{hp:48, atk:6, pattern:['vex','atk','doubt'], villager:true},
 };
 // ---- Combat v2 (docs/combat-v2.md): matchups, body and mind, lingering harm ----
 // What each sin can't stand against (x1.5) and shrugs off (x0.5), by the fruit of the verse. Drafts for Luke.
@@ -18,7 +18,7 @@ const SINS = {
   furnace:   {weak:['Gentleness','Patience'], resist:['Self-control']},
   villager:  {weak:['Patience','Gentleness'], resist:[]},
   villager_strong:{weak:['Patience','Gentleness'], resist:['Self-control']},
-  grudge:    {weak:['Love','Goodness'], resist:['Patience'], kinds:{atk:'mind'}},
+  grudge:    {weak:['Love','Goodness'], resist:['Patience']},
   brawler:   {weak:['Self-control','Gentleness'], resist:['Patience']},
   slanderer: {weak:['Goodness','Self-control'], resist:['Gentleness'], kinds:{atk:'mind'}},
 };
@@ -31,7 +31,7 @@ const MOVES = {
   vex:  {kind:'mind', pow:0, fx:'provoke'},
   heat: {kind:'body', pow:0.5, fx:'heat'},     // cleared by a Gentleness verse
   score:{kind:'mind', pow:0.5, fx:'bitter'},   // keeping score: cleared by a Love or Peace verse
-  doubt:{kind:'mind', pow:1},
+  doubt:{kind:'mind', pow:0.75},
   twist:{kind:'mind', pow:0.5, fx:'twist'},
 };
 const FRUITS_ALL = ['Love','Joy','Peace','Patience','Kindness','Goodness','Faithfulness','Gentleness','Self-control'];
@@ -239,7 +239,7 @@ function playCard(ref){
     // perfect = full; steady (75%+) = as accurate as you were; a slip lands weakly. Tuned so a 50-60% player
     // can't carry the chapter and a 70% one scrapes through (tests/playtest.mjs, docs/mvp.md Balance)
     // (STEADY_DMG is lower than SLIP_BELOW on purpose: a 70% cast still hits properly, but it can still slip a spell's tier)
-    let mult = eff===1 ? 1 : R.tutorial ? 0.5+0.5*eff : eff>=STEADY_DMG ? eff : eff*0.5;   // the coached Furnace stays forgiving
+    let mult = eff===1 ? 1 : R.tutorial ? 0.5+0.5*eff : eff>=STEADY_DMG ? eff : eff*0.75;   // the coached Furnace stays forgiving
     const SM = spellMult(c.ref); if(has('sword') && sp(c.ref).tier===3) mult *= 1.25;
     if(frac===1 && (has('belt')||has('truth'))) R.shield += 2;
     if(frac===1 && has('truth')) mult *= 1.25;
@@ -344,8 +344,10 @@ async function enemyTurn(beatDone){
   holdTips(TIP_DELAY);   // before anything renders, so a popup can't jump in ahead of “Your turn”
   newTurn(); R.busy=false;
   if(R.hp < R.maxHp*0.4 && !R.hurtSaid){ R.hurtSaid=true; think('hurt', {}, true); }
+  // he's winding up: the first time, Amos says so, before you can act (so his popup can't land on top of your recall)
+  if(R.enemies.some(e=>!e.freed && e.pattern[e.step]==='big') && !R.tutorial && !(P.tips && P.tips.haymaker)){
+    R.busy=true; render(); turnBanner(TEXT.fight.yourTurn, true); await sleep(TIP_DELAY); await teach('haymaker'); R.busy=false; render(); return; }
   render(); turnBanner(TEXT.fight.yourTurn, true);
-  if(R.enemies.some(e=>!e.freed && e.pattern[e.step]==='big')){ await sleep(TIP_DELAY); await teach('haymaker'); }   // he's winding up: the first time, Amos says so
 }
 function charge(){ if(R.busy||R.charge||R.after) return; if(tipPending()){ R.tipHold=0; render(); return; } R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
 function fightWon(){

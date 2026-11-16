@@ -124,7 +124,7 @@ function tutorialFirst(k, then){ if(!R.tutorial) return false; R.tipsSeen = R.ti
 let teachDone = null;
 function teach(key){
   const t = TEXT.teach && TEXT.teach[key];
-  if(!t || R.tutorial || (P.tips && P.tips[key])) return Promise.resolve();
+  if(!t || R.tutorial || modal || (P.tips && P.tips[key])) return Promise.resolve();   // never over another popup
   modal = {kind:'tip', key, once:{who:'priest', title:t.title, body:t.body, screen}}; render();
   return new Promise(res=>{ teachDone = res; });
 }
