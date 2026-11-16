@@ -112,7 +112,7 @@ const TEXT = {
       firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
       firstCard: 'Each card is a verse you know. The number in the top left is how much focus it takes. You can regain focus between fights or by using certain scriptures. Tap a card to use that verse. You can use one verse per turn.',
       recall: 'Take your time, son. Fill in each blank. The more you get right, the sharper the sword of the Spirit cuts.',
-      oneMove: 'Bram gets his turn after every verse you say, you can forego saying a verse and instead Brace: say nothing and take half the hurt.',
+      oneMove: 'Bram gets his turn after every verse you say.',
       gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
       readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
       assembly: 'His fire is out. Now, son: say Galatians 5:22–23 over him, piece by piece, in order. Tap the pieces.',
@@ -624,7 +624,7 @@ const TEXT = {
     // your own thoughts, now and then
     thoughts: {
       start: ['Okay. Just say it right.', 'Deep breath. It’s only a verse.', 'I really should have studied more.', 'Please let me remember this.'],
-      hurt: ['That one hurt.', 'Note to self: brace more.', 'I’m going to feel that tomorrow. If there is a tomorrow.'],
+      hurt: ['That one hurt.', 'Note to self: don’t do that again.', 'I’m going to feel that tomorrow. If there is a tomorrow.'],
       slip: ['I knew that one. I knew it.', 'So many flashcards. So little to show for it.', 'Close. Not close enough.'],
       waver: ['It’s working. {name} is listening.', 'Keep going. {He}’s slowing down.'],
       perfect: ['Every word. Huh.', 'I actually know that one.'],
@@ -634,8 +634,9 @@ const TEXT = {
     notEnoughFocus: 'Not enough focus',
     alreadySaid: 'You’ve said that one. It comes back once you’ve said the others.',
     ready: 'Your head clears. Every verse is ready again.',
-    brace: 'Brace — say nothing, take half damage',
-    braceLog: 'You plant your feet and wait for it.',
+    // only when there's nothing you can afford to say (provoked at 0 focus): passes the turn
+    waitOut: 'Catch your breath',
+    waitLog: 'You catch your breath and wait for it.',
     charge: 'Charge — skip this turn, double the next',
     charged: 'Charged — next verse hits double',
     chargeLog: 'You hold the word in your mouth.',

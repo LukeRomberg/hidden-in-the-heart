@@ -80,8 +80,8 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   verses per spell, data in `PASS` (generated from the BSB, see below). State: `P.spell[ref]`.
 - **Recall UI**: verses at 100% use first-letter typing; the newest verse uses multiple
   choice blanks; the reference (book, chapter, verse) counts as part of the blank pool.
-- **Combat**: one action a turn: say one verse, Brace (free, half damage), or Charge (tree
-  perk); then the enemies act. Verses cost **focus** (`BASE_FOCUS` 6, +2 from Peace and from
+- **Combat**: one action a turn: say one verse, or Charge (tree perk); then the enemies act. No
+  Brace (removed 2026-11); only a turn with nothing affordable shows “Catch your breath” to pass. Verses cost **focus** (`BASE_FOCUS` 6, +2 from Peace and from
   clearing Mission 1). Focus refills at the start of every fight and never during one, except
   through Romans 12:2 (cost 0, restores focus), which Amos hands you the first time you run
   dry in the tutorial (you start that fight groggy, at 3). Each verse works once; when nothing

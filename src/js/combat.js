@@ -97,7 +97,8 @@ function startFight(ids, boss, here){
   newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null;
   log(openerLine()); if(!R.tutorial) think('start'); holdTips(TURN_BEAT); if(here){ screen='fight'; render(); } else goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
 }
-// One action a turn: say one verse (costs focus), Brace, or Charge. Then the enemies act.
+// One action a turn: say one verse (costs focus), or Charge (a tree perk). Then the enemies act. Brace is gone
+// (Luke, 2026-11: no reason to use it); a turn with nothing you can afford shows “Catch your breath” to pass.
 // Focus does not come back during a fight, except through a verse like Romans 12:2.
 function newTurn(){
   R.turn++; R.shield = 0; R.brace = false;
@@ -158,7 +159,7 @@ function fightHTML(){
   // the tutorial teaches with popups (tutorialTip, below), not a box in the way
   const bottom = R.after ? afterHTML() : `<div class="dock fightdock">
     <div class="hand hscroll">${hand}</div>
-    <button class="wide" onclick="brace()">${TEXT.fight.brace}</button>
+    ${stuck()?`<button class="wide" onclick="waitOut()">${TEXT.fight.waitOut}</button>`:''}
     ${R.tree.Patience>=2?`<button class="wide" ${R.charge?'disabled':''} onclick="charge()">${R.charge?TEXT.fight.charged:TEXT.fight.charge}</button>`:''}</div>`;
   // everything that happens, back and forth, in one box under the battle. What they'll do next isn't shown (Luke's call).
   const next = R.after || R.enemies.filter(e=>!e.freed).length<2 ? '' : `<div class="hint">${TEXT.fight.targetHint}</div>`;
@@ -240,7 +241,9 @@ function playCard(ref){
     enemyTurn();
   });
 }
-function brace(){ if(R.busy || R.after) return; if(tipPending()){ R.tipHold=0; render(); return; } R.brace=true; R.say=null; log(TEXT.fight.braceLog); shieldFX(); enemyTurn(); }
+// nothing you carry is affordable (provoked at 0 focus, say): the only move is to let the turn pass
+function stuck(){ return !verseRefs().some(ref=>affordable(ref) && !R.spent.includes(ref)); }
+function waitOut(){ if(R.busy || R.after || !stuck()) return; if(tipPending()){ R.tipHold=0; render(); return; } R.say=null; log(TEXT.fight.waitLog); enemyTurn(); }
 // A full beat each way between turns, so a fight reads as back and forth (Luke, 2026-11), and a pause before
 // any of Amos's popups so you see the turn start before he talks. The tests shorten them.
 let TURN_BEAT = 2000, TIP_DELAY = 1200;
@@ -264,7 +267,7 @@ async function enemyTurn(beatDone){
     await sleep(180);   // the lunge reaches you, then the hit lands
     if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,vars)); floatText('pl', TEXT.fight.float.glance, 'shield'); }
-    else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); if(R.brace) d=Math.ceil(d/2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
+    else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
       log(fill(TEXT.fight.hits, vars));
       if(absorbed) floatText('pl', fill(TEXT.fight.float.blocked,{n:absorbed}), 'shield', d>0?-26:0);
       if(d>0){ hitFX(); await strike('pl', String(d), 'you', a==='big'); } else barsSync(); }

@@ -17,7 +17,7 @@
 // Town: the bot walks the town map like a player (tapping tiles) to the church, Bram, shop doors and cave mouths.
 //
 // Bot policies (all in one place so they are easy to change):
-//   fights:    each turn say the best affordable unsaid verse (a heal when HP < 50%, else the most damage); Brace when
+//   fights:    each turn say the best affordable unsaid verse (a heal when HP < 50%, else the most damage); pass (Catch your breath) when
 //              nothing is affordable. Never uses Charge. Level-ups take the first fruit on offer.
 //   map:       nearest marker first (campfire only when HP < 60% or nothing else is left), then unexplored edges, the
 //              boss door once every fight is done, and the boss last.
@@ -194,7 +194,7 @@ async function playOne(acc, style) {
         if (tip && tip !== 'recall') { await ev(() => closeTip()); continue; }
         await solveRecall();
       }
-      else await page.locator('.fightdock button[onclick="brace()"]').click();
+      else await page.locator('.fightdock button[onclick="waitOut()"]').click();   // nothing affordable: pass
       turnsDone++;
       await until(() => R.busy || R.after || screen !== 'fight' || (modal && modal.kind !== 'recall') || !modal); // the action has started...
       await page.waitForTimeout(30);
@@ -505,7 +505,7 @@ function report(runs) {
   p(`# Playtest: Philadelphia (${new Date().toISOString().slice(0, 16).replace('T', ' ')})`);
   p('');
   p(`Bot: recall accuracy per blank / Creed piece / truth question / Ephesians recital; reduced-motion emulation, so times are the bot's own wall time. A cave is abandoned after ${MAX_RETRIES + 1} defeats ("failed at <cave>").`);
-  p('Fights are played as: best affordable unsaid verse (heal under 50% HP), else Brace; no Charge. "Lowest HP" is the minimum HP as a % of max seen during a fight; a "close call" is a fight whose lowest HP was under 25% (a defeat counts).');
+  p('Fights are played as: best affordable unsaid verse (heal under 50% HP), else pass the turn; no Charge. "Lowest HP" is the minimum HP as a % of max seen during a fight; a "close call" is a fight whose lowest HP was under 25% (a defeat counts).');
   p('');
   p('## Targets'); p('');
   p('| Accuracy | Target |'); p('|---|---|');

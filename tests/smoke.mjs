@@ -85,7 +85,7 @@ async function winFight() {
       if (tip && tip !== 'recall') continue;   // a popup that was due took the tap: choose again
       await solveRecall();   // (Amos's 'recall' popup opens the recall when it closes)
     }
-    else await btn('Brace').click();
+    else await page.locator('button[onclick="waitOut()"]').click();   // nothing affordable: pass the turn
     await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
   }
   await page.waitForFunction(() => R.after, null, { timeout: 15000 });
