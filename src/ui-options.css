@@ -1,0 +1,199 @@
+/* ================= Design options for the interface (test mode only: ?test&ui=N, or the test panel) =================
+   Ten looks to compare before one is chosen. 1 is the current look (no rules here). Each option re-skins the
+   chrome only: panels, buttons, the status bar, the dialogue box, the bottom bar and the tabs, headings, shop
+   lists. Maps, the arena and cards are untouched. Delete this file (and its line in scripts/build.mjs) once
+   one is chosen and folded into styles.css. */
+
+/* the options that don't use the wood kit drop its frames */
+:is([data-ui="3"],[data-ui="4"],[data-ui="5"],[data-ui="6"],[data-ui="7"],[data-ui="8"],[data-ui="9"],[data-ui="10"])
+  :is(.panel, .hud, .hud .lv, .dlg, .dlg .pt, .dlg .who, button, .textbox, .info, .chip, .toast, input[type=text], .rtier, .atile, .verse.rverse){ border-image:none !important; }
+:is([data-ui="3"],[data-ui="4"],[data-ui="5"],[data-ui="6"],[data-ui="7"],[data-ui="8"],[data-ui="9"],[data-ui="10"]) button{ text-shadow:none; }
+:is([data-ui="3"],[data-ui="4"],[data-ui="5"],[data-ui="6"],[data-ui="7"],[data-ui="8"],[data-ui="9"],[data-ui="10"]) .tabs button{ border:0; box-shadow:none; background:none; }
+
+/* ---------- 2. Night tavern: everything on dark wood, cream text, brass for what matters ---------- */
+[data-ui="2"] .panel{ border-image-source:url(__FRAME__(dark)); color:#f6e6c0; }
+[data-ui="2"] .panel h2{ color:#f2c84a; }
+[data-ui="2"] h1{ color:#f2c84a; }
+[data-ui="2"] .ware{ border-top-color:rgba(242,200,74,.22); }
+[data-ui="2"] .ware .wname, [data-ui="2"] .ware .wdo{ color:#f6e6c0; }
+[data-ui="2"] .ware .wprice{ color:#f2c84a; }
+[data-ui="2"] .ware .wx, [data-ui="2"] .ware .wnote, [data-ui="2"] .panel .mute{ color:#c8ac84; }
+[data-ui="2"] .ware.own .wnote{ color:#a8d070; } [data-ui="2"] .ware.short .wnote{ color:#f09a6a; }
+[data-ui="2"] .wico{ background:#2b1d12; border-color:#6a4a2a; }
+[data-ui="2"] button.primary, [data-ui="2"] .ware .wbuy{ border-image:none; border:3px solid #2a160c; background:linear-gradient(#f6d46a,#c8961e); color:#2a160c; text-shadow:none;
+  box-shadow:inset 0 3px 0 #fff0a0, inset 0 -4px 0 #8a6018; }
+[data-ui="2"] button.primary:active, [data-ui="2"] .ware .wbuy:active{ box-shadow:inset 0 3px 0 #8a6018; }
+
+/* ---------- 3. Vellum page: a light page, ink rules, red rubrics (like a printed Bible) ---------- */
+[data-ui="3"], [data-ui="3"] body{ background:#ece0c0 radial-gradient(rgba(120,90,50,.08) 1px, transparent 1.5px) 0 0 / 7px 7px; }
+[data-ui="3"] body::before{ background:#ece0c0; }
+[data-ui="3"] #app, [data-ui="3"] #app > .small, [data-ui="3"] #app > .mute{ color:#3a2414 !important; }
+[data-ui="3"] h1{ color:#2a1a10; text-shadow:none; border-bottom:2px solid #2a1a10; box-shadow:0 4px 0 #ece0c0, 0 6px 0 #2a1a10; padding-bottom:4px; margin-bottom:18px; }
+[data-ui="3"] h2{ color:#9a2a1a !important; text-shadow:none; }
+[data-ui="3"] .panel{ border:2px solid #2a1a10; background:#fbf4de; box-shadow:0 0 0 3px #ece0c0, 0 0 0 5px #2a1a10; padding:8px 10px; margin:6px 5px 16px; }
+[data-ui="3"] .hud{ border:2px solid #2a1a10; background:#fbf4de; color:#3a2414; box-shadow:0 0 0 3px #ece0c0, 0 0 0 5px #2a1a10; padding:4px 8px; margin:6px 5px 14px; }
+[data-ui="3"] .hud .tiny{ color:#7a5a38; } [data-ui="3"] .hud .bar{ border-color:#2a1a10; background:#e8dcbc; box-shadow:none; }
+[data-ui="3"] .hud .lv{ background:#9a2a1a; color:#fff8e6; border:0; padding:2px 6px; }
+[data-ui="3"] .dlg{ border:2px solid #2a1a10; background:#fbf4de; color:#3a2414; box-shadow:0 0 0 3px #ece0c0, 0 0 0 5px #2a1a10; padding:10px; margin:22px 5px 16px; }
+[data-ui="3"] .dlg .tw{ color:#3a2414; } [data-ui="3"] .dlg .pt{ border:2px solid #2a1a10; background:#e8dcbc; }
+[data-ui="3"] .dlg .who{ background:#9a2a1a; color:#fff8e6; border:0; padding:2px 8px; text-shadow:none; top:-14px; }
+[data-ui="3"] button{ border:2px solid #2a1a10; background:#fbf4de; color:#2a1a10; box-shadow:3px 3px 0 #2a1a10; padding:8px 12px; }
+[data-ui="3"] button:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 #2a1a10; }
+[data-ui="3"] button.primary, [data-ui="3"] .ware .wbuy{ background:#9a2a1a; color:#fff8e6; }
+[data-ui="3"] button:disabled{ background:#e6dcc4; color:#9a8a70; border-style:dashed; box-shadow:none; }
+[data-ui="3"] .dock{ background:#ece0c0; border-top:2px solid #2a1a10; box-shadow:none; }
+[data-ui="3"] .tabs{ background:#fbf4de; border-top:2px solid #2a1a10; box-shadow:0 -3px 0 #ece0c0, 0 -5px 0 #2a1a10; }
+[data-ui="3"] .tabs button{ color:#8a6a48; text-shadow:none; } [data-ui="3"] .tabs button.on{ color:#9a2a1a; }
+[data-ui="3"] .ware{ border-top:1px solid #2a1a10; } [data-ui="3"] .wico{ background:#efe4c8; border-color:#2a1a10; }
+[data-ui="3"] .ware .wprice{ color:#9a2a1a; }
+
+/* ---------- 4. Chapel stone: limestone panels in grey stone frames, stained-glass blue for what matters ---------- */
+[data-ui="4"], [data-ui="4"] body{ background:repeating-linear-gradient(0deg, transparent 0 22px, rgba(0,0,0,.28) 22px 24px),
+  repeating-linear-gradient(90deg, transparent 0 46px, rgba(0,0,0,.22) 46px 48px), #3a3e47; }
+[data-ui="4"] body::before{ background:#2a2d34; }
+[data-ui="4"] h1{ color:#eef2fa; text-shadow:2px 2px 0 #121418; }
+[data-ui="4"] #app > h2{ color:#a8c4f0; text-shadow:1px 1px 0 #121418; }
+[data-ui="4"] .panel{ border:4px solid #8e95a0; background:#e6e2d6; color:#22252c; box-shadow:inset 0 0 0 2px #c8ccd4, 0 0 0 3px #15171c, 0 6px 0 3px rgba(0,0,0,.35); padding:8px 10px; margin:4px 3px 16px; }
+[data-ui="4"] .panel h2{ color:#2c4a8a; }
+[data-ui="4"] .hud, [data-ui="4"] .dlg{ border:4px solid #8e95a0; background:#1e2128; color:#e8e6e0; box-shadow:inset 0 0 0 2px #4a505a, 0 0 0 3px #101216; padding:6px 10px; margin-left:3px; margin-right:3px; }
+[data-ui="4"] .dlg{ padding:10px; margin-top:22px; } [data-ui="4"] .dlg .tw{ color:#e8e6e0; }
+[data-ui="4"] .hud .lv, [data-ui="4"] .dlg .who{ background:#c8a030; color:#1e1408; border:2px solid #101216; padding:1px 8px; text-shadow:none; }
+[data-ui="4"] .dlg .who{ top:-16px; } [data-ui="4"] .dlg .pt{ border:3px solid #8e95a0; background:#2c3038; }
+[data-ui="4"] button{ border:3px solid #15171c; background:linear-gradient(#a2a9b4,#7c838f); color:#fff; box-shadow:inset 0 3px 0 #ccd1d9, inset 0 -4px 0 #555b66; padding:6px 10px; }
+[data-ui="4"] button:active{ box-shadow:inset 0 3px 0 #555b66; transform:translateY(1px); }
+[data-ui="4"] button.primary, [data-ui="4"] .ware .wbuy{ background:linear-gradient(#5a8ad8,#2c4a8a); box-shadow:inset 0 3px 0 #9ac0f6, inset 0 -4px 0 #1a2c5a; }
+[data-ui="4"] button:disabled{ background:#4a4e56; color:#8a8e96; box-shadow:none; }
+[data-ui="4"] .dock, [data-ui="4"] .tabs{ background:#1e2128; border-top:4px solid #8e95a0; box-shadow:0 -3px 0 #101216; }
+[data-ui="4"] .tabs button{ color:#9aa0aa; text-shadow:none; } [data-ui="4"] .tabs button.on{ color:#f2d26a; }
+[data-ui="4"] .ware{ border-top-color:rgba(44,74,138,.3); } [data-ui="4"] .wico{ background:#d4d0c4; border-color:#8e95a0; }
+[data-ui="4"] .ware .wname, [data-ui="4"] .ware .wdo{ color:#22252c; } [data-ui="4"] .ware .wprice{ color:#2c4a8a; }
+
+/* ---------- 5. Soft and round: flat cream cards, pill buttons, soft shadows (no pixel frames at all) ---------- */
+[data-ui="5"], [data-ui="5"] body{ background:#f1e6d2; }
+[data-ui="5"] body::before{ background:#f1e6d2; }
+[data-ui="5"] #app, [data-ui="5"] #app > .small, [data-ui="5"] #app > .mute{ color:#3a2a1e !important; }
+[data-ui="5"] h1{ color:#3a2a1e; text-shadow:none; font-weight:900; }
+[data-ui="5"] h2{ color:#c0683a !important; text-shadow:none; }
+[data-ui="5"] .panel, [data-ui="5"] .hud, [data-ui="5"] .dlg{ border:0; border-radius:18px; background:#fffaf0; color:#3a2a1e; box-shadow:0 4px 16px rgba(90,60,30,.14); padding:12px 14px; }
+[data-ui="5"] .hud{ padding:8px 12px; border-radius:16px; } [data-ui="5"] .hud .tiny{ color:#8a7058; }
+[data-ui="5"] .hud .lv{ background:#c0683a; color:#fff; border:0; border-radius:10px; padding:2px 8px; }
+[data-ui="5"] .hud .bar, [data-ui="5"] .bar{ border:0; border-radius:6px; background:#eadcc4; box-shadow:none; overflow:hidden; }
+[data-ui="5"] .dlg{ margin-top:24px; } [data-ui="5"] .dlg .tw{ color:#3a2a1e; }
+[data-ui="5"] .dlg .pt{ border:0; border-radius:50%; background:#f1e2c8; overflow:hidden; }
+[data-ui="5"] .dlg .who{ background:#c0683a; color:#fff; border:0; border-radius:999px; padding:2px 12px; top:-14px; }
+[data-ui="5"] button{ border:0; border-radius:999px; background:#ecdcc0; color:#3a2a1e; padding:10px 20px; box-shadow:0 2px 0 rgba(90,60,30,.18); }
+[data-ui="5"] button:active{ transform:translateY(1px); box-shadow:none; }
+[data-ui="5"] button.primary, [data-ui="5"] .ware .wbuy{ background:#d8744a; color:#fff; box-shadow:0 3px 0 #a8522a; }
+[data-ui="5"] button:disabled{ background:#e9e1d2; color:#b4a690; box-shadow:none; }
+[data-ui="5"] .dock{ background:rgba(241,230,210,.94); border-top:0; box-shadow:0 -6px 16px rgba(90,60,30,.12); }
+[data-ui="5"] .tabs{ background:#fffaf0; border-top:0; box-shadow:0 -4px 16px rgba(90,60,30,.12); }
+[data-ui="5"] .tabs button{ color:#a08a70; text-shadow:none; } [data-ui="5"] .tabs button.on{ color:#c0683a; }
+[data-ui="5"] .ware{ border-top:1px solid #efe2cc; } [data-ui="5"] .ware .wbuy{ min-height:40px; padding:6px 20px; } [data-ui="5"] .wico{ border:0; border-radius:12px; background:#f6ead4; }
+[data-ui="5"] .ware .wprice{ color:#c0683a; }
+
+/* ---------- 6. Starlit: the title screen's night sky, navy panels, gold trim ---------- */
+[data-ui="6"], [data-ui="6"] body{ background-color:#121833;
+  background-image:radial-gradient(1px 1px at 12px 18px, #fff 99%, transparent), radial-gradient(1px 1px at 70px 64px, #cfd8ff 99%, transparent),
+    radial-gradient(2px 2px at 104px 22px, #fff6c8 99%, transparent), radial-gradient(1px 1px at 40px 100px, #fff 99%, transparent);
+  background-size:128px 128px; }
+[data-ui="6"] body::before{ background:#121833; }
+[data-ui="6"] h1{ color:#fff3c4; text-shadow:0 0 12px rgba(242,208,106,.5), 2px 2px 0 #0a0d1e; }
+[data-ui="6"] h2{ color:#e8c25a !important; text-shadow:none; }
+[data-ui="6"] .panel, [data-ui="6"] .hud, [data-ui="6"] .dlg{ border:3px solid #e8c25a; background:#1d2547; color:#eef0ff; box-shadow:0 0 0 3px #0a0d1e, inset 0 0 0 2px #36427a; padding:8px 10px; }
+[data-ui="6"] .dlg{ margin-top:22px; padding:10px; } [data-ui="6"] .dlg .tw{ color:#eef0ff; }
+[data-ui="6"] .hud .tiny{ color:#a8b0d8; } [data-ui="6"] .hud .lv, [data-ui="6"] .dlg .who{ background:#e8c25a; color:#1a1430; border:0; padding:1px 8px; text-shadow:none; }
+[data-ui="6"] .dlg .who{ top:-14px; } [data-ui="6"] .dlg .pt{ border:2px solid #e8c25a; background:#2a3360; }
+[data-ui="6"] button{ border:3px solid #0a0d1e; background:#2e3a6c; color:#eef0ff; box-shadow:inset 0 3px 0 #5a6ab0, inset 0 -3px 0 #1a2250; padding:6px 10px; }
+[data-ui="6"] button:active{ box-shadow:inset 0 3px 0 #1a2250; transform:translateY(1px); }
+[data-ui="6"] button.primary, [data-ui="6"] .ware .wbuy{ background:linear-gradient(#f6d87a,#c89a2a); color:#1a1430; box-shadow:inset 0 3px 0 #fff2b0, inset 0 -3px 0 #8a6618; }
+[data-ui="6"] button:disabled{ background:#222842; color:#5a6286; box-shadow:none; }
+[data-ui="6"] .dock, [data-ui="6"] .tabs{ background:#0c1028; border-top:3px solid #e8c25a; box-shadow:none; }
+[data-ui="6"] .tabs button{ color:#8a92c0; text-shadow:none; } [data-ui="6"] .tabs button.on{ color:#f2d26a; }
+[data-ui="6"] .ware{ border-top-color:rgba(232,194,90,.25); } [data-ui="6"] .wico{ background:#2a3360; border-color:#4a5690; }
+[data-ui="6"] .ware .wname, [data-ui="6"] .ware .wdo{ color:#eef0ff; } [data-ui="6"] .ware .wprice{ color:#f2d26a; }
+[data-ui="6"] .ware .wx, [data-ui="6"] .ware .wnote, [data-ui="6"] .panel .mute{ color:#a8b0d8; }
+[data-ui="6"] .ware.own .wnote{ color:#9ee07a; } [data-ui="6"] .ware.short .wnote{ color:#ff9a7a; }
+
+/* ---------- 7. Illuminated: vellum in gold and red, ultramarine ground, serif headings with a gilded first letter ---------- */
+[data-ui="7"], [data-ui="7"] body{ background:repeating-linear-gradient(45deg, rgba(200,154,42,.14) 0 2px, transparent 2px 18px),
+  repeating-linear-gradient(-45deg, rgba(200,154,42,.14) 0 2px, transparent 2px 18px), #1a2656; }
+[data-ui="7"] body::before{ background:#1a2656; }
+[data-ui="7"] h1{ font-family:Georgia,'Times New Roman',serif; font-weight:700; color:#f2d26a; text-shadow:2px 2px 0 #0c1230; }
+[data-ui="7"] h2{ font-family:Georgia,'Times New Roman',serif; text-transform:none; letter-spacing:.02em; font-variant:small-caps; font-size:19px; color:#f2d26a !important; text-shadow:none; }
+[data-ui="7"] .panel h2{ color:#9a1a1a !important; }
+[data-ui="7"] h2::first-letter{ font-size:1.5em; color:#c8961e; }
+[data-ui="7"] .panel, [data-ui="7"] .hud, [data-ui="7"] .dlg{ border:5px double #c8961e; background:#f6ecd2; color:#2a1a10; box-shadow:0 0 0 3px #7a1414; padding:8px 10px; margin-left:3px; margin-right:3px; }
+[data-ui="7"] .dlg{ margin-top:22px; padding:10px; } [data-ui="7"] .dlg .tw{ color:#2a1a10; font-family:Georgia,'Times New Roman',serif; font-style:italic; }
+[data-ui="7"] .hud .tiny{ color:#7a5a38; } [data-ui="7"] .hud .bar{ border-color:#7a1414; background:#e8dcbc; box-shadow:none; }
+[data-ui="7"] .hud .lv, [data-ui="7"] .dlg .who{ background:#7a1414; color:#f6ecd2; border:2px solid #c8961e; padding:1px 8px; text-shadow:none; font-family:Georgia,serif; }
+[data-ui="7"] .dlg .who{ top:-16px; } [data-ui="7"] .dlg .pt{ border:3px solid #c8961e; background:#2a3a7a; }
+[data-ui="7"] button{ border:2px solid #c8961e; background:linear-gradient(#a82a2a,#7a1416); color:#fff3d0; box-shadow:0 0 0 2px #3a0a0a; padding:6px 10px; }
+[data-ui="7"] button:active{ transform:translateY(1px); }
+[data-ui="7"] button.primary, [data-ui="7"] .ware .wbuy{ background:linear-gradient(#3a5ac0,#22388a); }
+[data-ui="7"] button:disabled{ background:#c8bca0; color:#8a7a5a; border-color:#a89a78; box-shadow:none; }
+[data-ui="7"] .dock, [data-ui="7"] .tabs{ background:#141e48; border-top:3px solid #c8961e; box-shadow:0 -3px 0 #7a1414; }
+[data-ui="7"] .tabs button{ color:#b8a878; text-shadow:none; } [data-ui="7"] .tabs button.on{ color:#f2d26a; }
+[data-ui="7"] .ware{ border-top:1px solid rgba(154,26,26,.35); } [data-ui="7"] .wico{ background:#ede0bc; border-color:#c8961e; }
+[data-ui="7"] .ware .wprice{ color:#9a1a1a; }
+
+/* ---------- 8. Leather journal: a stitched leather cover, lined paper pages ---------- */
+[data-ui="8"], [data-ui="8"] body{ background:#5a3420 radial-gradient(rgba(0,0,0,.18) 1px, transparent 2px) 0 0 / 6px 6px; }
+[data-ui="8"] body::before{ background:#5a3420; }
+[data-ui="8"] h1{ color:#fbe8c8; text-shadow:2px 2px 0 #2a160c; }
+[data-ui="8"] #app > h2{ color:#f2c890; text-shadow:1px 1px 0 #2a160c; }
+[data-ui="8"] .panel{ border:0; background:#f6ecd4 repeating-linear-gradient(transparent 0 25px, rgba(80,120,170,.22) 25px 26px); color:#2a1a10; padding:12px 12px 10px 18px;
+  box-shadow:inset 6px 0 0 #e6d6b4, inset 8px 0 0 rgba(200,70,60,.35), 0 4px 0 #2a160c; border-radius:2px 6px 6px 2px; }
+[data-ui="8"] .panel h2{ color:#7a3a1a; }
+[data-ui="8"] .hud, [data-ui="8"] .dlg{ border:0; background:#3a2214; color:#fbe8c8; outline:2px dashed #c8955a; outline-offset:-6px; box-shadow:0 0 0 2px #1e1008; padding:8px 12px; border-radius:6px; }
+[data-ui="8"] .dlg{ margin-top:22px; padding:12px; } [data-ui="8"] .dlg .tw{ color:#fbe8c8; }
+[data-ui="8"] .hud .tiny{ color:#d8b88a; }
+[data-ui="8"] .hud .lv, [data-ui="8"] .dlg .who{ background:#f6ecd4; color:#3a2214; border:0; padding:1px 8px; text-shadow:none; box-shadow:2px 2px 0 #1e1008; }
+[data-ui="8"] .dlg .who{ top:-14px; transform:rotate(-2deg); } [data-ui="8"] .dlg .pt{ border:3px solid #c8955a; background:#5a3420; border-radius:4px; }
+[data-ui="8"] button{ border:2px solid #2a160c; background:#8a5230; color:#fbe8c8; outline:2px dashed #d8a46a; outline-offset:-7px; border-radius:6px; padding:8px 12px; box-shadow:0 3px 0 #2a160c; }
+[data-ui="8"] button:active{ transform:translateY(2px); box-shadow:0 1px 0 #2a160c; }
+[data-ui="8"] button.primary, [data-ui="8"] .ware .wbuy{ background:#3e6a34; outline-color:#b8e08a; }
+[data-ui="8"] button:disabled{ background:#7a6a5a; color:#c8b8a0; outline-color:#a8987e; box-shadow:none; }
+[data-ui="8"] .dock, [data-ui="8"] .tabs{ background:#3a2214; border-top:2px dashed #c8955a; box-shadow:0 -3px 0 #1e1008; }
+[data-ui="8"] .tabs button{ color:#c8a878; outline:0; } [data-ui="8"] .tabs button.on{ color:#ffd890; }
+[data-ui="8"] .ware{ border-top:0; } [data-ui="8"] .wico{ background:#efe2c4; border-color:#b8925a; }
+
+/* ---------- 9. Meadow: grass ground, cream panels with a moss rim, sunny yellow for what matters ---------- */
+[data-ui="9"], [data-ui="9"] body{ background:#4a7a3a repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 6px, transparent 6px 14px); }
+[data-ui="9"] body::before{ background:#4a7a3a; }
+[data-ui="9"] h1{ color:#fffbe8; text-shadow:2px 2px 0 #2a4a1e; }
+[data-ui="9"] #app > h2{ color:#fff3b0; text-shadow:1px 1px 0 #2a4a1e; }
+[data-ui="9"] .panel, [data-ui="9"] .hud, [data-ui="9"] .dlg{ border:3px solid #5a3a1a; background:#fdf7e2; color:#3a2a1a; border-radius:8px; box-shadow:0 0 0 3px #a8d070, 0 6px 0 3px #2e5220; padding:8px 10px; margin-left:3px; margin-right:3px; }
+[data-ui="9"] .panel h2{ color:#4a7a2a; }
+[data-ui="9"] .dlg{ margin-top:22px; padding:10px; } [data-ui="9"] .dlg .tw{ color:#3a2a1a; }
+[data-ui="9"] .hud .tiny{ color:#7a6a4a; } [data-ui="9"] .hud .bar{ border-color:#5a3a1a; background:#efe6c8; box-shadow:none; border-radius:4px; }
+[data-ui="9"] .hud .lv, [data-ui="9"] .dlg .who{ background:#f2c84a; color:#4a2a08; border:2px solid #5a3a1a; border-radius:6px; padding:1px 8px; text-shadow:none; }
+[data-ui="9"] .dlg .who{ top:-16px; } [data-ui="9"] .dlg .pt{ border:3px solid #5a3a1a; border-radius:8px; background:#cfe8a8; }
+[data-ui="9"] button{ border:3px solid #5a3418; border-radius:8px; background:#c88a4a; color:#fff; box-shadow:inset 0 3px 0 #e8b070, inset 0 -4px 0 #8a5426; padding:6px 10px; text-shadow:1px 1px 0 #6a3a18; }
+[data-ui="9"] button:active{ box-shadow:inset 0 3px 0 #8a5426; transform:translateY(1px); }
+[data-ui="9"] button.primary, [data-ui="9"] .ware .wbuy{ background:#f6d04a; color:#4a2a08; text-shadow:none; box-shadow:inset 0 3px 0 #fff2a8, inset 0 -4px 0 #c8981e; }
+[data-ui="9"] button:disabled{ background:#c8c0a8; color:#8a826a; box-shadow:none; text-shadow:none; }
+[data-ui="9"] .dock, [data-ui="9"] .tabs{ background:#3a6a2e; border-top:3px solid #a8d070; box-shadow:0 -3px 0 #2e5220; }
+[data-ui="9"] .tabs button{ color:#d8eab8; text-shadow:none; } [data-ui="9"] .tabs button.on{ color:#fff3a0; }
+[data-ui="9"] .ware{ border-top-color:#d8e8b8; } [data-ui="9"] .wico{ background:#eef6d8; border-color:#a8d070; border-radius:6px; }
+[data-ui="9"] .ware .wprice{ color:#4a7a2a; }
+
+/* ---------- 10. Bold outline: flat colors, thick black outlines, hard shadows ---------- */
+[data-ui="10"], [data-ui="10"] body{ background:#2b2140; }
+[data-ui="10"] body::before{ background:#2b2140; }
+[data-ui="10"] h1{ color:#fff; text-shadow:3px 3px 0 #000; font-weight:900; }
+[data-ui="10"] h2{ color:#ffd65a !important; text-shadow:none; font-weight:900; }
+[data-ui="10"] .panel h2{ color:#000 !important; }
+[data-ui="10"] .panel, [data-ui="10"] .hud, [data-ui="10"] .dlg{ border:4px solid #000; background:#fffaf0; color:#111; box-shadow:6px 6px 0 #000; padding:8px 10px; margin-right:6px; }
+[data-ui="10"] .dlg{ margin-top:24px; padding:10px; } [data-ui="10"] .dlg .tw{ color:#111; }
+[data-ui="10"] .hud .tiny{ color:#555; } [data-ui="10"] .hud .bar{ border:2px solid #000; background:#fff; box-shadow:none; }
+[data-ui="10"] .hud .lv, [data-ui="10"] .dlg .who{ background:#ff8a5a; color:#000; border:3px solid #000; padding:0 8px; text-shadow:none; font-weight:900; }
+[data-ui="10"] .dlg .who{ top:-18px; } [data-ui="10"] .dlg .pt{ border:3px solid #000; background:#9ad8ff; }
+[data-ui="10"] button{ border:4px solid #000; background:#ff8a5a; color:#000; font-weight:900; box-shadow:4px 4px 0 #000; padding:6px 10px; }
+[data-ui="10"] button:active{ transform:translate(4px,4px); box-shadow:none; }
+[data-ui="10"] button.primary, [data-ui="10"] .ware .wbuy{ background:#5ad18a; }
+[data-ui="10"] button:disabled{ background:#cfc8c0; color:#777; box-shadow:none; border-style:dashed; }
+[data-ui="10"] .dock{ background:#2b2140; border-top:4px solid #000; box-shadow:none; }
+[data-ui="10"] .tabs{ background:#fffaf0; border-top:4px solid #000; box-shadow:none; }
+[data-ui="10"] .tabs button{ color:#555; font-weight:900; } [data-ui="10"] .tabs button.on{ color:#e0502a; }
+[data-ui="10"] .ware{ border-top:3px solid #000; } [data-ui="10"] .wico{ background:#fff; border:3px solid #000; }
+[data-ui="10"] .ware .wname, [data-ui="10"] .ware .wdo{ color:#111; } [data-ui="10"] .ware .wprice{ color:#000; }

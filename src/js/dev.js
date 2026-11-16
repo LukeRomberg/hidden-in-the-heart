@@ -99,8 +99,13 @@ function testPanel(){
   el.innerHTML = `<button class="testbtn" onclick="this.parentNode.classList.toggle('open')">Test</button>
     <div class="testlist"><div class="small">Test mode: your real save is untouched.</div>
     <label class="small"><input type="checkbox" onchange="testStrong=this.checked"> Strong hero (level 6, gear, more verses)</label>
+    <label class="small">Look <select onchange="setUI(this.value); render()">${UI_OPTIONS.map((o,i)=>`<option value="${i+1}" ${(+(document.documentElement.dataset.ui||1))===i+1?'selected':''}>${i+1}. ${o}</option>`).join('')}</select></label>
     ${TEST_JUMPS.map((j,i)=>`<button class="wide" onclick="testJump(${i})">${j[0]}</button>`).join('')}
     <button class="wide" onclick="location.search=''">Leave test mode</button></div>`;
   document.body.appendChild(el);
 }
+// design options for the interface (src/ui-options.css): ?test&ui=N, or the picker in the test panel; 1 is the current look
+const UI_OPTIONS = ['Carved wood (now)','Night tavern','Vellum page','Chapel stone','Soft and round','Starlit','Illuminated','Leather journal','Meadow','Bold outline'];
+function setUI(n){ n = +n || 1; if(n>1) document.documentElement.dataset.ui = n; else delete document.documentElement.dataset.ui; try{ localStorage.setItem('hith-test-ui', n); }catch(e){} }
+if(TEST_MODE){ const m = location.search.match(/[?&]ui=(\d+)/); let n = m ? m[1] : null; if(!n){ try{ n = localStorage.getItem('hith-test-ui'); }catch(e){} } setUI(n); }
 if(TEST_MODE) testPanel();
