@@ -64,8 +64,8 @@ That gives shields, heals and cleanses a job, and makes the order you say things
 
 **Decided (Luke): mind attacks drain focus, and a shield can block them.** Lies cost you your focus, not your
 health, so a mind-heavy sin (the Grudge, the Slanderer) starves you of verses while a body-heavy one (the Brawler,
-the Furnace) wears your HP down. Shielding (Psalm 37:8, the lid, the Shield of Faith) soaks mind attacks before
-they reach your focus. To keep a drained player from stalling: at 0 focus a mind attack spills into HP instead,
+the Furnace) wears your HP down. A shield verse (Psalm 37:8) and the Shield of Faith soak mind attacks before
+they reach your focus; the lid doesn't. To keep a drained player from stalling: at 0 focus a mind attack spills into HP instead,
 and Romans 12:2 (restore focus) matters far more than it does today.
 
 ## 3. Gear (Luke, 2026-11-16)
@@ -73,8 +73,7 @@ and Romans 12:2 (restore focus) matters far more than it does today.
 **Basic gear stays as it is** (the Trash-Can Lid and the Pocket Bible from Amos, Bram's Work Boots, and the Leather
 Belt, Canvas Vest and Ball Cap from the Forge), with the same perks. **The final goal is the Armor of God** (section
 6). **The core unlocks of the game are the fruit tree and new verses**, not gear: no rolled perks, no long list
-of shop items. Only change to basic gear: once attacks split into body and mind, the lid also soaks the first mind
-attack of a fight, since a shield is what blocks lies.
+of shop items. Basic gear keeps its perks exactly; the lid does not block mind attacks.
 
 ## 4. Tuning targets (Luke, 2026-11-16)
 
