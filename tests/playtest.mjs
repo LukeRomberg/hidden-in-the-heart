@@ -10,7 +10,7 @@
 // Exit code is nonzero on any stall, softlock, bot failure or console error. Losing (even failing a cave 3 times) is a balance finding, not a failure.
 // Shopping styles: frugal never buys; shopper buys the cheapest affordable plain gear it lacks and consecrates (Ephesians 6 recital at the same accuracy) at every town visit.
 //
-// The bot is driven by game state (screen, R.room, R.tf, R.hurt, modal, the map's own reach()/markAt()/closedAt()) and by
+// The bot is driven by game state (screen, R.room, R.tf and R.hurt on the 'meet' screen, modal, the map's own reach()/markAt()/closedAt()) and by
 // dock buttons, not by English labels. Everything it chooses at random (right or wrong answers) uses its own seeded
 // generator, and the game's Math.random is seeded too, so a run repeats.
 //
@@ -297,35 +297,6 @@ async function playOne(acc, style) {
       await page.locator(`#app button[onclick="studyVerse('${ref}')"]`).click(); await solveRecall(); A.studied++;
       await until(() => screen === 'dive' && !R.room); return;
     }
-    if (room === 'truth') {
-      for (let i = 0; i < 60; i++) {
-        await tick(); const tf = await ev(() => R.tf && { q: R.tf.q, phase: R.tf.phase, ans: TRUTHS[R.tf.q].answer, result: R.tf.result, first: R.tf.first });
-        if (!tf) return;
-        if (tf.phase === 'ask') {
-          const right = rng() < acc; right ? A.truthR++ : A.truthW++;
-          const sayTrue = right ? tf.ans : !tf.ans;
-          await page.locator('.tfbtns button').nth(sayTrue ? 0 : 1).click(); await page.waitForTimeout(40); continue;
-        }
-        const wasWrong = tf.phase === 'result' && tf.result === 'wrong';
-        await dockPrimary(); if (wasWrong) return;   // free them the old way: a fight starts
-        await page.waitForTimeout(60);
-        if (!(await ev(() => R.room === 'truth'))) return;
-      }
-      throw new Stall('truth conversation never ended');
-    }
-    if (room === 'hurt') {
-      for (let i = 0; i < 20; i++) {
-        await tick(); const h = await ev(() => R.hurt && { phase: R.hurt.phase, hp: R.hp, max: R.maxHp });
-        if (!h) return;
-        if (h.phase === 'ask') {
-          const help = h.hp > 6 && (h.hp - 6) >= 0.4 * h.max;
-          if (help) { await dockPrimary(); A.helped++; } else { await page.locator('#app .dock button:not(.primary)').first().click(); A.walkedOn++; return; }
-        } else await dockPrimary();
-        await page.waitForTimeout(60);
-        if (!(await ev(() => R.room === 'hurt'))) return;
-      }
-      throw new Stall('hurt-person conversation never ended');
-    }
     if (room === 'verse') {
       const door = await ev(() => R.node.door.join(',')); A.doors[door] = (A.doors[door] || 0) + 1;
       const ref = await ev(() => { const refs = [...new Set(R.deck.map(c => c.ref))].sort((a, b) => blankCount(BY_REF[a]) - blankCount(BY_REF[b])); return refs[0]; });
@@ -334,6 +305,35 @@ async function playOne(acc, style) {
       return;
     }
     throw new Softlock(`unknown room '${room}'`);
+  }
+
+  // ---- a truth villager or someone hurt, on the battle screen (screen 'meet'); Amos's popups are tapped through ----
+  async function handleMeet(att) {
+    const A = att;
+    for (let i = 0; i < 300; i++) {
+      await tick();
+      const s = await ev(() => ({ screen, wipe: !!document.getElementById('wipe').className, modal: modal && modal.kind, busy: R.busy, beat: !!document.querySelector('#fxtop .beat'),
+        tf: R.tf && { phase: R.tf.phase, ans: TRUTHS[R.tf.q].answer, result: R.tf.result }, hurt: R.hurt && R.hurt.phase, hp: R.hp, max: R.maxHp }));
+      if (s.screen !== 'meet') return;
+      if (s.wipe) { await page.waitForTimeout(40); continue; }
+      if (s.modal === 'talk') { await ev(() => closeTalk()); await page.waitForTimeout(40); continue; }
+      if (s.beat) { await page.locator('#fxtop .beat').click().catch(() => {}); continue; }   // the freed person's thanks: tap to go on
+      if (s.busy) { await page.waitForTimeout(60); continue; }
+      if (s.tf) {
+        if (s.tf.phase === 'ask') {
+          const right = rng() < acc; right ? A.truthR++ : A.truthW++;
+          const sayTrue = right ? s.tf.ans : !s.tf.ans;
+          await page.locator('.tfbtns button').nth(sayTrue ? 0 : 1).click(); await page.waitForTimeout(40); continue;
+        }
+        if (s.tf.result === 'wrong') { await dockPrimary(); return; }   // the fight starts right there
+        if (s.tf.result === 'right') { await dockPrimary(); await page.waitForTimeout(40); continue; }
+      } else if (s.hurt === 'ask') {
+        const help = s.hp > 6 && (s.hp - 6) >= 0.4 * s.max;
+        if (help) { await dockPrimary(); A.helped++; } else { await page.locator('#app .dock button:not(.primary)').first().click(); A.walkedOn++; }
+      } else if (s.hurt === 'helped') await dockPrimary();
+      await page.waitForTimeout(60);
+    }
+    throw new Stall('encounter on the battle screen never ended');
   }
 
   // ---- one dive into cave i, until the boss is freed or we are beaten ----
@@ -348,6 +348,7 @@ async function playOne(acc, style) {
       if (st.modal === 'reward') { await ev(() => closeReward()); continue; }
       if (st.modal === 'recall') { await solveRecall(); continue; }
       if (st.modal === 'assembly') { await solveAssembly(); continue; }
+      if (st.screen === 'meet') { await handleMeet(att); continue; }
       if (st.screen === 'fight') {
         const f = await fightLoop(); att.fights.push(f);
         if (f.result === 'defeat') { att.defeated = true; return 'defeat'; }

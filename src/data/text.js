@@ -688,6 +688,8 @@ const TEXT = {
     creedLead: 'At the bottom, in Amos’s hand, a piece of the Creed ({n} of {total}):',
     scrapHint: 'A scrap of paper, weighted down with a stone.',
     villagerHint: 'Someone up ahead is muttering a question to the dark.',
+    // DRAFT (arena encounters): the box under the arena while Amos catches up, before the question
+    arenaIntro: '{name} stands in the dark, red to the eyes, turning a question over and over.',
     remember: 'You remember Amos’s note about this.',
     takeIt: 'Pocket it',
     readAgain: 'Amos’s notes',

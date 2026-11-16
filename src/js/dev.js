@@ -40,8 +40,11 @@ const TEST_JUMPS = [
   ['Boss: the Slanderer', ()=>testBoss(2)],
   ['Villager fight', ()=>{ testHero(true); R.node = {t:'fight'}; startFight(['villager','villager'], false); }],
   ['Townsfolk: every look and state', testFolk],
-  ['Someone hurt: Tobias (badly)', ()=>testHurt(1, 'tobias')],
-  ['Someone hurt: Hannah', ()=>testHurt(2, 'hannah')],
+  ['Truth villager: the first, with Amos', ()=>testMeet(0, 'truth', true)],
+  ['Truth villager', ()=>testMeet(0, 'truth')],
+  ['Someone hurt: the first, with Amos', ()=>testMeet(1, 'hurt', true)],
+  ['Someone hurt: Tobias (badly)', ()=>testMeet(1, 'hurt')],
+  ['Someone hurt: Hannah', ()=>testMeet(2, 'hurt')],
   ['Level-up popup', ()=>{ testHero(true); goto('town', ()=>gainXP(xpNeed(R.level))); }],
   // shops, at the point in the chapter each one opens: tick "Strong hero" for a rich one (200 talents)
   ['Shop: the Forge', ()=>testShop('forge', 0, 30)],
@@ -66,10 +69,14 @@ function testChapterEnd(){
   P.notes = TEXT.truths.list.slice(0,4).map(t=>t.id); P.truthsRight = TEXT.truths.list.slice(2,6).map(t=>t.id); P.helpedAll = ['tobias'];
   R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero(); goto('cavedone');
 }
-// the hurt-person panel in the cave they're in, straight away (Amos's first visit already done)
-function testHurt(cave, who){
-  testHero(true); for(let k=0;k<cave;k++) P.caves[CAVES[k].id] = 1; P.firstHurt = true;
-  startCave(cave); setTimeout(()=>goto('dive', ()=>{ R.node = {t:'hurt', who}; startHurt(); R.room = 'hurt'; }), 400);
+// a truth villager or someone hurt in cave `cave`, on the battle screen straight away; first: Amos's first one
+// (the Hollow's first truth villager is the one he walks with you; any hurt person works for his)
+function testMeet(cave, kind, first){
+  testHero(true); for(let k=0;k<cave;k++) P.caves[CAVES[k].id] = 1;
+  if(kind==='truth') P.firstTruth = !first; else P.firstHurt = !first; P.retry = [];
+  startCave(cave);
+  const mk = Object.values(caveMap(cave).mk).find(m=>m.t===kind && (kind!=='truth' || !!m.amos===!!first));
+  setTimeout(()=>trigger(mk), 700);
 }
 // every townsperson (TEXT.villagers, TEXT.living.people) in every state, over whatever screen is up
 function testFolk(){
