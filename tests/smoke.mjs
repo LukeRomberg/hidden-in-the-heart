@@ -2,7 +2,8 @@
 // Amos, the lid, pick two verses -> walk out to Bram and fight the Furnace (tutorial) -> Amos's tour on the map ->
 // walk into the Forge and out, a boarded door, reload on the town map -> walk to the Hollow's mouth -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
 // truth villager on the battle screen (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser
-// -> in test mode: walk into a townsperson at home, then the finale (the bell, everyone walks to church) into the chapter ending.
+// -> in test mode: walk into a townsperson at home, then the finale (the bell, everyone walks to church) into the chapter ending,
+//    where Amos consecrates the Shoes of Peace as you recite Ephesians 6:15.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
@@ -338,6 +339,18 @@ try {
       await page.waitForTimeout(100);
     }
     throw new Error('never got into the church');
+  });
+  await step('test mode: the chapter ending, Amos consecrates the Shoes of Peace', async () => {
+    await waitScreen('chapterend'); await finishDialogue(); await act().click();   // the full church, then up to the altar
+    await page.waitForFunction(() => R.endStep === 'armor'); await finishDialogue(); await act().click();
+    await solveRecall();
+    await page.waitForFunction(() => R.endStep === 'armored' && R.endPerfect === true);
+    await finishDialogue(); await act().click();
+    await page.waitForFunction(() => modal && modal.kind === 'reward' && modal.r.id === 'sabatons');
+    const s = await page.evaluate(() => ({ feet: R.gear.feet, shod: armorHas('sabatons'), cures: armorCures('provoke') && armorCures('linger'), boots: owns('boots') }));
+    if (s.feet !== 'sabatons' || !s.shod || !s.cures || !s.boots) throw new Error('after the consecration: ' + JSON.stringify(s));
+    await dismissRewards();
+    if (!(await page.locator('.chend').count())) throw new Error('no chapter stats after the Shoes');
   });
 } catch { result = 'fail'; }
 

@@ -235,7 +235,6 @@ function playCard(ref){
       await strike('en'+ti, String(dmg), TYPE_MULT[v.type]?'crit':'', (tier===3 && !weak) || dmg>=12);
       if(daze) floatText('en'+ti, F.dazed, 'tag', -26);
       await sleep(300);
-      if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
       // the Furnace: let you see him go down before the Galatians pieces open
       if(t.hp<=0){ if(t.boss){ await sleep(TIP_DELAY); R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); townHome(t); await freeBeat(t, ti); }
       else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); }   // let the number clear first
@@ -273,7 +272,7 @@ async function enemyTurn(beatDone){
     if(!reacted && Math.random()<0.75){ speak(i, tauntFor(e)); await sleep(CALM()?200:420); }
     const el=document.getElementById('en'+i); if(el){ el.classList.remove('windup'); if(!CALM()) el.classList.add('lunge'); }
     await sleep(180);   // the lunge reaches you, then the hit lands
-    if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); } }
+    if(a==='vex'){ if(armorCures('provoke')) log(fill(TEXT.fight.vexShod,vars)); else if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,vars)); floatText('pl', TEXT.fight.float.glance, 'shield'); }
     else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
       log(fill(TEXT.fight.hits, vars));

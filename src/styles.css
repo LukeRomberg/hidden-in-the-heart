@@ -733,12 +733,6 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .slotinfo .sname{ font-size:18px; font-weight:800; color:#3a2414; }
 .slotinfo .snext{ margin-top:6px; font-size:15px; font-weight:700; color:#7a4a24; }
 .slotinfo .snext.holy{ color:#a87a10; }
-.achain{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:6px; }
-.apiece{ display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; font-weight:700; color:#8a6a48; }
-.apiece img{ width:100%; max-width:48px; image-rendering:pixelated; filter:grayscale(1) opacity(.4); background:#e8d6aa; border:2px solid #c8a26a; box-sizing:border-box; }
-.apiece.done img{ filter:none; border-color:#d8a630; }
-.apiece.next img{ filter:grayscale(.3) opacity(.85); border:2px dashed #7a4a24; }
-.apiece.next span{ color:#3a2414; }
 
 /* after the Furnace: the forge lit and the church, side by side, on the night */
 .panel.scene.changed{ display:flex; justify-content:center; align-items:flex-end; gap:18px; padding:14px 10px 10px !important; }

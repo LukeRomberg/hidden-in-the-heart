@@ -8,7 +8,8 @@
 //        PLAYTEST_TARGET=path/to/index.html         (default dist/index.html)
 // Writes tests/out/playtest.md (and a screenshot per stall / console error in tests/out/).
 // Exit code is nonzero on any stall, softlock, bot failure or console error. Losing (even failing a cave 3 times) is a balance finding, not a failure.
-// Shopping styles: frugal never buys; shopper buys the cheapest affordable plain gear it lacks and consecrates (Ephesians 6 recital at the same accuracy) at every town visit.
+// Shopping styles: frugal never buys; shopper buys the cheapest affordable plain gear it lacks at every town visit.
+// (The Armor of God isn't sold: Amos gives the Shoes of Peace at the chapter ending; the bot recites Ephesians 6:15 there at its accuracy.)
 //
 // The bot is driven by game state (screen, R.room, R.tf and R.hurt on the 'meet' screen, modal, the map's own reach()/markAt()/closedAt()) and by
 // dock buttons, not by English labels. Everything it chooses at random (right or wrong answers) uses its own seeded
@@ -241,10 +242,11 @@ async function playOne(acc, style) {
   // from smoke.mjs: tap tiles like a player (caves and the town); each tap goes to the furthest tile of the real route that is lit or remembered and on screen
   async function walkTo(goal) {
     let tappedGoal = false;   // the last tap was on the goal itself, not just the nearest tile on screen
+    await idle(); const from = await ev(() => screen);   // walking into a door or a cave mouth changes the screen: that's arriving
     for (let i = 0; i < 80; i++) {
       await idle();
-      const s = await ev(([[gx, gy], tapped]) => {
-        const pl = PLACES[screen]; if (!pl || pl.busy() || modal) return { stop: true };
+      const s = await ev(([[gx, gy], tapped, from]) => {
+        const pl = PLACES[screen]; if (!pl || pl.busy() || modal || screen !== from) return { stop: true };
         const M = pl.st(), [hx, hy] = M.pos; if (hx === gx && hy === gy) return { stop: true };
         if (tapped && pl.mark(gx, gy) && Math.abs(hx - gx) + Math.abs(hy - gy) === 1) return { stop: true };   // walked into it and stayed (a boarded door)
         const m = pl.grid(), prev = new Map([[hx + ',' + hy, null]]), q = [[hx, hy]];
@@ -257,7 +259,7 @@ async function playOne(acc, style) {
         path.slice(1).forEach(([x, y]) => { const sx = r.left + x * 40 + 20, sy = r.top + y * 40 + 20;
           if (M.seen[y * m.W + x] && sx > v.left + 4 && sx < v.right - 4 && sy > v.top + 4 && sy < v.bottom - 4) best = { sx, sy, x, y }; });
         return best ? { best } : { err: 'nothing on the route is lit' };
-      }, [goal, tappedGoal]);
+      }, [goal, tappedGoal, from]);
       if (s.stop) return;
       if (s.err) throw new Error(`walking to ${goal}: ${s.err}`);
       await page.mouse.click(s.best.sx, s.best.sy); await page.waitForTimeout(50);
@@ -369,25 +371,15 @@ async function playOne(acc, style) {
   }
 
   // ---- town ----
-  // shopper style: Forge visit. Buy the cheapest affordable plain gear we lack, then consecrate, until nothing more is affordable.
+  // shopper style: Forge visit. Buy the cheapest affordable plain gear we lack, until nothing more is affordable.
   async function shop(where) {
     if (style !== 'shopper' || !(await ev(() => !!P.town.forge))) return;
     const bought = [];
     for (let i = 0; i < 12; i++) {
-      await ev(() => { (P.tips = P.tips || {}).forge = true; }); await walkTown('door', 'forge'); await waitScreen('forge');   // Bram's one-time popup: the bot has read it
-      const act = await ev(() => {
-        const buy = PLAIN_ORDER.filter(id => ITEMS[id].price && !owns(id) && R.talents >= ITEMS[id].price).sort((a, b) => ITEMS[a].price - ITEMS[b].price)[0];
-        if (buy) return { buy };
-        const a = nextArmor(); if (a && owns(a.from) && R.talents >= a.price) return { cons: a.up, price: a.price };
-        return null;
-      });
-      if (!act) { await townBack(); break; }
-      if (act.buy) { await page.locator(`#app button[onclick="buy('${act.buy}')"]`).click(); bought.push(act.buy); await page.waitForTimeout(80); await page.locator('.overlay.reward button').click(); }   // tap OK on “Bought”
-      else {
-        await page.locator('#app button[onclick="consecrate()"]').click(); await solveRecall();
-        const ok = await ev(id => owns(id) && has(id), act.cons); bought.push(act.cons + (ok ? '' : ' (recital failed)')); await page.waitForTimeout(80);
-        if (ok) await page.locator('.overlay.reward button').click();   // tap OK on “Consecrated”
-      }
+      await walkTown('door', 'forge'); await waitScreen('forge');
+      const buy = await ev(() => PLAIN_ORDER.filter(id => ITEMS[id].price && !owns(id) && R.talents >= ITEMS[id].price).sort((a, b) => ITEMS[a].price - ITEMS[b].price)[0] || null);
+      if (!buy) { await townBack(); break; }
+      await page.locator(`#app button[onclick="buy('${buy}')"]`).click(); bought.push(buy); await page.waitForTimeout(80); await page.locator('.overlay.reward button').click();   // tap OK on “Bought”
       await townBack();
     }
     if (bought.length) rec.purchases.push(`${where}: ${bought.join(', ')}`);
@@ -415,7 +407,7 @@ async function playOne(acc, style) {
   async function finale() {
     for (let i = 0; i < 600; i++) {
       const s = await ev(() => ({ screen, talk: modal && modal.kind === 'talk', reward: modal && modal.kind, fin: !!R.finale }));
-      if (s.screen === 'chapterend') { rec.outcome += ', walked to church'; return; }
+      if (s.screen === 'chapterend') { rec.outcome += ', walked to church'; await shoes(); return; }
       if (s.reward === 'reward') await ev(() => closeReward());
       else if (s.reward === 'levelup') await levelUp();
       else if (s.talk) { await finishDialogue(); await page.locator('#talkpop #acts button').first().click(); }
@@ -423,6 +415,18 @@ async function playOne(acc, style) {
       await page.waitForTimeout(150);
     }
     throw new Stall('finale: never got into the church');
+  }
+  // the chapter ending: through the full church to the altar, recite Ephesians 6:15 at the bot's accuracy, and
+  // check Amos gives the Shoes of Peace either way (a gift, not a test)
+  async function shoes() {
+    const lines = async () => { await finishDialogue(); await page.locator('#acts button').first().click(); await page.waitForTimeout(120); };
+    await lines(); await until(() => R.endStep === 'armor');
+    await lines(); await solveRecall(); await until(() => R.endStep === 'armored');
+    const perfect = await ev(() => R.endPerfect);
+    await lines(); await until(() => modal && modal.kind === 'reward');
+    const shod = await ev(() => R.gear.feet === 'sabatons' && armorHas('sabatons')); await ev(() => closeReward());
+    if (!shod) rec.issues.push({ kind: 'STATE', msg: 'chapter ending: no Shoes of Peace after the recital' });
+    rec.outcome += `, given the Shoes (${perfect ? 'perfect recital' : 'Amos helped'})`;
   }
   // walk into something on the town map: walkTown('door', 'forge'), walkTown('cave', 0), walkTown('npc', 'furnace')
   async function walkTown(t, id) { await waitScreen('town'); await walkTo(await ev(([t, id]) => townSpot(t, id), [t, id])); }

@@ -11,7 +11,9 @@ function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(P)); }catch(
 function saveHero(){ if(!R) return; P.hero={}; KEEP.forEach(k=>P.hero[k]=R[k]); save(); }
 function loadHero(){ const h = P.hero||{};
   if(h.maxFocus===undefined && h.maxMana!==undefined){ h.maxFocus = BASE_FOCUS + 2*(h.maxMana-3); delete h.maxMana; }   // saves from the mana days
-  R = Object.assign(transient(), blankHero(), h); if(R.xp>=xpNeed(R.level)) R.xp=xpNeed(R.level)-1; }
+  R = Object.assign(transient(), blankHero(), h); if(R.xp>=xpNeed(R.level)) R.xp=xpNeed(R.level)-1;
+  // finished Philadelphia before Amos gave the Shoes at the chapter ending (2026-11): they're yours now
+  if(P.chapters && P.chapters.philadelphia && R.gear && R.gear.feet==='boots') R.gear.feet = 'sabatons'; }
 function newGame(){
   P = {casts:{}, hero:null, town:{}, missions:{}, met:{}, caves:{}, creed:0, run:null, tutorialDone:false}; save();
   R = Object.assign(transient(), blankHero()); Object.keys(heroCache).forEach(k=>delete heroCache[k]);

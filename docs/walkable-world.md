@@ -61,7 +61,7 @@ Size: about a day once the character art exists.
 One shared "You got…" popup, with OK (and Equip where it applies):
 
 - **Buying gear:** the item's icon, your hero before and after wearing it, and what it does.
-  Same for consecrating, with the Armor of God piece.
+  Same for the Armor of God piece Amos gives at a chapter ending.
 - Souls and leveling up (the level-up popup already exists; souls and talents get a small one).
 - A new verse (Scriptorium, drops), a Creed piece from a chest, a sermon scrap, talents from a drill.
 - Shown one at a time when several land together (after a fight).

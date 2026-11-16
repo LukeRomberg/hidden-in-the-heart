@@ -32,7 +32,7 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   plays once: the first clear that finishes the last cave sends `caveDoneHTML`'s button there
   instead of town. A full church, the bell, a line each from Bram, Wendell, Hale and Silas, then
   Amos reads Revelation 3:8 (the town is named for the church in Revelation 3:7–13) and points
-  at the road east. Then chapter stats (souls, who came home, truths from `P.notes` +
+  at the road east, then calls you up to consecrate the Shoes of Peace (`TEXT.chapterEnd.armor`, see Gear). Then chapter stats (souls, who came home, truths from `P.notes` +
   `P.truthsRight`, everyone helped in `P.helpedAll`, Creed pieces, verses by heart, talents) and
   “To be continued.” Leaving sets `P.chapters.philadelphia`. Test jump: “Chapter ending”.
 - Fights along the way are fled villagers (`TEXT.villagers`, men and women, tinted red until
@@ -180,9 +180,16 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   open; the rest unlock one per mission going up the trunk. Only those three have perks
   defined (`TREE`); the rest need designing.
 - **Gear** follows Ephesians 6:14-17. Plain gear (belt, vest, cap) is bought at the Forge;
-  the boots are Bram's gift, the Bible and lid the priest's. Nothing drops after fights. Plain
-  gear is consecrated at the Forge into the Armor of God, in order, by reciting Ephesians 6
-  cumulatively (6:14, then 6:14-15, ... 6:14-17). Gear is permanent. Prices: `docs/mvp.md`, Economy.
+  the boots are Bram's gift, the Bible and lid the priest's. Nothing drops after fights. Gear is
+  permanent. Prices: `docs/mvp.md`, Economy. **The Armor of God** is the game's long goal, one piece
+  per town (`ARMOR_OF` in gear.js; plan in `docs/combat-v2.md`, section 6), never bought or forged:
+  when a town's last held person is free and everyone is back in church, Amos consecrates that town's
+  piece at the chapter ending as you recite its verse (a gift: a slip doesn't stop it, a perfect
+  recital is celebrated). It replaces the plain piece in its slot and cures that town's trouble
+  (`ARMOR_CURES`; combat asks `armorHas(id)` / `armorCures('provoke'|'linger')`). Philadelphia gives
+  the Shoes of the Gospel of Peace for Ephesians 6:15 (`CHAPTER_ARMOR`, `armorRecite()` in story.js):
+  heal 4 after every fight, can't be provoked, heat and bitterness wear off after one round. The other
+  pieces' definitions stay in `ITEMS` for later chapters. Test jump: “Chapter ending: Amos and the Shoes”.
 - **Shops** (town.js): each building lists its whole stock with what it does, its price, and
   why it's locked. The Inn adds a rumor about the next uncleared cave and Wendell's ledger
   (what you're saving toward). The yard pays for a clean drill once per verse per cave cleared
