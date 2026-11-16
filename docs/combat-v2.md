@@ -54,17 +54,17 @@ Mind moves with a twist (the sins' signature moves):
 | Move | Who | What it does |
 |---|---|---|
 | Provoke (today's) | Furnace, Brawler, Slanderer | your verses cost 1 more next turn |
-| Keeping score | Grudge | bitterness: 10% of your max HP every turn, until you say a Love or Peace verse |
+| Keeping score | Grudge | bitterness: 10% of your max HP each round (after they act), until you say a Love or Peace verse |
 | Twisting your words | Slanderer | your next verse does half unless it's perfect |
 | Doubt | Grudge, Slanderer | lose 2 focus |
-| Heat (body) | Furnace | 10% of your max HP every turn, cleared by a Gentleness verse |
+| Heat (body) | Furnace | 10% of your max HP each round (after they act), cleared by a Gentleness verse |
 | Haymaker (body) | Brawler | a big hit every third turn; his windup is the tell (no box, his body shows it) |
 
 That gives shields, heals and cleanses a job, and makes the order you say things in matter.
 
 **Damage scale (Luke, 2026-11-16):** today you have around 58 HP and a lingering effect would tick for 1, which
-you'd never notice. Lingering harm (heat, bitterness, anything that ticks each turn) does **10% of your max HP a
-turn**, so it scales as you level and always matters. Enemy hits get heavier too, or your base HP comes down
+you'd never notice. Lingering harm (heat, bitterness, anything that ticks) does **10% of your max HP once per round**:
+you act, they act, then it ticks. It scales as you level and always matters. Enemy hits get heavier too, or your base HP comes down
 (whichever tunes better against the targets in section 4): a normal hit should take roughly a tenth to a sixth of
 your health, a big one a quarter or more.
 
