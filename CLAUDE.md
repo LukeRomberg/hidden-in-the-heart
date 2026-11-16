@@ -123,10 +123,17 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   stops you in front of it: fights switch to the arena and come back (`clearColumn()` is the
   hand-back combat.js calls), chests and the campfire open a panel under the map, and a cleared
   marker is gone. A verse door opens on any verse you carry said without a slip; the boss door
-  stays barred until everyone held on the map is free (fights and truth villagers). Placeholder tiles and objects are drawn
-  in code (`CAVE_PAL`, `ART`). The walking itself (BFS, light, camera, drawing) is `tilemap.js`, shared with the
+  stays barred until everyone held on the map is free (fights and truth villagers). The ground is one PixelLab Wang
+  tileset per cave drawn once onto a canvas on a dual grid (`caveGround`: each 32px tile straddles four cells and takes rock or
+  floor from each, so walls get real faces and corners); the tiles above it carry only fog and objects (`CAVE_ART`, PixelLab). The walking itself (BFS, light, camera, drawing) is `tilemap.js`, shared with the
   town map; a place registers its rules in `PLACES`. `P.caves` counts clears; `P.run` ({v:2, cave, pos, face, seen,
   done, open}) resumes on the map after a reload; an older run restarts at the cave mouth.
+- **How the maps feel** (`mapfx.js`, configured per place in `MAPFX` by tile glyph or marker, never by coordinates):
+  a fade (not the wipe) between places and the place's name as you arrive (`sceneTitle`, from `goto`); doors that
+  swing (`swingDoor` for a building's door in town, `fxOpening` for cave doors and gates); light pools (screen-blended:
+  campfires, wall torches, the forge, lamps at dusk); embers, dust motes, the odd leaf, fireflies at dusk; soft shadows;
+  `MAPFX.town.dusk` (bool or function) tints the town for dusk. Draw order: row y's tiles at z 2y, people on it at 2y+1,
+  then dusk 900, lights 901, particles 902. All motion stops under `prefers-reduced-motion`. Test jump: “Town map at dusk”.
 - **Encounters** (`encounters.js`, plan in `docs/encounters.md`): Amos's **sermon scraps**
   (“You have heard it said, brothers…”) are walked over and picked up (`P.notes`) and teach one
   truth each; **truth villagers** ask “Is it true that…?” from `TEXT.truths.list` (verses in
@@ -201,6 +208,10 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
   map. Each person in `TEXT.villagers` and `TEXT.living.people` has a `look`; held villagers are their own
   sprite under the red CSS tint. All ten looks are done (`LOOKS`); a new look without a sheet falls back to:
 - `build_villagers.py`: six recolored townsfolk (`freed.json`, the old placeholders).
+- `build_cave_art.py`: the caves' map art from PixelLab (`assets/source/caves/pixellab/`: one standard Wang tileset per
+  cave, 32px, transition 0.5, plus seven 32px Pixen objects) into `assets/source/caves/map/`: a 4x4 ground sheet per cave
+  indexed by corner mask (NW 8, NE 4, SW 2, SE 1; 1 = rock), colour-graded (`GRADE`), and the objects with their derived
+  states (open doors and swinging leaves, raised gate, pulled lever, a second campfire frame).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
   card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
 
@@ -232,9 +243,7 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
 - Townsfolk walking frames (animate_character, template "walk", ~1 generation per direction) for the town map.
-- Cave map tileset (rock, rock face, floor per cave; doors, gate, lever, chest, campfire) and hero
-  walking frames, about 6 PixelLab generations. Waiting for Luke's OK after he tries the
-  code-drawn placeholders on his phone.
+- Town tileset (being redrawn by the town session). The caves' tilesets and objects are done (2026-11).
 
 ## Conventions
 
