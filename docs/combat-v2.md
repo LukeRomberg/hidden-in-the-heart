@@ -99,6 +99,10 @@ heat, keeps Romans 12:2 for when focus runs low. Each also runs **straight throu
 
 ## 5. A satchel: the verses you carry into a cave
 
+**Built 2026-11-16** (`src/js/satchel.js`): five verses, packed at the cave mouth or from the church; each cave
+remembers its last satchel; fewer than six known, you carry them all. Amos's first-time popup is a draft
+(`TEXT.dive.satchel.tip`).
+
 Today every verse you know comes into every fight, so you're never caught without the right answer. Pokémon makes
 you pick a party. Proposal: **you carry five verses into a cave** (packed at the church or at the cave mouth).
 To repack, leave: the cave keeps your progress (built 2026-11-16; campfires are gone). Romans 12:2 takes a slot like any other, so with mind attacks draining

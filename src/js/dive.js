@@ -107,10 +107,17 @@ function caveMap(i){
 // Leaving a cave (or being beaten in one) keeps what you did there: everyone you freed stays free, opened
 // chests and doors stay open, the people you helped still stand with you at the boss (P.caveProgress). You
 // come back in at the mouth. Clearing the cave wipes it, so a run back through starts fresh.
+// With more than five verses you pack your satchel first (satchel.js), then go in carrying those.
 function startCave(i){
   if(!caveOpen(i)) return;
   if(R.hp < R.maxHp*0.3){ toast(TEXT.church.tooHurt); return; }
+  if(mustPack()){ openPack(i, screen==='church' ? 'church' : 'town'); return; }
+  enterCave(i);
+}
+function enterCave(i, satchel){
+  if(!caveOpen(i)) return;
   Object.assign(R, {cave:i, room:null, node:null, enemies:[], helmUsed:false, boss:null});
+  R.satchel = (satchel || satchelFor(i)).slice(); keepSatchel(i, R.satchel);
   R.map = freshMap(i); R.map.msg = TEXT.dive.walkHint;
   const back = P.caveProgress && P.caveProgress[CAVES[i].id];
   if(back){ restoreProgress(R.map, i, back); R.map.msg = TEXT.dive.backAgain; saveRun(); goto('dive'); return; }
@@ -134,7 +141,7 @@ function saveRun(){
 // back on the map after a reload; anything that no longer fits the map (it was redrawn) starts over
 function resumeCave(run){
   const i = run.cave, m = caveMap(i), M = freshMap(i);
-  Object.assign(R, {cave:i, room:null, node:null, enemies:[], boss:null}); R.map = M;
+  Object.assign(R, {cave:i, room:null, node:null, enemies:[], boss:null}); R.map = M; R.satchel = satchelFor(i);   // what you packed for it
   if(typeof run.seen==='string' && run.seen.length===m.W*m.H){
     M.seen = Array.from(run.seen, Number);
     M.done = (run.done||[]).filter(id=>m.mk[id]); M.open = (run.open||[]).slice(); M.helped = (run.helped||[]).slice();
@@ -311,7 +318,7 @@ function diveHTML(){
   return `${mapHTML()}${body}<div class="dock">${dock}</div>`;
 }
 function versePanel(){
-  const D = TEXT.dive, refs = [...new Set(R.deck.map(c=>c.ref))];
+  const D = TEXT.dive, refs = carried();   // the verses in your satchel
   return `<div class="panel"><h2>${D.verseHeading}</h2><p class="small">${D.verseBody}</p>
     ${refs.map(ref=>`<button class="wide" onclick="sayAtDoor('${ref}')">${spellLine(ref)} · ${TIER_NAME[sp(ref).tier]}</button>`).join('')}</div>`;
 }

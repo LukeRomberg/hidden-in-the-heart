@@ -36,4 +36,4 @@ function recordResult(ref, frac){
   }
   setSp(ref, s);
 }
-function addVerse(ref){ if(!R.deck.some(c=>c.ref===ref)) R.deck.push({ref}); }
+function addVerse(ref){ if(!R.deck.some(c=>c.ref===ref)) R.deck.push({ref}); satchelAdd(ref); }

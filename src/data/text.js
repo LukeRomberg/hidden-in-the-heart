@@ -522,6 +522,33 @@ const TEXT = {
     verseTitle: 'Speak to the door',
     verseOpen: 'The stone sighs and slides back into the wall.',
     verseShut: 'The door doesn’t move. Try again when it’s clearer in your head.',
+    // the satchel: the five verses you carry into a cave (docs/combat-v2.md, section 5). Drafts for Luke.
+    satchel: {
+      heading: 'Your satchel',
+      sub: 'Five verses for {cave}',
+      hint: 'Only what you pack comes into the fights in there. To repack, walk back out: the cave keeps everything you did.',
+      count: '{n} of {max} packed',
+      full: 'Your satchel is full. Take one out first.',
+      more: 'Pack {n} more',
+      goIn: 'Go in',
+      back: 'Back',
+      // in the church, under the caves
+      church: 'Pack your satchel',
+      churchBlurb: 'Choose the five verses you carry into the next cave.',
+      // the Deck screen, inside a cave
+      packed: 'In your satchel',
+      leftHome: 'Left in town',
+      // Amos, the first time you pack
+      tip: {
+        who: 'priest',
+        title: 'Five verses',
+        body: [
+          'You can’t carry every verse you know into the dark at once, son. Pick five.',
+          'Think about who is held in there and what holds them, and bring what answers it. Romans 12:2 takes a place like any other.',
+          'Packed wrong? Walk back out and pack again. Whoever you freed stays free.',
+        ],
+      },
+    },
   },
   // pronoun: 'he' or 'she' (fills {he} {him} {his} {He} in the fight log)
   enemies: {

@@ -67,6 +67,10 @@ S.toast = async () => { await ev(() => { modal = null; render(); toast(TEXT.figh
 S.town = async () => { await fresh(); await jump('Town map, after the tutorial'); await wait(300); await shot('town'); };
 S.cave = async () => { await fresh(); await jump('The Hollow'); await wait(500); await shot('cave'); };
 S.fight = async () => { await recallSetup(); await shot('fight'); };
+S.pack = async () => { await fresh(); await jump('Satchel: packing for the Hollow'); await wait(300); await shot('pack-tip'); await ev(() => closeTip()); await wait(200); await shot('pack'); await shot('pack-full', true);
+  await ev(() => { togglePack(R.pack.sel[1]); togglePack(R.pack.sel[1]); }); await wait(200); await shot('pack-short'); };
+S.packChurch = async () => { await fresh(); await jump('Satchel: the church (tap Pack your satchel)'); await finishTalk(); await shot('pack-church'); await ev(() => { P.tips = { satchel: true }; packFromChurch(); }); await idle(); await shot('pack-from-church'); };
+S.packFight = async () => { await fresh(); await jump('Satchel: a fight with a packed hand'); await wait(1200); await shot('pack-fight'); await ev(() => { R.deckFrom = 'dive'; goto('deck'); }); await idle(); await shot('pack-deck'); };
 S.defeat = async () => { await ev(() => { modal = null; R.lostTalents = 7; goto('defeat'); }); await idle(); await shot('defeat'); };
 
 const only = process.argv.slice(3);

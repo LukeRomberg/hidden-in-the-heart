@@ -21,6 +21,7 @@ function churchHTML(){
     return `<button class="${open&&!n?'primary ':''}wide" ${open?'':'disabled'} onclick="startCave(${i})">${open?C.name:'???'}${n?fill(T.caveCleared,{n}):''}<br><span class="sub">${open?C.blurb:T.caveLocked}</span></button>`; }).join('');
   return `<h1>${T.heading}</h1>${sceneHTML(IMG.scene.church,[AT_PRIEST('idle')])}${talk('church'+(done?1:0),[done?T.lineAfter:T.lineBefore],'',false)}
     <h2>${T.missions}</h2>${caves}
+    ${mustPack()?`<button class="wide" onclick="packFromChurch()">${TEXT.dive.satchel.church}<br><span class="sub">${TEXT.dive.satchel.churchBlurb}</span></button>`:''}
     <button class="wide" disabled>${done?T.nextOpen:T.nextLocked}</button>
     <button class="wide" onclick="startTour()">${TEXT.tour.again}</button>
     <h2 style="margin-top:12px">${T.pews}</h2>

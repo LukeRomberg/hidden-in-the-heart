@@ -901,3 +901,22 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .bellring::after{ animation-delay:.7s; }
 @keyframes bellring{ from{ transform:scale(.3); opacity:1; } to{ transform:scale(2.4); opacity:0; } }
 @media (prefers-reduced-motion: reduce){ .tfolk{ transition:none; } .tfolk.walking .fs, .tfolk .fs.npc{ animation:none !important; background-size:46px 46px; } .bellring::before, .bellring::after{ animation:none; opacity:.6; } }
+/* ---- the satchel (satchel.js): five slots on a page, then every verse you know as cards, as in the hand ---- */
+.packcaves{ display:flex; gap:6px; margin:-6px 0 10px; }
+.packcaves button{ flex:1; margin:0; padding:6px 4px; text-align:center; font-size:var(--fs-s); min-height:36px; }
+.packcaves button.on{ background:var(--page); outline-color:var(--line); color:#3a2414; box-shadow:0 3px 0 var(--edge); }   /* the cave you're packing for: a paper tab */
+.packhead .packsub{ color:var(--rubric); font-size:var(--fs-l); margin-bottom:8px; }
+.packslots{ display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; }
+.pslot{ position:relative; min-height:50px; margin:0; padding:16px 3px 4px; border:2px solid var(--edge); border-radius:4px; outline:0; box-shadow:0 2px 0 var(--edge);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--tc) 30%, var(--page)), var(--page)); color:#3a2414;
+  font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; line-height:1.15; text-align:center; }
+.pslot .gem{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-style:normal;
+  font-weight:900; font-size:12px; color:#1e120a; border:2px solid #1e120a; background:linear-gradient(180deg, color-mix(in srgb, var(--tc) 70%, white), var(--tc)); }
+.pslot.empty{ border:2px dashed var(--mute); background:rgba(60,36,20,.06); box-shadow:none; }
+.packcount{ margin-top:10px; color:var(--pi, #3a2414); }
+.packcount b{ color:var(--rubric); }
+.packhand{ margin-top:14px; row-gap:18px; }
+.packhand .card.packed::after{ content:'\2713'; position:absolute; top:-14px; right:-14px; width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+  background:var(--go); color:#f4ffe0; border:3px solid #1e120a; font-weight:900; font-size:15px; }
+.packhand .card.dim{ opacity:.45; }
+.panel.deckrow.left{ opacity:.55; }

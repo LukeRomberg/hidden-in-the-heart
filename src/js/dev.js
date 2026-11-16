@@ -39,6 +39,10 @@ const TEST_JUMPS = [
   ['The Hollow', ()=>{ testHero(true); startCave(0); }],
   ['The Old Quarry', ()=>{ testHero(true); P.caves.hollow = 1; startCave(1); }],
   ['The Deep Cave', ()=>{ testHero(true); P.caves.hollow = P.caves.quarry = 1; startCave(2); }],
+  // the satchel (satchel.js): eight verses, so you pack five; Amos's first-time popup shows again each jump
+  ['Satchel: packing for the Hollow', ()=>testSatchel(0)],
+  ['Satchel: the church (tap Pack your satchel)', ()=>testSatchel(1, true)],
+  ['Satchel: a fight with a packed hand', testSatchelFight],
   ['Boss: the Grudge', ()=>testBoss(0)],
   ['Boss: the Brawler', ()=>testBoss(1)],
   ['Boss: the Slanderer', ()=>testBoss(2)],
@@ -82,7 +86,7 @@ function testChapterEnd(){
 function testMeet(cave, kind, first){
   testHero(true); for(let k=0;k<cave;k++) P.caves[CAVES[k].id] = 1;
   if(kind==='truth') P.firstTruth = !first; else P.firstHurt = !first; P.retry = [];
-  startCave(cave);
+  enterCave(cave);   // a strong hero carries more than five: skip the packing screen, take the default satchel
   const mk = Object.values(caveMap(cave).mk).find(m=>m.t===kind && (kind!=='truth' || !!m.amos===!!first));
   setTimeout(()=>trigger(mk), 700);
 }
@@ -100,7 +104,7 @@ function testFolk(){
 // a plain fight inside cave i, on that cave's backdrop
 function testCaveFight(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
-  startCave(i); setTimeout(()=>{ R.node = {t:'fight'}; startFight(['villager','villager_strong'].slice(0, i ? 2 : 1), false); }, 400);
+  enterCave(i); setTimeout(()=>{ R.node = {t:'fight'}; startFight(['villager','villager_strong'].slice(0, i ? 2 : 1), false); }, 400);
 }
 // every speaker's portrait, one line each, in the talk popup (Amos's three faces first)
 function testFaces(){
@@ -108,9 +112,18 @@ function testFaces(){
   const ids = ['priest','priestGrave','priestGlad', ...Object.keys(TEXT.speakers).filter(id=>!/^priest/.test(id))];
   setTimeout(()=>talkPop('testfaces', ids.map(id=>[id, `${TEXT.speakers[id]} (${id})`])), 300);
 }
+const SATCHEL_TEST = ['Proverbs 15:1','James 1:19','Proverbs 16:32'];   // on top of testHero(true)'s five
+function testSatchelHero(caves){ testHero(true); SATCHEL_TEST.forEach(addVerse); for(let k=0;k<caves;k++) P.caves[CAVES[k].id] = 1; delete P.tips; saveHero(); }
+function testSatchel(i, church){ testSatchelHero(i); if(church){ P.toured = true; goto('church'); } else startCave(i); }
+// the Hollow with Proverbs 15:1, James 1:19, Proverbs 16:32, Romans 12:2 and Philippians 4:7 packed, then a villager
+function testSatchelFight(){
+  testSatchelHero(0); P.tips = {satchel:true};
+  enterCave(0, ['Proverbs 15:1','James 1:19','Proverbs 16:32','Romans 12:2','Philippians 4:7']);
+  setTimeout(()=>{ R.node = {t:'fight'}; startFight(['villager'], false); }, 400);
+}
 function testBoss(i){
   testHero(true); for(let k=0;k<i;k++) P.caves[CAVES[k].id] = 1;
-  startCave(i); setTimeout(()=>{ R.node = {t:'elite', caveBoss:true}; startFight([CAVES[i].boss], false); }, 400);
+  enterCave(i); setTimeout(()=>{ R.node = {t:'elite', caveBoss:true}; startFight([CAVES[i].boss], false); }, 400);
 }
 function testJump(n){ document.getElementById('testpanel').classList.remove('open'); modal = null; TEST_JUMPS[n][1](); }
 function testPanel(){

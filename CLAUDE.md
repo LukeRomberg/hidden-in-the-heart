@@ -149,6 +149,14 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   campfires, wall torches, the forge, lamps at dusk); embers, dust motes, the odd leaf, fireflies at dusk; soft shadows;
   `MAPFX.town.dusk` (bool or function) tints the town for dusk. Draw order: row y's tiles at z 2y, people on it at 2y+1,
   then dusk 900, lights 901, particles 902. All motion stops under `prefers-reduced-motion`. Test jump: “Town map at dusk”.
+- **The satchel** (`satchel.js`, docs/combat-v2.md section 5): you carry five verses into a cave. With more than five
+  known, `startCave` opens the packing screen (screen `pack`, at the cave mouth, or “Pack your satchel” in the church,
+  which can switch caves); five or fewer, you carry them all. Fights in a cave and its verse doors use only the packed
+  set (`carried()`: `R.satchel` while `R.cave` and `P.run` are set; the tutorial and fights outside a cave use all of
+  `R.deck`, which stays the whole collection). Repacking means walking out (the cave keeps its progress). Each cave
+  remembers its last satchel (`P.satchel[cave id]`, `P.satchel.last` seeds a new cave); a verse learned inside goes in
+  if there's room. `enterCave(i, refs)` skips the screen (test jumps). Amos explains it once (`P.tips.satchel`, lines
+  in `TEXT.dive.satchel`). Test jumps: “Satchel: …”.
 - **Encounters** (`encounters.js`, plan in `docs/encounters.md`): Amos's **sermon scraps**
   (“You have heard it said, brothers…”) are walked over and picked up (`P.notes`) and teach one
   truth each; **truth villagers** ask “Is it true that…?” from `TEXT.truths.list` (verses in
