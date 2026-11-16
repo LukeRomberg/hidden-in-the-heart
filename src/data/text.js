@@ -845,15 +845,6 @@ const TEXT = {
   },
 
   rooms: {
-    restHeading: 'Rest',
-    restBody: 'A quiet corner. Choose one.',
-    sleep: 'Sleep — heal 12',
-    slept: 'Healed 12',
-    study: 'Study — practice a verse toward mastery',
-    restConsecrate: 'Or consecrate, then go on resting',
-    studyHeading: 'Study',
-    studyNote: 'A perfect recital counts as one of the three needed to promote the verse.',
-    studyMissed: 'Not quite. Rest anyway.',
     lockHeading: 'A chest',
     lockBody: 'Words are carved around the lock, scrambled: a piece of the Nicene Creed. Put them back in order and it opens.',
     lockSmall: 'Something light rattles inside.',

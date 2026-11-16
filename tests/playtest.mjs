@@ -355,7 +355,6 @@ async function playOne(acc, style) {
         await afterFight(); continue;
       }
       if (st.screen === 'reward') { await page.locator('#app .hand > div').first().click(); await until(() => screen !== 'reward'); continue; }
-      if (st.screen === 'study') { await page.locator('#app button[onclick^="studyVerse"]').first().click(); await solveRecall(); continue; }
       if (st.screen !== 'dive') { await page.waitForTimeout(100); continue; }
       if (st.room) { await handleRoom(st.room, att); continue; }
       if (st.node) { await page.waitForTimeout(100); continue; }   // a fight is starting

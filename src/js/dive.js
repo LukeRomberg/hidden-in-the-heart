@@ -1,7 +1,7 @@
 /* Cave maps. Each cave is a small hand-drawn tile map you walk in the dark: the light around you
    reveals a few tiles, what you've seen stays dimly drawn, and nothing ahead shows until you get
-   there. Tap a tile to walk to it. Stepping onto a fight, chest, campfire or the held townsperson
-   opens it; chests and the campfire open right here under the map, fights switch to the arena
+   there. Tap a tile to walk to it. Stepping onto a fight, a chest or the held townsperson
+   opens it; chests open right here under the map, fights switch to the arena
    and come back. Puzzles: verse doors (say a verse you carry, no slip), levers that open gates,
    and the boss door, which stays barred until everyone else in the cave is free.
    Walking, light, camera and drawing are the shared map engine in tilemap.js; this file is the cave's rules.
@@ -10,17 +10,17 @@
      D boss door, opens once every fight on the map is cleared
      V verse door, opens when you say a verse you carry without a slip
      L lever, opens every G gate      K lever, opens every H gate
-     1-9 a marker from that cave's marks: {t:'fight', e:[enemy ids]}, {t:'lock', tier}, {t:'rest'}
+     1-9 a marker from that cave's marks: {t:'fight', e:[enemy ids]}, {t:'lock', tier}
      a-z (lowercase) the encounters in encounters.js: {t:'scrap', truth}, {t:'truth', truth, amos}, {t:'hurt', who} */
 const CAVES = [
-  {id:'hollow', boss:'grudge', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager']}, 3:{t:'lock',tier:1}, 4:{t:'rest'}, a:{t:'scrap',truth:'even'}, b:{t:'scrap',truth:'account'}, c:{t:'scrap',truth:'sun'},
+  {id:'hollow', boss:'grudge', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager']}, 3:{t:'lock',tier:1}, a:{t:'scrap',truth:'even'}, b:{t:'scrap',truth:'account'}, c:{t:'scrap',truth:'sun'},
     t:{t:'truth',truth:'account',amos:'even'}, u:{t:'truth',truth:'sun'}}, map:[
     '##############',
     '#####...######',
     '#####.B.######',
     '#####...######',
     '######D#######',
-    '###c....4#...#',
+    '###c.....#...#',
     '###2.....#L#.#',
     '####....u###.#',
     '######G#####.#',
@@ -35,14 +35,14 @@ const CAVES = [
     '##############',
   ]},
   {id:'quarry', boss:'brawler', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager','villager']}, 3:{t:'fight',e:['villager_strong']},
-    4:{t:'rest'}, 5:{t:'lock',tier:1}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'tobias'},
+    5:{t:'lock',tier:1}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'tobias'},
     a:{t:'scrap',truth:'gentle'}, b:{t:'scrap',truth:'help'}, c:{t:'scrap',truth:'pride'}, t:{t:'truth',truth:'gentle'}, u:{t:'truth',truth:'help'}, w:{t:'truth',truth:'pride'}}, map:[
     '###############',
     '######...######',
     '######.B.######',
     '######...######',
     '#######D#######',
-    '##4........w###',
+    '##.........w###',
     '##..#..3..#.c##',
     '##.u.........##',
     '#######H#######',
@@ -57,7 +57,7 @@ const CAVES = [
     '###############',
   ]},
   {id:'deep', boss:'slanderer', marks:{1:{t:'fight',e:['villager']}, 2:{t:'fight',e:['villager_strong']}, 3:{t:'fight',e:['villager_strong','villager']},
-    4:{t:'rest'}, 5:{t:'lock',tier:2}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'hannah'},
+    5:{t:'lock',tier:2}, 6:{t:'lock',tier:2}, h:{t:'hurt',who:'hannah'},
     a:{t:'scrap',truth:'money'}, b:{t:'scrap',truth:'good'}, c:{t:'scrap',truth:'heart'}, d:{t:'scrap',truth:'handle'},
     t:{t:'truth',truth:'good'}, u:{t:'truth',truth:'handle'}, w:{t:'truth',truth:'heart'}, x:{t:'truth',truth:'money'}}, map:[
     '################',
@@ -65,7 +65,7 @@ const CAVES = [
     '#######.B.######',
     '#######...######',
     '########D#######',
-    '###4......u..###',
+    '###.......u..###',
     '###.3.......d###',
     '#########H######',
     '###.w...#.######',
@@ -158,7 +158,7 @@ function isDone(x,y){ return R.map.done.includes(tid(x,y)); }
 function isOpen(x,y){ return R.map.open.includes(tid(x,y)); }
 function leverFor(gate){ return Object.keys(LEVERS).find(l=>LEVERS[l]===gate); }
 function leverPulled(lever){ const m = caveMap(R.cave); return R.map.open.some(id=>{ const [x,y]=id.split(',').map(Number); return m.rows[y] && m.rows[y][x]===lever; }); }
-// an uncleared marker (fight, chest, campfire, the held townsperson) or null
+// an uncleared marker (fight, chest, the held townsperson) or null
 function markAt(x,y){ const m = caveMap(R.cave).mk[tid(x,y)]; return m && !isDone(x,y) ? m : null; }
 function closedAt(x,y){ const c = tileAt(x,y);
   if(c==='D' || c==='V') return !isOpen(x,y);
@@ -219,7 +219,7 @@ function sayAtDoor(ref){
     else toast(D.verseShut);
     render(); }, undefined, D.verseTitle);
 }
-// After a fight, chest or campfire: back on the map with that marker gone for good, or out of the cave
+// After a fight or a chest: back on the map with that marker gone for good, or out of the cave
 // after the boss. (The name is from the old column map; combat.js calls it when a fight is over.)
 function clearColumn(){
   const n = R.node; R.room=null; R.node=null;
@@ -274,7 +274,6 @@ function tileInner(x,y){
   if(mk.t==='lock') return art('chest','prop');
   if(mk.t==='scrap') return art('note','prop');
   if(mk.t==='hurt') return `<img class="mk who hurt" src="${hurtSrc(mk.who)}" alt="">`;
-  if(mk.t==='rest') return art('fire','prop fire') + art('fire2','fire f2');
   // people: still held, so a shadow with an angry glow; the named townsperson is drawn as themselves
   if(mk.t==='truth') return `<img class="mk who shade" src="${folkSrc(TEXT.villagers[truthFolk(mk)],'idle')}" alt="">`;   // the same person you meet in the arena
   if(mk.t==='boss' && standIn(mk.e[0])===mk.e[0]){ const E = ENEMY_IMG[mk.e[0]]; return `<img class="mk who boss" src="${E.f[0]}" alt="">`; }
@@ -283,7 +282,6 @@ function tileInner(x,y){
 // what a cave tile gives off (mapfx.js): the campfire's glow and embers, and here and there a torch on a wall face
 function caveFxAt(x,y){
   const mk = markAt(x,y);
-  if(mk && mk.t==='rest') return {light:'fire', emit:'embers'};
   if(sconces().has(tid(x,y))) return {light:'torch', emit:'sparks', sconce:true};
   return null;
 }
@@ -306,7 +304,6 @@ function diveHTML(){
   const back = label=>`<button class="wide" onclick="notNow()">${label}</button>`;
   let body, dock;
   if(R.room==='lock'){ body = lockPanel(); dock = `<button class="primary wide" onclick="pickLock()">${T.pickLock}</button>${back(D.notNow)}`; }
-  else if(R.room==='rest'){ body = restPanel(); dock = back(D.notNow); }
   else if(R.room==='boss'){ body = `<div class="panel cavemsg">${TEXT.caves[R.cave].bossLead}</div>`; dock = `<button class="primary wide" onclick="faceBoss()">${D.face}</button>${back(D.notYet)}`; }
   else if(R.room==='scrap'){ body = scrapPanel(); dock = `<button class="primary wide" onclick="takeScrap()">${TEXT.truths.takeIt}</button>`; }
   else if(R.room==='verse'){ body = versePanel(); dock = `<button class="wide" onclick="R.room=null;R.node=null;render()">${D.notNow}</button>`; }
@@ -362,18 +359,6 @@ function rewardHTML(){
     <div class="dock"><button class="wide" onclick="clearColumn()">${TEXT.rooms.chestLeave}</button></div>`;
 }
 function takeReward(ref){ if(!R.reward) return; R.reward = null; addVerse(ref); clearColumn(); }   // once, even on a double tap
-function restPanel(){
-  return `<div class="panel">${TEXT.rooms.restBody}
-    <button class="wide" onclick="R.hp=Math.min(R.maxHp,R.hp+12);toast(TEXT.rooms.slept);clearColumn()">${TEXT.rooms.sleep}</button>
-    <button class="wide" onclick="screen='study';render()">${TEXT.rooms.study}</button></div>
-    <h2 style="margin-top:12px">${TEXT.rooms.restConsecrate}</h2>${consecrateList()}`;
-}
-function studyHTML(){
-  const refs=[...new Set(R.deck.map(c=>c.ref))];
-  return `<h1>${TEXT.rooms.studyHeading}</h1><div class="panel small mute">${TEXT.rooms.studyNote}</div>
-    ${refs.map(ref=>`<button class="wide" onclick="studyVerse('${ref}')">${spellLine(ref)} · ${TIER_NAME[sp(ref).tier]}</button>`).join('')}`;
-}
-function studyVerse(ref){ openRecall(BY_REF[ref], (frac)=>{ recordResult(ref,frac); if(frac<1) toast(TEXT.rooms.studyMissed); clearColumn(); }, undefined, TEXT.rooms.studyHeading); }
 // ---- Chests: put a scrambled piece of the Nicene Creed back in order ----
 // Deeper chests are harder and hold better loot. Fail and you get nothing.
 const CREED = __DATA__('creed.json');

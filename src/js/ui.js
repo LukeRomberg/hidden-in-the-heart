@@ -45,7 +45,7 @@ function tabsHTML(){
 }
 function tab(id){ if(modal) return; R.treeFrom='town'; R.gearFrom='town'; R.deckFrom='town'; R.codexFrom='town'; if(id==='tree') R.treeSel=null; goto(id); }
 function render(){
-  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, meet:meetHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, study:studyHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
+  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, meet:meetHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   // no tabs until Bram is free (the opening walks the town map)

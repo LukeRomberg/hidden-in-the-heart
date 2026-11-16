@@ -98,15 +98,41 @@ shields for the haymaker, cleanses bitterness. Targets:
 ## 5. A satchel: the verses you carry into a cave
 
 Today every verse you know comes into every fight, so you're never caught without the right answer. Pokémon makes
-you pick a party. Proposal: **you carry five verses into a cave** (packed at the church or at the cave mouth),
-and can repack only at a campfire inside. Romans 12:2 takes a slot like any other, so with mind attacks draining
+you pick a party. Proposal: **you carry five verses into a cave** (packed at the church or at the cave mouth).
+To repack, leave: the cave keeps your progress (built 2026-11-16; campfires are gone). Romans 12:2 takes a slot like any other, so with mind attacks draining
 focus, "bring the verse that restores focus, or one more weapon?" is a real choice.
 
 Why I think it's worth it: it makes matchups bite (you prepare for the Slanderer, not for everything); it makes
 the Scriptorium and the Inn's rumors matter; and for memorization it's a plus: a cave becomes focused practice
-on five verses, while the Training Yard and the campfire keep the rest from slipping. The risk is a player who
-packs badly and is stuck for a whole cave; the campfire repack and leaving without losing progress (built
-2026-11-16) cover that. Four is tight with Romans taking a slot; six barely bites. Five is my pick.
+on five verses, while the Training Yard keeps the rest from slipping. The risk is a player who
+packs badly and is stuck for a whole cave; leaving to repack without losing progress covers that. Four is tight with Romans taking a slot; six barely bites. Five is my pick.
+
+## 6. The Armor of God across the whole game (Luke, 2026-11-16)
+
+Today you can consecrate all six pieces in Philadelphia, from the gear screen anywhere, and they barely matter.
+New shape:
+
+- **One piece per chapter, earned by freeing that town.** After the chapter's last held townsperson is free,
+  Amos consecrates the piece **at the church**, as you recite Ephesians 6 up to that piece (6:14 for the first,
+  6:14–17 for the last), so the passage grows with the game. Nowhere else: no consecrating from the gear screen
+  or the Forge.
+- **Order follows Ephesians and the towns:**
+
+  | Chapter | Town | Piece | Defends |
+  |---|---|---|---|
+  | 1 | Philadelphia (kept His word) | Belt of Truth | mind: lies can't twist your words |
+  | 2 | Ephesus | Breastplate of Righteousness | body |
+  | 3 | Sardis | Shoes of the Gospel of Peace | lingering harm (heat, bitterness) |
+  | 4 | Smyrna | Shield of Faith | mind: blocks lies before they drain focus |
+  | 5 | Thyatira | Helmet of Salvation | mind, and once a cave you hold at 1 HP |
+  | 6 | Pergamum | Sword of the Spirit | your verses cut deeper |
+  | 7 | Laodicea | (the full armor, for the last chapter) | |
+
+- **Each piece is a big deal**, the strongest thing in its slot, so earning one changes how you fight.
+- **The Forge sells lesser gear** in every slot, the thing you shop for between caves. Later (not now): two or more
+  options per slot (a leather cap for mind, a padded hood for body), each with a perk rolled from a small pool when
+  you buy it, so gear is worth checking every visit.
+- The lid and Bible (Amos) and the boots (Bram) stay as starting gear.
 
 ## Decisions for Luke
 
@@ -114,4 +140,5 @@ packs badly and is stuck for a whole cave; the campfire repack and leaving witho
 2. ~~One HP bar or mind attacks drain focus~~ decided: focus, and shields block them.
 3. Whether Galatians 5:22–23 counts as every fruit.
 4. New verses for Gentleness and Goodness at the Scriptorium (I'd pull candidates from the BSB for you to pick).
-5. The satchel: five verses into a cave, repacked at campfires?
+5. The satchel: five verses into a cave, repacked in town?
+6. The armor order by town (the table in section 6), and that Philadelphia gives the Belt of Truth.
