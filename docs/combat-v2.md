@@ -84,16 +84,21 @@ The Armor of God already splits this way in Ephesians 6. Draft:
 (“mind −1” = every mind move does 1 less.) Then the Brawler cave asks for the vest and the Breastplate, the
 Slanderer cave for the Belt of Truth and the Helmet. You can't afford everything at once, so you choose.
 
-## 4. Tuning targets (two bots)
+## 4. Tuning targets (Luke, 2026-11-16)
 
-The playtest gets a second bot. **Naive** says the biggest number every turn; **smart** plays the matchups, saves
-shields for the haymaker, cleanses bitterness. Targets:
+High accuracy is the normal case, since verses step down to what you know; 80% is the floor. Two bots: **naive**
+says the biggest number every turn; **smart** plays the matchups, shields before big hits, cleanses bitterness and
+heat, keeps Romans 12:2 for when focus runs low. Each also runs **straight through** (never leaves a cave) and
+**leaving to heal** (goes back to town when low, then returns; progress is kept).
 
-| Accuracy | Naive | Smart |
-|---|---|---|
-| 100% | can lose in the Deep Cave | comfortable |
-| 85% | loses by the Quarry | close calls; wins with the right gear |
-| 70% | loses | needs gear, the tree and a second try |
+| Accuracy | Target |
+|---|---|
+| 100% | wins, though not every time: a naive run can still lose a cave |
+| 90%, smart | wins, barely: close calls, low HP at the bosses |
+| 80%, straight through | dies in the second cave (the Old Quarry) |
+| 80%, leaving to heal | can get through, slowly, if it plays smart and buys the right gear |
+
+`npm run playtest` reports all of these; balance isn't done until every row holds.
 
 ## 5. A satchel: the verses you carry into a cave
 
