@@ -68,21 +68,13 @@ the Furnace) wears your HP down. Shielding (Psalm 37:8, the lid, the Shield of F
 they reach your focus. To keep a drained player from stalling: at 0 focus a mind attack spills into HP instead,
 and Romans 12:2 (restore focus) matters far more than it does today.
 
-## 3. Gear defends one side
+## 3. Gear (Luke, 2026-11-16)
 
-The Armor of God already splits this way in Ephesians 6. Draft:
-
-| Slot | Plain (bought) | Armor of God (consecrated) |
-|---|---|---|
-| Waist | Leather Belt: mind −1 | Belt of Truth: mind −3; lies can't twist your words |
-| Chest | Canvas Vest: body −1, +6 HP | Breastplate of Righteousness: body −3, +6 HP |
-| Feet | Work Boots: heal 4 after a fight | Shoes of Peace: heal 4 after a fight; heat and bitterness tick 1 less |
-| Off hand | Trash-Can Lid: body −1 the first 2 turns | Shield of Faith: the first mind move each fight is blocked; can't be provoked |
-| Head | Ball Cap: crosses off a wrong choice | Helmet of Salvation: mind −2; crosses off a wrong choice; once a cave you hold at 1 HP |
-| Hand | Pocket Bible: +1 damage | Sword of the Spirit: +3 damage; by-heart verses +25% |
-
-(“mind −1” = every mind move does 1 less.) Then the Brawler cave asks for the vest and the Breastplate, the
-Slanderer cave for the Belt of Truth and the Helmet. You can't afford everything at once, so you choose.
+**Basic gear stays as it is** (the Trash-Can Lid and the Pocket Bible from Amos, Bram's Work Boots, and the Leather
+Belt, Canvas Vest and Ball Cap from the Forge), with the same perks. **The final goal is the Armor of God** (section
+6). **The core unlocks of the game are the fruit tree and new verses**, not gear: no rolled perks, no long list
+of shop items. Only change to basic gear: once attacks split into body and mind, the lid also soaks the first mind
+attack of a fight, since a shield is what blocks lies.
 
 ## 4. Tuning targets (Luke, 2026-11-16)
 
@@ -114,30 +106,27 @@ packs badly and is stuck for a whole cave; leaving to repack without losing prog
 
 ## 6. The Armor of God across the whole game (Luke, 2026-11-16)
 
-Today you can consecrate all six pieces in Philadelphia, from the gear screen anywhere, and they barely matter.
-New shape:
+Each town has a signature trouble you suffer through. Freeing the town earns the piece that makes that trouble a
+non-issue from then on, like a badge that is also a cure. Each new town brings a new trouble, so the challenge
+moves on instead of vanishing. Pieces are matched to towns by what each church's letter in Revelation is about,
+not by Ephesians order.
 
-- **One piece per chapter, earned by freeing that town.** After the chapter's last held townsperson is free,
-  Amos consecrates the piece **at the church**, as you recite Ephesians 6 up to that piece (6:14 for the first,
-  6:14–17 for the last), so the passage grows with the game. Nowhere else: no consecrating from the gear screen
-  or the Forge.
-- **Order follows Ephesians and the towns:**
+| Town (sin) | What you suffer there | Piece you earn | From then on | Tie-in (check against the BSB) |
+|---|---|---|---|---|
+| Philadelphia (wrath) | provoked into costly verses; heat and bitterness that stack | Shoes of the Gospel of Peace | can't be provoked; heat and bitterness wear off after one turn | the open door (Rev 3:8); feet ready with the gospel of peace (Eph 6:15) |
+| Ephesus (hatred) | cold, heavy blows that chill your heart and freeze a verse | Breastplate of Righteousness | body blows halved; your verses can't be frozen | first love abandoned; do the works you did at first (Rev 2:4–5) |
+| Sardis (envy) | comparison and doubt that drain your focus | Helmet of Salvation | mind attacks drain half; once a cave you hold at 1 HP | a reputation for being alive, but dead (Rev 3:1) |
+| Smyrna (rivalry) | rivals who gang up and hit twice | Shield of Faith | the first two attacks each fight are blocked; combos broken | be faithful even unto death (Rev 2:10) |
+| Thyatira (impurity, false teaching) | lies that twist your words and hide what a sin is weak to | Belt of Truth | your words can't be twisted; you see every enemy's weakness | the false teaching of Jezebel (Rev 2:20) |
+| Pergamum (idolatry) | sins that resist almost everything | Sword of the Spirit | your verses ignore resistance; by-heart verses +50% | the sharp double-edged sword (Rev 2:12) |
+| Laodicea (drunkenness) | the last chapter, in the full armor | | | |
 
-  | Chapter | Town | Piece | Defends |
-  |---|---|---|---|
-  | 1 | Philadelphia (kept His word) | Belt of Truth | mind: lies can't twist your words |
-  | 2 | Ephesus | Breastplate of Righteousness | body |
-  | 3 | Sardis | Shoes of the Gospel of Peace | lingering harm (heat, bitterness) |
-  | 4 | Smyrna | Shield of Faith | mind: blocks lies before they drain focus |
-  | 5 | Thyatira | Helmet of Salvation | mind, and once a cave you hold at 1 HP |
-  | 6 | Pergamum | Sword of the Spirit | your verses cut deeper |
-  | 7 | Laodicea | (the full armor, for the last chapter) | |
-
-- **Each piece is a big deal**, the strongest thing in its slot, so earning one changes how you fight.
-- **The Forge sells lesser gear** in every slot, the thing you shop for between caves. Later (not now): two or more
-  options per slot (a leather cap for mind, a padded hood for body), each with a perk rolled from a small pool when
-  you buy it, so gear is worth checking every visit.
-- The lid and Bible (Amos) and the boots (Bram) stay as starting gear.
+- **Earned at the church only.** After the town's last held person is free, Amos consecrates the piece as you
+  recite that piece's verse from Ephesians 6. The last chapter asks for the whole passage, Ephesians 6:10–18.
+  No consecrating at the Forge or from the gear screen: the Forge's consecration chain goes away.
+- **Each piece is the strongest thing in its slot** and replaces the basic piece there (the Shoes replace the Work
+  Boots, and so on).
+- Philadelphia's piece is the Shoes of Peace: the chapter ending is where Amos consecrates them.
 
 ## Decisions for Luke
 
@@ -146,4 +135,4 @@ New shape:
 3. Whether Galatians 5:22–23 counts as every fruit.
 4. New verses for Gentleness and Goodness at the Scriptorium (I'd pull candidates from the BSB for you to pick).
 5. The satchel: five verses into a cave, repacked in town?
-6. The armor order by town (the table in section 6), and that Philadelphia gives the Belt of Truth.
+6. ~~The armor order~~ decided: one piece per town by its letter's theme; Philadelphia gives the Shoes of Peace.
