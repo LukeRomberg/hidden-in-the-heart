@@ -8,25 +8,26 @@ function cardHTML(v, o={}){
 }
 function cardView(v){ return cardHTML(v,{full:true}); }
 function titleHTML(){
-  return `<h1>Hidden in the Heart</h1>${sceneHTML(IMG.scene.title,[{src:IMG.hero.asleep, x:6, y:94, w:64}])}<div class="panel">
-    <div class="small mute" style="text-align:center;margin:8px 0">\u201cI have hidden Your word in my heart that I might not sin against You.\u201d Psalm 119:11</div></div>
-    ${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
+  return `<h1 class="gametitle">Hidden in the Heart</h1>${sceneHTML(IMG.scene.title,[{src:IMG.hero.asleep, x:6, y:94, w:64}])}<div class="panel titleverse">
+    <div class="small mute">\u201cI have hidden Your word in my heart that I might not sin against You.\u201d <span class="tref">Psalm 119:11</span></div></div>
+    <div class="titlemenu">${P.hero?`<button class="primary wide" onclick="continueGame()">Continue</button>`:''}
     <button class="${P.hero?'':'primary '}wide" onclick="if(!P.hero || confirm(TEXT.title.newGameConfirm)) newGame()">New game</button>
-    <button class="wide" onclick="R=R||Object.assign(transient(),blankHero()); R.codexFrom='title'; goto('codex')">Codex</button>
-    <button class="wide" onclick="goto('saves')">${TEXT.saves.heading}</button>
-    <div class="small mute" style="margin-top:12px">Scripture quotations are from the Berean Standard Bible, public domain. ${CREED.credit}</div>`;
+    <div class="row"><button class="wide" onclick="R=R||Object.assign(transient(),blankHero()); R.codexFrom='title'; goto('codex')">Codex</button>
+    <button class="wide" onclick="goto('saves')">${TEXT.saves.heading}</button></div></div>
+    <div class="small mute credit">Scripture quotations are from the Berean Standard Bible, public domain. ${CREED.credit}</div>`;
 }
 function codexHTML(){
   // the whole Creed, so it can be studied; sections recovered from chests are full color, the rest faded
   const C = TEXT.codex, got = P.creed||0, N = CREED.sections.length;
-  const creed = CREED.sections.map((sec,i)=>`<span class="${i<got?'':'faded'}">${sec.join(' ')}</span>`).join(' ');
-  return `<h1>Codex</h1><div class="panel"><div class="px">${C.creed} · ${fill(C.creedSoFar,{n:got, total:N})}</div>
-    <div class="verse creed">${creed}</div><div class="small mute">${got<N?C.creedNote:C.creedDone}</div>
-    <div class="small mute" style="font-size:13px;margin-top:6px">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel"><div class="px t-${v.type}">${spellLine(v.ref)} · ${v.type}</div><div class="verse" style="font-size:21px">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
+  const creed = CREED.sections.map((sec,i)=>`<li class="${i<got?'got':'faded'}"><span class="cn">${i+1}</span><span>${sec.join(' ')}</span></li>`).join('');
+  return `<h1>Codex</h1><div class="panel codexcreed"><div class="cxhead"><span class="px">${C.creed}</span><span class="cxcount">${fill(C.creedSoFar,{n:got, total:N})}</span></div>
+    <div class="cxbar" aria-hidden="true">${CREED.sections.map((s,i)=>`<i class="${i<got?'on':''}"></i>`).join('')}</div>
+    <ol class="verse creed">${creed}</ol><div class="small mute">${got<N?C.creedNote:C.creedDone}</div>
+    <div class="small mute credit">${CREED.credit}</div></div>${[...STORY_V,...VERSES,...ARMOR_V].map(v=>{ const s=sp(v.ref); const vs=passVerses(v.ref,s.n); return `<div class="panel codexv ty-${v.type}"><div class="cxhead"><span class="px t-${v.type}">${spellLine(v.ref)}</span><span class="cxtype t-${v.type}">${v.type}</span></div><div class="verse">${vs.map(x=>(s.n>1?`<sup class="mute">${x.v}</sup>`:'')+x.t).join(' ')}</div><div class="small mute">${TIER_NAME[s.tier]} · ${s.n} of ${maxN(v.ref)} verses${s.n<maxN(v.ref)?'':' · complete'}</div></div>`;}).join('')}
     <div class="dock"><button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button></div>`;
 }
 function deckHTML(){
-  return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div>`;}).join('')}
+  return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel deckrow ty-${v.type}"><div class="gem">${spellCost(v)}</div><div class="drbody"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div></div>`;}).join('')}
     <div class="dock"><button class="wide" onclick="goto(R.deckFrom||'town')">Back</button></div>`;
 }
 const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','dive','codex','intro']);

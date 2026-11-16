@@ -266,6 +266,7 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
    `.github/workflows/pages.yml` (verify, build, smoke, deploy). This repo pushes as the
    personal account via a repo-local credential helper; the default SSH key is the work account.
 3. Wire PixelLab and replace the placeholder art above.
-4. Finish the UI overhaul: recall popup, after-fight panel, dungeon map.
+4. Done (UI pass, 2026-11): recall popup, after-fight panel, one family of frames/buttons/popups (the `UI pass`
+   block in `styles.css`). `node tests/ui_shots.mjs [dir]` (after a build) screenshots every interface screen at 430px.
 5. Design Mission 2 (Hatred / Love) and Ephesus.
 6. Optional: backend saves so progress follows Luke between phone and laptop.

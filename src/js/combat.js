@@ -167,24 +167,32 @@ function fightHTML(){
 }
 // how a cast went, for the after-fight panel
 function castResult(frac){ return frac===1 ? 'perfect' : frac>=SLIP_BELOW ? 'steady' : 'slipped'; }
+// who you freed, as a small picture: a portrait for the named, the freed sprite for a villager (as in thanksBeat)
+function freedPic(e){
+  const who=FREED_AS[e.id], spr=spriteImg(e.villager ? e.spr : 'freed'+(e.fk%6));
+  return !e.villager && IMG.portrait[who] ? `<img class="fport" src="${IMG.portrait[who]}" width="40" height="40" alt="">`
+    : spr ? `<img class="fspr" src="${spr.f[0]}" width="36" height="48" alt="">` : '';
+}
 function afterHTML(){
   const A = TEXT.afterFight, due = treeDue();
   const bar=(pct,cls)=>`<div class="bar ${cls}"><i style="width:${Math.round(Math.min(1,pct)*100)}%"></i></div>`;
-  const freed = R.enemies.filter(e=>e.freed).map(freedName).join(', ');
+  const freedOnes = R.enemies.filter(e=>e.freed);
+  const freed = freedOnes.map(e=>`<figure class="afree">${freedPic(e)}<figcaption>${freedName(e)}</figcaption></figure>`).join('');
   const spells = (R.castRefs||[]).map(ref=>{ const s=sp(ref); const done=s.tier===3&&s.n>=maxN(ref);
-    const casts = (R.castLog||[]).filter(c=>c.ref===ref).map(c=>{ const r=castResult(c.frac); return `<span class="res ${r}">${A.result[r]}</span>`; }).join(' ');
-    return `<div class="verse-res"><div class="stat small"><span class="t-${BY_REF[ref].type}">${spellLine(ref)}</span><span>${casts}</span></div>
-      <div class="stat small mute"><span>${done?A.complete:TIER_NAME[s.tier]}</span><span>${done?'':s.perf+'/3'}</span></div>${bar(done?1:s.perf/3,'mn')}${s.fails?`<div class="small t-Goodness">${fill(A.slipsWarning,{n:s.fails})}</div>`:''}</div>`; }).join('');
-  return `<div class="panel afterfight"><h2>${A.heading}</h2>${freed?`<div class="stat freed"><span>${A.freed}</span><span>${freed}</span></div>`:''}${R.unlockMsg?`<div class="small t-Gentleness">${R.unlockMsg}</div>`:''}
-    ${R.boss?'':`<div class="stat"><span>${A.souls}</span><span>+${R.earned.souls}</span></div>`}
-    <div class="stat small"><span>${R.earned.leveled?`Level ${R.level}!`:`Level ${R.level}`}</span><span>${R.xp}/${xpNeed(R.level)} to level ${R.level+1}</span></div>${bar(R.xp/xpNeed(R.level),'hp')}
-    ${R.boss?'':`<div class="stat"><span>${A.talents}</span><span>+${R.earned.talents} \u00b7 ${R.talents} total</span></div>`}
-    ${spells?`<h2 style="margin-top:10px">${A.verses}</h2>${spells}`:''}
-    ${due>0?`<div class="stat t-Gentleness"><span>Level ${R.level}</span><span>${A.fruitCanGrow}</span></div>`:''}${R.pendingDrop?`<div class="stat t-Love"><span>Dropped</span><span>${R.pendingDrop}</span></div>`:''}${R.gearDropped?`<div class="stat t-Patience"><span>${A.foundGear}</span><span>${ITEMS[R.gearDropped].name}</span></div><div class="small mute">${ITEMS[R.gearDropped].perk}</div>`:''}${has('boots')||has('sabatons')?`<div class="small mute">${A.bootsHeal}</div>`:''}</div>
+    const casts = (R.castLog||[]).filter(c=>c.ref===ref).map(c=>{ const r=castResult(c.frac); return `<span class="res ${r}">${A.result[r]}</span>`; }).join('');
+    const pips = done ? '' : `<span class="perf3" title="${s.perf}/3">${[0,1,2].map(k=>`<i class="${k<s.perf?'on':''}"></i>`).join('')}<b>${s.perf}/3</b></span>`;
+    return `<div class="verse-res"><div class="vrtop"><span class="vref t-${BY_REF[ref].type}">${spellLine(ref)}</span><span class="casts">${casts}</span></div>
+      <div class="vrtier"><span>${done?A.complete:TIER_NAME[s.tier]}</span>${pips}</div>${s.fails?`<div class="vrwarn">${fill(A.slipsWarning,{n:s.fails})}</div>`:''}</div>`; }).join('');
+  const tiles = R.boss ? '' : `<div class="aearn"><div class="atile"><span class="alabel">${A.souls}</span><b>+${R.earned.souls}</b></div>
+    <div class="atile"><span class="alabel">${A.talents}</span><b>${icon('coin',1.6)} +${R.earned.talents}</b><span class="asub">${R.talents} total</span></div></div>`;
+  return `<div class="panel afterfight"><h2>${A.heading}</h2>${freed?`<div class="afreed"><span class="alabel">${A.freed}</span><div class="afaces">${freed}</div></div>`:''}${R.unlockMsg?`<div class="aunlock">${R.unlockMsg}</div>`:''}
+    ${tiles}
+    <div class="alevel ${R.earned.leveled?'up':''}"><div class="stat"><span>${R.earned.leveled?`Level ${R.level}!`:`Level ${R.level}`}</span><span class="asub">${R.xp}/${xpNeed(R.level)} to level ${R.level+1}</span></div>${bar(R.xp/xpNeed(R.level),'xp')}</div>
+    ${spells?`<h2 class="ahead">${A.verses}</h2>${spells}`:''}
+    ${due>0||R.pendingDrop||R.gearDropped||has('boots')||has('sabatons')?`<div class="anotes">${due>0?`<div class="stat t-Gentleness"><span>Level ${R.level}</span><span>${A.fruitCanGrow}</span></div>`:''}${R.pendingDrop?`<div class="stat t-Love"><span>Dropped</span><span>${R.pendingDrop}</span></div>`:''}${R.gearDropped?`<div class="stat t-Patience"><span>${A.foundGear}</span><span>${ITEMS[R.gearDropped].name}</span></div><div class="small mute">${ITEMS[R.gearDropped].perk}</div>`:''}${has('boots')||has('sabatons')?`<div class="small mute">${A.bootsHeal}</div>`:''}</div>`:''}</div>
     ${R.gearDropped?`<button class="wide" onclick="R.gearFrom='fight';goto('gear')">See your gear</button>`:''}
     ${R.pendingDrop?`<button class="wide" onclick="addVerse(R.pendingDrop);R.pendingDrop=null;render()">Take ${R.pendingDrop}</button>`:''}
-    ${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${A.growTree}</button>`:''}
-    <div class="dock"><button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?A.afterBoss:A.moveOn}</button></div>`;
+    <div class="dock ${due>0?'row':''}">${due>0?`<button class="wide" onclick="R.treeFrom='fight';R.treeSel=null;goto('tree')">${A.growTree}</button>`:''}<button class="primary wide" onclick="${R.boss?'victory()':'clearColumn()'}">${R.boss?A.afterBoss:A.moveOn}</button></div>`;
 }
 function playCard(ref){
   if(R.busy || R.after) return; if(tipPending()){ R.tipHold=0; render(); return; }

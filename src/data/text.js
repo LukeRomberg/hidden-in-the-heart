@@ -937,6 +937,8 @@ const TEXT = {
     missing: 'Missing {kind}',
     score: '{right} of {total} right',
     fullPower: ' — full power',
+    // DRAFT (UI pass): one line under the perfect / steady / slipped stamp when a recall ends
+    verdict: { perfect: 'Every word in its place.', steady: 'Close enough to hold.', slipped: 'It slipped. Say it again soon.' },
   },
   tree: {
     heading: 'The tree',
