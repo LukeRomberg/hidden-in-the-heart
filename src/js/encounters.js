@@ -88,7 +88,7 @@ async function answerTruth(a){ const T = TEXT.truths, tf = R.tf, t = TRUTHS[tf.q
     if(!(P.truthsRight=P.truthsRight||[]).includes(t.id)) P.truthsRight.push(t.id);   // chapter-end hook: truths answered right, for the stats (story.js)
     save(); render(); await sleep(MEET_BEAT);
     // freed like a fight win: smoke, the person underneath, what they say
-    e.freed = true; await freedFX(0); await thanksBeat(e, quoted(oneOf(T.freed)));
+    e.freed = true; townHome(e); await freedFX(0); await thanksBeat(e, quoted(oneOf(T.freed)));
     if(tf.first){ await popup('truth-amosbye', [T.amosLeaves]); R.amos = false; }
     R.busy = false; render(); return; }
   if(tf.first){ tf.tries++; render(); await popup('truth-amosfix'+tf.tries, [T.amosCorrects]); askTruth(); return; }   // with Amos there you can't fail: he points you back to it

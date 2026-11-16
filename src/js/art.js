@@ -40,7 +40,10 @@ function folkSrc(p, state){   // state: idle, hurt or badly
 }
 function spriteImg(name){ return name.startsWith('folk_') ? FOLK[name.slice(5)] : FREED_IMG[name]; }
 let lastFreed=-1;
-function pickFreed(){ let k; do{ k=Math.floor(Math.random()*TEXT.villagers.length); }while(k===lastFreed); lastFreed=k; return k; }
+// a villager for a fight: someone still away from home if there is anyone (townmap.js townHome), never the last one twice
+function pickFreed(){ const n = TEXT.villagers.length, away = [...Array(n).keys()].filter(i=>i!==lastFreed && !(P.home||[]).includes(TEXT.villagers[i].look));
+  let k; if(away.length) k = away[Math.floor(Math.random()*away.length)]; else do{ k=Math.floor(Math.random()*n); }while(k===lastFreed);
+  lastFreed=k; return k; }
 function sprite(name, frame, scale, cls){
   const F = spriteImg(name);
   if(F){ return `<img class="sprite ${cls||''}" src="${F.f[frame]}" width="${Math.round(64*scale)}" height="${Math.round(64*scale)}" alt="" style="image-rendering:pixelated">`; }

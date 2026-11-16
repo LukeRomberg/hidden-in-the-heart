@@ -1,7 +1,8 @@
 // Headless click-through: title -> New game -> prologue -> wake on the town map, bump into Bram, walk to the church ->
 // Amos, the lid, pick two verses -> walk out to Bram and fight the Furnace (tutorial) -> Amos's tour on the map ->
 // walk into the Forge and out, a boarded door, reload on the town map -> walk to the Hollow's mouth -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
-// truth villager on the battle screen (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser.
+// truth villager on the battle screen (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser
+// -> in test mode: walk into a townsperson at home, then the finale (the bell, everyone walks to church) into the chapter ending.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
@@ -202,6 +203,11 @@ try {
     const s = await page.evaluate(() => ({ screen, msg: R.tmap.msg, want: TEXT.town.boarded.inn }));
     if (s.screen !== 'town' || s.msg !== s.want) throw new Error('the boarded inn: ' + JSON.stringify(s));
   });
+  await step('town: a boarded cottage', async () => {
+    await walkTo(await spot('door', 'house:baker')); await mapIdle();
+    const s = await page.evaluate(() => ({ screen, msg: R.tmap.msg, want: TEXT.townMap.homes.baker.shut }));
+    if (s.screen !== 'town' || s.msg !== s.want) throw new Error('the baker’s boarded door: ' + JSON.stringify(s));
+  });
   await step('town: reload puts you back on the map', async () => {
     const before = await page.evaluate(() => R.tmap.pos.join(','));
     await page.reload(); await btn('Continue').click(); await waitScreen('town');
@@ -309,6 +315,29 @@ try {
     await btn('Continue').click();
     const after = await page.evaluate(() => ({ deck: R.deck.length, forge: !!P.town.forge, level: R.level }));
     if (JSON.stringify(after) !== JSON.stringify(before)) throw new Error(`save changed in transit: ${JSON.stringify(before)} -> ${JSON.stringify(after)}`);
+  });
+  // the rest runs in test mode (?test, its own save): the town with people home, and the finale
+  await step('test mode: someone home, walk into them', async () => {
+    await page.goto(pathToFileURL(target).href + '?test'); await page.waitForTimeout(300);
+    await page.evaluate(() => testJump(TEST_JUMPS.findIndex(j => j[0].startsWith('Town map, a few folk'))));
+    await waitScreen('town'); await page.waitForFunction(() => R.folk && R.folk.length === 5 && document.querySelectorAll('.tfolk').length === 5);
+    await page.evaluate(() => { R.folk.forEach(f => clearTimeout(f.t)); clearInterval(folkTimer); folkTimer = null; });   // hold still for the test
+    const f = await page.evaluate(() => R.folk.find(f => f.look === 'washer').pos);
+    await walkTo(f);
+    const s = await page.evaluate(() => ({ modal: modal && modal.kind, key: modal && modal.key }));
+    if (s.modal !== 'talk' || s.key !== 'home-washer') throw new Error('walking into Ruth: ' + JSON.stringify(s));
+    await finishDialogue(); await page.locator('#talkpop #acts button').first().click();
+  });
+  await step('test mode: the finale, everyone to church', async () => {
+    await page.evaluate(() => testJump(TEST_JUMPS.findIndex(j => j[0].startsWith('Finale'))));
+    for (let i = 0; i < 200; i++) {
+      const s = await page.evaluate(() => ({ screen, talk: modal && modal.kind === 'talk', stage: R.finale && R.finale.stage, line: R.finale && R.finale.walkers && R.finale.walkers.filter(w => w.out).length }));
+      if (s.screen === 'chapterend') return;
+      if (s.talk) { await finishDialogue(); await page.locator('#talkpop #acts button').first().click(); }
+      if (s.stage === 'march' && s.line < 14) throw new Error(`only ${s.line} of 14 in the line to church`);
+      await page.waitForTimeout(100);
+    }
+    throw new Error('never got into the church');
   });
 } catch { result = 'fail'; }
 

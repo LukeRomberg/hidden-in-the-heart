@@ -228,7 +228,7 @@ function playCard(ref){
       await sleep(300);
       if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
       // the Furnace: let you see him go down before the Galatians pieces open
-      if(t.hp<=0){ if(t.boss){ await sleep(TIP_DELAY); R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); await freeBeat(t, ti); }
+      if(t.hp<=0){ if(t.boss){ await sleep(TIP_DELAY); R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); townHome(t); await freeBeat(t, ti); }
       else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); }   // let the number clear first
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; floatText('pl', fill(F.shield,{n:s}), 'shield'); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); floatText('pl', fill(F.heal,{n:h}), 'heal'); }

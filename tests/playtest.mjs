@@ -412,6 +412,19 @@ async function playOne(acc, style) {
     if ((await ev(() => screen)) === 'town') { const d = await describe(); throw new Softlock(`could not start cave ${i}: still in town (hp ${d.hp}, ${await ev(() => R.tmap.msg)}); too hurt to descend?`); }
     await navigate('dive');
   }
+  // after the last cave: the bell, everyone walks to church on the town map (townmap.js), then the chapter ending
+  async function finale() {
+    for (let i = 0; i < 600; i++) {
+      const s = await ev(() => ({ screen, talk: modal && modal.kind === 'talk', reward: modal && modal.kind, fin: !!R.finale }));
+      if (s.screen === 'chapterend') { rec.outcome += ', walked to church'; return; }
+      if (s.reward === 'reward') await ev(() => closeReward());
+      else if (s.reward === 'levelup') await levelUp();
+      else if (s.talk) { await finishDialogue(); await page.locator('#talkpop #acts button').first().click(); }
+      else if (s.screen !== 'town') throw new Stall(`finale: on ${s.screen}`);
+      await page.waitForTimeout(150);
+    }
+    throw new Stall('finale: never got into the church');
+  }
   // walk into something on the town map: walkTown('door', 'forge'), walkTown('cave', 0), walkTown('npc', 'furnace')
   async function walkTown(t, id) { await waitScreen('town'); await walkTo(await ev(([t, id]) => townSpot(t, id), [t, id])); }
   // out of a building onto the map again: the Town tab (the church has no Back button), or the screen's Back
@@ -468,7 +481,7 @@ async function playOne(acc, style) {
       cave.earned = snap.talents - cave.startTal + cave.attempts.reduce((a, x) => a + x.lost + x.spentRest, 0);
       if (!cave.cleared) { rec.outcome = `blocked at ${cave.name}: beaten ${cave.attempts.length} times`; break; }
     }
-    if (rec.caves.length === 3 && rec.caves[2].cleared) { rec.outcome = 'cleared all three caves'; }
+    if (rec.caves.length === 3 && rec.caves[2].cleared) { rec.outcome = 'cleared all three caves'; await finale(); }
     rec.final = await snapshot();
     rec.final.caves = await ev(() => ({ ...P.caves })); rec.final.town = await ev(() => ({ ...P.town }));
   } catch (e) {
