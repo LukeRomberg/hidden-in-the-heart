@@ -18,6 +18,8 @@ const IMG = {
     quarry: __IMG__('caves/quarry.png'),
     deep: __IMG__('caves/deep.png'),
   },
+  // the hero side-on on the maps (PixelLab, from the front/back art): a standing frame and a 6-frame walk strip, west mirrored from east
+  heroSide: { east:{stand:__IMG__('hero/walk/side_east.png'), walk:__IMG__('hero/walk/walk_east.png')}, west:{stand:__IMG__('hero/walk/side_west.png'), walk:__IMG__('hero/walk/walk_west.png')} },
   hero: {
     asleep: __IMG__('hero/hero_asleep_desk.png'),
     waking: __IMG__('hero/hero_waking.png'),

@@ -236,7 +236,11 @@ PLACES.dive = {grid:()=>caveMap(R.cave), st:()=>R.map, lit:false, walkable, mark
 // base look of a tile: rock top, rock face (rock with open ground below it), floor, floor in a wall's shadow
 function baseOf(x,y){
   const c = tileAt(x,y), solid = (a,b)=>{ const t = tileAt(a,b); return t==='#' || t==='D' || t==='V'; };
-  if(c==='#') return solid(x,y+1) ? 'rk' : 'rf';
+  if(c==='#'){ if(!solid(x,y+1)) return 'rf';
+    // a wall seen side-on (open ground to its left or right): the same wall face, turned to face the floor
+    const open = (a,b)=>{ const t = tileAt(a,b); return t && t!=='#'; };
+    if(open(x+1,y)) return 'rs re'; if(open(x-1,y)) return 'rs rw';
+    return 'rk'; }
   if(c==='D' || c==='V') return 'rf';
   return solid(x,y-1) ? 'fl sh' : 'fl';
 }
@@ -304,11 +308,17 @@ function caveTiles(){
     css.push(`.c-${id} .rk.v${v}{background-image:url(${pxCanvas(16,16,px=>{ px(0,0,P_.rk[1],16,16);
       for(let i=0;i<30;i++) px(Math.floor(r()*16), Math.floor(r()*16), P_.rk[r()<.5?0:2]);
       for(let i=0;i<3;i++){ const x=Math.floor(r()*14), y=Math.floor(r()*14); px(x,y,P_.rk[2],2,2); px(x+1,y+1,P_.rk[0]); } })})}`);
-    css.push(`.c-${id} .rf.v${v}{background-image:url(${pxCanvas(16,16,px=>{ px(0,0,P_.rf[2],16,16); px(0,0,P_.rf[4],16,1); px(0,1,P_.rf[3],16,1);
+    // the wall face: lit top edge, two courses of blocks, dark foot where it meets the floor
+    const face = (px, seed) => { const r2 = rnd(seed); px(0,0,P_.rf[2],16,16); px(0,0,P_.rf[4],16,1); px(0,1,P_.rf[3],16,1);
       const o = v%2 ? 4 : 0;
       [5,10].forEach((y,j)=>{ px(0,y,P_.rf[1],16,1); px(0,y+1,P_.rf[3],16,1); for(let x=(o+j*5)%8;x<16;x+=8) px(x,j?y+1:2,P_.rf[1],1,j?4:3); });
-      for(let i=0;i<14;i++) px(Math.floor(r()*16), 2+Math.floor(r()*12), P_.rf[r()<.5?1:3]);
-      px(0,14,P_.rf[1],16,1); px(0,15,P_.rf[0],16,1); })})}`);
+      for(let i=0;i<14;i++) px(Math.floor(r2()*16), 2+Math.floor(r2()*12), P_.rf[r2()<.5?1:3]);
+      px(0,14,P_.rf[1],16,1); px(0,15,P_.rf[0],16,1); };
+    const seed = id.length*313+v*71+3;
+    css.push(`.c-${id} .rf.v${v}{background-image:url(${pxCanvas(16,16,px=>face(px, seed))})}`);
+    // side walls: the same face turned a quarter, its foot toward the floor (east: floor to the right)
+    css.push(`.c-${id} .rs.re.v${v}{background-image:url(${pxCanvas(16,16,px=>face((x,y,c,w=1,h=1)=>px(y,x,c,h,w), seed))})}`);
+    css.push(`.c-${id} .rs.rw.v${v}{background-image:url(${pxCanvas(16,16,px=>face((x,y,c,w=1,h=1)=>px(16-y-h,x,c,h,w), seed))})}`);
   }
   const st = document.createElement('style'); st.id = 'tiles-'+id; st.textContent = css.join('\n'); document.head.appendChild(st);
 }

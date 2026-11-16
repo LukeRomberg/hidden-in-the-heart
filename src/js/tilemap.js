@@ -104,8 +104,7 @@ async function walkLoop(){
   if(screen===scr && pl.st()===M) pl.save();
 }
 function stepTo(x,y){ face([x,y]); here().st().pos = [x,y]; const fresh = updateSight(); placeHero(); return fresh; }
-// only back and front frames exist, so a sideways step keeps the last up/down facing
-function face([x,y]){ const M = here().st(), py = M.pos[1]; if(y<py) M.face='back'; else if(y>py) M.face='front'; placeHero(); }
+function face([x,y]){ const M = here().st(), [px,py] = M.pos; if(y<py) M.face='back'; else if(y>py) M.face='front'; else if(x<px) M.face='west'; else if(x>px) M.face='east'; placeHero(); }
 function say(msg){ here().st().msg = msg; const el = document.getElementById('cavemsg'); if(el) el.innerHTML = msg; }
 function heroEl(op){ const h = document.getElementById('chero'); if(h) h.classList[op]('walking'); }
 function placeHero(){
@@ -114,7 +113,10 @@ function placeHero(){
   if(h.dataset.face!==M.face){ h.dataset.face = M.face; h.querySelector('.hs').innerHTML = heroSprite(); }
   if(pl.placed) pl.placed();
 }
-function heroSprite(){ return sprite(here().st().face==='back'?'back':'player',0,0.8); }
+// front and back are the layered hero (your gear shows); side-on is the PixelLab walk, which steps while you move
+function heroSprite(){ const f = here().st().face, S = IMG.heroSide[f];
+  if(S) return `<div class="side" style="--stand:url(${S.stand});--walk:url(${S.walk})"></div>`;
+  return sprite(f==='back'?'back':'player',0,0.8); }
 function camera(){ const [x,y] = here().st().pos; return `translate(${-(x+.5)*MAP_T}px,${-(y+.5)*MAP_T}px)`; }
 
 // ---- Drawing: every tile, then the place's extras, then you ----

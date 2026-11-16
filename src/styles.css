@@ -624,3 +624,10 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .overlay.talkpop .dlg{ max-width:560px; width:100%; margin:0 auto; }
 .overlay.talkpop .acts.dock{ position:static; max-width:560px; width:100%; margin:8px auto 0; }
 @media (prefers-reduced-motion: reduce){ .tl .mk.who.furnace{ animation:none; } }
+
+/* the hero side-on on the maps (tilemap.js heroSprite): standing frame, or the walk strip while moving */
+.chero .side{ width:51px; height:51px; background:var(--stand) 0 0 / 51px 51px no-repeat; image-rendering:pixelated; }
+.chero.walking .side{ background:var(--walk) 0 0 / 306px 51px no-repeat; animation:sidewalk .54s steps(6) infinite; }
+.chero.walking .hs:has(.side){ animation:none; }
+@keyframes sidewalk{ to{ background-position:-306px 0; } }
+@media (prefers-reduced-motion: reduce){ .chero.walking .side{ animation:none; background:var(--stand) 0 0 / 51px 51px no-repeat; } }
