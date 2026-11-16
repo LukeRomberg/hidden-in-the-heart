@@ -584,6 +584,8 @@ const TEXT = {
       waver: ['I had the page right here. Where’s the page?', 'The numbers don’t add up anymore.'],
       crack: ['…why am I keeping score?', 'Twelve years. What was it all for?'],
       atk: ['reads out your failures', 'recites an old wrong you did', 'tallies up what you owe'],
+      score: ['adds you to the ledger', 'writes your name down'],
+      doubt: ['asks who you think you are', 'reminds you how far behind you are'],
       vex: ['brings up something you’d rather forget', 'reminds you of the last time you lost your temper'],
     },
     brawler: {
@@ -611,9 +613,13 @@ const TEXT = {
       waver: ['That’s… not what I wrote.', 'I may have misremembered. Slightly.'],
       crack: ['…why did I write any of it?', 'None of it was true. None of it.'],
       atk: ['whispers a half-truth about you', 'nails a rumor to the wall', 'reads you a page of lies'],
+      twist: ['repeats what you said, but wrong', 'puts words in your mouth'],
+      doubt: ['says nobody believes you', 'says even Amos has doubts about you'],
       vex: ['tells you what Amos really thinks of you', 'starts a rumor with your name in it'],
     },
     villager: {
+      heat: ['seethes, and the heat comes off them at you', 'flares up, hot and red'],
+      doubt: ['tells you you’re wasting your time', 'laughs at you'],
       taunts: [
         'Get away from me!',
         'Everyone’s against me. You too?',
@@ -685,7 +691,24 @@ const TEXT = {
     // what happens to you: {move} is from `foes`
     hits: '{name} {move}.',
     // short labels that float up over whoever they happen to
-    float: { blocked: '{n} blocked', shield: '+{n} shield', heal: '+{n}', focus: '+{n} focus', dazed: 'dazed', glance: 'glanced off' },
+    float: { blocked: '{n} blocked', shield: '+{n} shield', heal: '+{n}', focus: '+{n} focus', dazed: 'dazed', glance: 'glanced off', weak: 'it lands deep!', resisted: 'resisted', focusLoss: '−{n} focus' },
+    // combat v2 (drafts): when a verse is what this sin can't stand against, or one it shrugs off
+    weakHit: ['It lands deep. Something in {him} gives.', 'That one goes straight through.', '{He} has no answer for that.'],
+    resistHit: ['It glances off. {He}’s heard that one before.', '{He} shrugs it off.', 'Not that one. Not for {him}.'],
+    // a mind move (a lie, an accusation): it costs you focus, not health, until there's no focus left
+    mindHits: '{name} {move}. You lose {n} focus.',
+    mindOverflow: 'Your head is empty, and it hurts.',
+    // lingering harm: 10% of your max HP once a round, after they act
+    heatOn: 'The heat stays on you.',
+    heatTick: 'The heat still burns.',
+    heatOff: 'A gentle word, and the heat goes out of you.',
+    bitterOn: 'It sticks. You start keeping score too.',
+    bitterTick: 'Bitterness gnaws at you.',
+    bitterOff: 'You let it go. The bitterness lifts.',
+    twisted: 'Your next words will come out twisted unless you get them exactly right.',
+    twistLands: 'Your words come out twisted, and half of them are lost.',
+    vexShoes: '{name} {move}. Your feet stay steady; you aren’t provoked.',
+    shoesWear: 'The Shoes of Peace: it wears off.',
     // your own thoughts, now and then
     thoughts: {
       start: ['Okay. Just say it right.', 'Deep breath. It’s only a verse.', 'I really should have studied more.', 'Please let me remember this.'],
@@ -957,6 +980,18 @@ const TEXT = {
     nextConsecrate: 'Next: the {up}. {n} talents at the Forge, and recite {ref} perfectly.',
     laterConsecrate: 'Becomes the {up}, after the {prev}.',
     consecratedWith: 'Consecrated with {ref}.',
+  },
+
+  // ---------- Amos teaches combat, the first time each thing happens to you (drafts; story.js teach()) ----------
+  teach: {
+    weak: { title: 'It lands deep', body: ['That truth is the one this sin can’t stand against. Every sin has its answers, son, and a few it shrugs off.', 'Watch how each one takes what you say. Bring the right word.'] },
+    resist: { title: 'It glances off', body: ['That one barely touched it. Some sins have heard a truth so often they stop hearing it.', 'Try a different fruit of the Spirit against this one.'] },
+    mind: { title: 'A lie costs you focus', body: ['That wasn’t a blow, it was a lie. Lies don’t hurt your body; they steal your focus, and without focus you can’t speak.', 'A shield of peace soaks them up before they reach you. When your focus is gone, lies start to hurt.'] },
+    heat: { title: 'The heat stays', body: ['Anger burns on after the blow lands. Every round it hurts a little more.', 'A gentle word puts it out. “A gentle answer turns away wrath.”'] },
+    bitter: { title: 'Bitterness', body: ['Keeping score is catching. Every round it eats at you.', 'Love lets it go, and so does peace. Say one and it lifts.'] },
+    twist: { title: 'Twisted words', body: ['He’ll take what you say and bend it. Your next verse comes out half as strong unless you say it exactly right.', 'Slow down. Get every word.'] },
+    provoke: { title: 'Provoked', body: ['He got under your skin. This turn every verse costs one more focus.', 'It passes. Don’t let it rush you.'] },
+    haymaker: { title: 'He’s winding up', body: ['Look at him, son. He’s drawing back for something big.', 'A shield now would be wise. Or end it before he swings.'] },
   },
 
   // ---------- the “you got…” popup (rewards.js): one each time you earn something ----------

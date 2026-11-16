@@ -111,13 +111,23 @@ function tipHTML(){ const k = modal.key, T = TEXT.tutorial, o = modal.once;
   return `<div class="overlay tip" id="tipov"><div class="panel"><div class="tiphead">${portrait(o?o.who:'priest')}<h2>${o?o.title:T.tips[k]}</h2></div>
     ${body}<button class="primary wide" onclick="closeTip()">${T.tips.ok}</button></div></div>`; }
 function closeTip(){
-  if(modal.once){ (P.tips=P.tips||{})[modal.key]=true; save(); modal=null; const ov=document.getElementById('tipov'); if(ov) ov.remove(); return; }   // nothing under it changed: leave the screen as it is
+  if(modal.once){ (P.tips=P.tips||{})[modal.key]=true; save(); modal=null; const ov=document.getElementById('tipov'); if(ov) ov.remove();
+    if(teachDone){ const r = teachDone; teachDone = null; r(); } return; }   // nothing under it changed: leave the screen as it is
   R.tipsSeen.push(modal.key); const then = modal.then; modal=null; if(then){ then(); return; }
   holdTips(TIP_DELAY*0.6); render(); }   // a breath before the next popup, if another is due
 // In the tutorial, Amos stops you before something new opens (the first recall, the first assembly): show his tip
 // first, then carry on. Returns true if it stepped in.
 function tutorialFirst(k, then){ if(!R.tutorial) return false; R.tipsSeen = R.tipsSeen||[]; if(R.tipsSeen.includes(k)) return false;
   modal = {kind:'tip', key:k, then}; render(); return true; }
+// Amos explains a combat rule the first time it happens to you (once per save, P.tips; TEXT.teach). The fight
+// waits for you to close it. Not in the tutorial, which has its own popups.
+let teachDone = null;
+function teach(key){
+  const t = TEXT.teach && TEXT.teach[key];
+  if(!t || R.tutorial || (P.tips && P.tips[key])) return Promise.resolve();
+  modal = {kind:'tip', key, once:{who:'priest', title:t.title, body:t.body, screen}}; render();
+  return new Promise(res=>{ teachDone = res; });
+}
 // one-time popups that wait for a scene's last line to finish typing: {screen: tip key}
 const ONCE_TIPS = {forge:'forge'};
 function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.tips[k])) return;

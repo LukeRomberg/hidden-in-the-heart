@@ -2,7 +2,11 @@
 // Quarry and the Deep Cave) as a player whose recall accuracy is a parameter, and reports where it got stuck and how
 // balanced the chapter felt.
 //
-// Usage: node tests/playtest.mjs [acc ...] [frugal|shopper]   (default: 0.5 0.6 0.7 0.85 0.95, each frugal and shopper)
+// Usage: node tests/playtest.mjs [acc ...] [frugal|shopper] [smart|naive] [straight|leave]
+//        (default: 0.5 0.6 0.7 0.85 0.95, each frugal and shopper, smart, straight)
+//   smart plays combat v2 (matchups, cools heat, lets bitterness go, shields before a haymaker, Romans 12:2 when focus
+//   runs low); naive says the biggest number. straight never leaves a cave; leave goes home to heal when HP < 40%
+//   between fights (the cave keeps its progress) and comes back. Targets: docs/combat-v2.md, section 4.
 //        PLAYTEST_JOBS=n runs n games at once (default 4)
 //        npm run playtest                           (builds first)
 //        PLAYTEST_TARGET=path/to/index.html         (default dist/index.html)
@@ -35,7 +39,10 @@ const OUT = resolve('tests/out'); mkdirSync(OUT, { recursive: true });
 const words = process.argv.slice(2).join(',').split(',').filter(Boolean);
 const ACCS = words.filter(w => !isNaN(+w)).map(Number).length ? words.filter(w => !isNaN(+w)).map(Number) : [0.5, 0.6, 0.7, 0.85, 0.95];
 const STYLES = words.filter(w => w === 'frugal' || w === 'shopper').length ? words.filter(w => w === 'frugal' || w === 'shopper') : ['frugal', 'shopper'];
-if (ACCS.some(a => !(a >= 0 && a <= 1)) || words.some(w => isNaN(+w) && !STYLES.includes(w))) { console.error('usage: node tests/playtest.mjs [acc 0..1 ...] [frugal|shopper]'); process.exit(2); }
+const PLAYS = words.filter(w => w === 'smart' || w === 'naive').length ? words.filter(w => w === 'smart' || w === 'naive') : ['smart'];
+const ROUTES = words.filter(w => w === 'straight' || w === 'leave').length ? words.filter(w => w === 'straight' || w === 'leave') : ['straight'];
+if (ACCS.some(a => !(a >= 0 && a <= 1)) || words.some(w => isNaN(+w) && ![...STYLES, ...PLAYS, ...ROUTES].includes(w))) { console.error('usage: node tests/playtest.mjs [acc 0..1 ...] [frugal|shopper] [smart|naive] [straight|leave]'); process.exit(2); }
+const MAX_LEAVES = 6;
 const JOBS = +process.env.PLAYTEST_JOBS || 4;
 const STALL_MS = 60000, MAX_RETRIES = 2, DOOR_TRIES = 8;
 const CAVE_NAMES = ['The Hollow', 'The Old Quarry', 'The Deep Cave'];
@@ -48,10 +55,10 @@ const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
 const f1 = n => (Math.round(n * 10) / 10).toString();
 const mmss = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}m${String(s % 60).padStart(2, '0')}s`; };
 
-async function playOne(acc, style) {
+async function playOne(acc, style, play = 'smart', route = 'straight') {
   const seed = Math.round(acc * 1000);
   const rng = mulberry(seed * 7919 + 13);
-  const tag = `acc${Math.round(acc * 100)}-${style}`;
+  const tag = `acc${Math.round(acc * 100)}-${style}-${play}-${route}`;
   const started = Date.now();
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 430, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
@@ -60,7 +67,7 @@ async function playOne(acc, style) {
   const page = await ctx.newPage();
   await page.addInitScript(() => { window.__FAST = true; });   // the fights' pauses for reading (combat.js TURN_BEAT) shrink to a blink
   page.setDefaultTimeout(20000);
-  const rec = { acc, style, purchases: [], caves: [], issues: [], errors: [], blanks: { right: 0, wrong: 0 }, tutorialTurns: 0, outcome: 'incomplete', final: null, ms: 0 };
+  const rec = { acc, style, play, route, purchases: [], caves: [], issues: [], errors: [], blanks: { right: 0, wrong: 0 }, tutorialTurns: 0, outcome: 'incomplete', final: null, ms: 0 };
   let shotN = 0;
   const shot = async name => { const p = `${OUT}/playtest-${tag}-${String(++shotN).padStart(2, '0')}-${name}.png`; try { await page.screenshot({ path: p }); } catch {} return p; };
   page.on('console', m => { if (m.type() === 'error') { rec.errors.push(m.text()); if (rec.errors.length <= 3) shot('console-error').then(p => rec.issues.push({ kind: 'CONSOLE ERROR', msg: m.text(), shot: p })); } });
@@ -154,12 +161,21 @@ async function playOne(acc, style) {
 
   // ---- fights ----
   async function pickVerse() {
-    return ev(() => {
+    return ev(smart => {
       const refs = unsaid().filter(affordable); if (!refs.length) return null;
-      const score = ref => { const v = BY_REF[ref], m = spellMult(ref);
-        if (v.dmg) return v.dmg * m; if (v.heal) return R.hp < R.maxHp * 0.5 ? v.heal * m * 1.5 : 0.2; if (v.shield) return v.shield * m * 0.5; return 0.5; };
+      const t = infoTarget(), tk = Math.max(1, Math.ceil(R.maxHp * 0.1));
+      const windup = R.enemies.some(e => !e.freed && e.pattern[e.step] === 'big');
+      const score = ref => { const v = BY_REF[ref], m = spellMult(ref), fr = fruitsOf(v);
+        let s;
+        if (v.dmg) s = v.dmg * m * (smart && t ? matchup(v, t) : 1);
+        else if (v.heal) s = R.hp < R.maxHp * 0.5 ? v.heal * m * 1.5 : 0.2;
+        else if (v.shield) s = smart && windup ? v.shield * m * 1.6 : v.shield * m * 0.5;
+        else s = smart && R.focus <= 2 ? 12 : 0.5;   // Romans 12:2: worth it when focus is nearly gone
+        if (smart && R.heat && fr.includes('Gentleness')) s += tk * 3;   // cool the heat before it ticks again
+        if (smart && R.bitter && (fr.includes('Love') || fr.includes('Peace'))) s += tk * 3;
+        return s; };
       return refs.sort((a, b) => score(b) - score(a))[0];
-    });
+    }, play === 'smart');
   }
   // plays the fight on screen to its end: returns {result:'won'|'defeat', ...stats}
   async function fightLoop() {
@@ -358,6 +374,7 @@ async function playOne(acc, style) {
       if (st.screen !== 'dive') { await page.waitForTimeout(100); continue; }
       if (st.room) { await handleRoom(st.room, att); continue; }
       if (st.node) { await page.waitForTimeout(100); continue; }   // a fight is starting
+      if (route === 'leave' && att.leaves < MAX_LEAVES && await ev(() => R.hp < R.maxHp * 0.4)) { att.leaves++; await ev(() => retreat()); return 'left'; }   // go home, heal, come back (progress is kept)
       const skip = [...att.skip, ...Object.keys(fails).filter(k => fails[k] >= 3)];
       const plan = await mapState(skip);
       if (!plan.pick) throw new Softlock(`nothing left to do on the map: no marker, door, lever or unexplored edge is reachable, and the boss is not reachable (${plan.left} fight/truth marker(s) left, hero at ${plan.pos})`);
@@ -467,10 +484,11 @@ async function playOne(acc, style) {
         const r = await restUp(ci);
         const startSnap = await snapshot();
         if (tries === 0) cave.startTal = startSnap.talents;
-        const att = { n: tries + 1, fights: [], chests: [], truthR: 0, truthW: 0, helped: 0, walkedOn: 0, scraps: 0, slept: 0, studied: 0, doors: {}, skip: [], notes: [], defeated: false, ms: 0, startHp: startSnap.hp, spentRest: r.spent || 0, lost: 0, outcome: '' };
+        const att = { n: tries + 1, leaves: 0, fights: [], chests: [], truthR: 0, truthW: 0, helped: 0, walkedOn: 0, scraps: 0, slept: 0, studied: 0, doors: {}, skip: [], notes: [], defeated: false, ms: 0, startHp: startSnap.hp, spentRest: r.spent || 0, lost: 0, outcome: '' };
         cave.attempts.push(att); const t0 = Date.now(); if (r.stuck) att.notes.push(r.stuck);
         await startCave(ci);
-        const out = await dive(att);
+        let out = await dive(att);
+        while (out === 'left') { await navigate('town'); await restUp(ci); await startCave(ci); out = await dive(att); }   // leave route: healed, back in
         att.ms = Date.now() - t0; att.outcome = out;
         if (out === 'defeat') { att.lost = await ev(() => R.lostTalents || 0); await navigate('town'); tries++; continue; }
         cave.cleared = true;
@@ -530,7 +548,7 @@ function report(runs) {
     const k = r.risk, dpc = r.caves.map(c => c.attempts.filter(a => a.defeated).length).join('/') || '-';
     const failedAt = r.caves.find(c => !c.cleared);
     const res = r.issues.length ? 'FAIL: ' + r.issues[0].kind : r.allCleared ? 'cleared' : failedAt ? `failed at ${failedAt.name}` : r.outcome;
-    p(`| ${r.acc} | ${r.style} | ${res} | ${r.met === null ? '-' : r.met ? 'yes' : 'NO'} | ${k.defeats} (${dpc}) | ${k.n} | ${k.close} (${pct(k.closeShare)}) | ${pct(k.avgMin)} | ${pct(k.worst)} | ${r.final ? `${r.final.level} / ${r.final.souls}` : '-'} | ${r.final ? r.final.talents : '-'} | ${r.final ? r.final.gear.length : '-'} | ${r.issues.length + r.errors.length} | ${mmss(r.ms)} |`);
+    p(`| ${r.acc} | ${r.style} ${r.play}${r.route === 'leave' ? ' leave' : ''} | ${res} | ${r.met === null ? '-' : r.met ? 'yes' : 'NO'} | ${k.defeats} (${dpc}) | ${k.n} | ${k.close} (${pct(k.closeShare)}) | ${pct(k.avgMin)} | ${pct(k.worst)} | ${r.final ? `${r.final.level} / ${r.final.souls}` : '-'} | ${r.final ? r.final.talents : '-'} | ${r.final ? r.final.gear.length : '-'} | ${r.issues.length + r.errors.length} | ${mmss(r.ms)} |`);
   }
   p(''); p('## Frugal vs shopper'); p('');
   for (const a of [...new Set(runs.map(r => r.acc))]) {
@@ -540,7 +558,7 @@ function report(runs) {
     p(`- ${a}: frugal ${d(f)}; shopper ${d(s)}.  Gear changed: ${s.allCleared !== f.allCleared ? 'the outcome' : s.risk.defeats !== f.risk.defeats || Math.abs(s.risk.avgMin - f.risk.avgMin) > 0.05 ? `the danger (defeats ${f.risk.defeats} -> ${s.risk.defeats}, avg lowest HP ${pct(f.risk.avgMin)} -> ${pct(s.risk.avgMin)})` : 'little or nothing'}.`);
   }
   for (const r of runs) {
-    p(''); p(`## Accuracy ${r.acc}, ${r.style}`); p('');
+    p(''); p(`## Accuracy ${r.acc}, ${r.style}, ${r.play}, ${r.route}`); p('');
     const n = r.blanks.right + r.blanks.wrong;
     p(`Outcome: ${r.outcome}. Target: ${r.target ? r.target[1] : '-'} -> ${r.met === null ? '-' : r.met ? 'met' : 'NOT met'}. Realized recall accuracy ${n ? (100 * r.blanks.right / n).toFixed(1) : '-'}% over ${n} blanks. Furnace ${r.tutorialTurns} turns${r.tutorialDefeats ? ` (${r.tutorialDefeats} restarts)` : ''}. Fruit picks ${r.levelups || 0}.`);
     if (r.purchases.length) p(`Purchases: ${r.purchases.join('; ')}.`);
@@ -573,15 +591,15 @@ function report(runs) {
   return L.join('\n');
 }
 
-const jobs = ACCS.flatMap(a => STYLES.map(s => [a, s]));
+const jobs = ACCS.flatMap(a => STYLES.flatMap(s => PLAYS.flatMap(pl => ROUTES.map(ro => [a, s, pl, ro]))));
 const runs = new Array(jobs.length);
 let next = 0;
 await Promise.all(Array.from({ length: Math.min(JOBS, jobs.length) }, async () => {
   while (next < jobs.length) {
-    const i = next++, [a, s] = jobs[i];
-    console.log(`start ${a} ${s}`);
-    const r = await playOne(a, s); runs[i] = r;
-    console.log(`done  ${a} ${s}: ${r.outcome} (${mmss(r.ms)}, ${r.issues.length} issue(s))`);
+    const i = next++, [a, s, pl, ro] = jobs[i];
+    console.log(`start ${a} ${s} ${pl} ${ro}`);
+    const r = await playOne(a, s, pl, ro); runs[i] = r;
+    console.log(`done  ${a} ${s} ${pl} ${ro}: ${r.outcome} (${mmss(r.ms)}, ${r.issues.length} issue(s))`);
   }
 }));
 const md = report(runs);

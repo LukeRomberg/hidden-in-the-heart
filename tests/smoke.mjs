@@ -68,15 +68,16 @@ async function solveRecall() {
 // Play cards (answering correctly) until the fight is won.
 async function winFight() {
   for (let turn = 0; turn < 80; turn++) {
-    const s = await page.evaluate(() => ({ after: R.after, screen, asm: modal && modal.kind === 'assembly', tip: modal && modal.kind === 'tip' }));
+    const s = await page.evaluate(() => ({ after: R.after, screen, asm: modal && modal.kind === 'assembly', tip: modal && modal.kind === 'tip', busy: R.busy }));
     if (s.after || s.screen !== 'fight') break;
+    if (s.busy && !s.tip && !s.asm) { await page.waitForFunction(() => !R.busy || R.after || (modal && (modal.kind === 'tip' || modal.kind === 'assembly')), null, { timeout: 15000 }); continue; }   // a turn still playing out
     if (s.tip) { await page.locator('.overlay.tip button').click(); continue; }   // the tutorial stops to teach a rule
     if (s.asm) {   // a fire went out: tap the Galatians pieces in order
       while (await page.evaluate(() => modal && modal.kind === 'assembly')) {
         const i = await page.evaluate(() => modal.order.indexOf(modal.next));
         await page.locator('.overlay .chip').nth(i).click();
       }
-      await page.waitForFunction(() => !R.busy, null, { timeout: 15000 }); continue;
+      await page.waitForFunction(() => !R.busy || (modal && modal.kind === 'tip'), null, { timeout: 15000 }); continue;   // or Amos stops the fight to teach something
     }
     const card = page.locator('#app .hand .card:not(.dim):not(.spent)').first();
     if (await card.count()) {
@@ -87,7 +88,7 @@ async function winFight() {
       await solveRecall();   // (Amos's 'recall' popup opens the recall when it closes)
     }
     else await page.locator('button[onclick="waitOut()"]').click();   // nothing affordable: pass the turn
-    await page.waitForFunction(() => !R.busy, null, { timeout: 15000 });
+    await page.waitForFunction(() => !R.busy || (modal && modal.kind === 'tip'), null, { timeout: 15000 });   // or Amos stops the fight to teach something
   }
   await page.waitForFunction(() => R.after, null, { timeout: 15000 });
   await dismissRewards();   // a verse that leveled up during the fight

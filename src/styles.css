@@ -901,3 +901,6 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .bellring::after{ animation-delay:.7s; }
 @keyframes bellring{ from{ transform:scale(.3); opacity:1; } to{ transform:scale(2.4); opacity:0; } }
 @media (prefers-reduced-motion: reduce){ .tfolk{ transition:none; } .tfolk.walking .fs, .tfolk .fs.npc{ animation:none !important; background-size:46px 46px; } .bellring::before, .bellring::after{ animation:none; opacity:.6; } }
+
+/* combat v2: focus lost to a lie floats in violet */
+.float.focusloss{ color:#c9a8ff; text-shadow:2px 2px 0 #24123a; }

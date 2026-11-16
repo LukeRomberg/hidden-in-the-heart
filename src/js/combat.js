@@ -2,14 +2,46 @@
 const STEADY_DMG = 0.65;   // a cast at least this accurate hits for its accuracy; below it, half that
 const ENEMIES = {
   hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
-  grudge:{hp:48, atk:4, spr:'grudge', pattern:['atk','vex']},
-  brawler:{hp:60, atk:6, spr:'brawler', pattern:['atk','atk','big']},
-  slanderer:{hp:72, atk:5, spr:'slanderer', pattern:['vex','atk','atk']},
+  grudge:{hp:48, atk:4, spr:'grudge', pattern:['score','atk','doubt']},
+  brawler:{hp:60, atk:6, spr:'brawler', pattern:['atk','vex','big']},
+  slanderer:{hp:72, atk:5, spr:'slanderer', pattern:['twist','doubt','atk']},
   furnace:{hp:28, atk:2, spr:'furnace', freedSpr:'hothead_f', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
-  villager:{hp:22, atk:4, pattern:['atk','atk'], villager:true},
-  villager_strong:{hp:38, atk:5, pattern:['vex','atk','atk'], villager:true},
+  villager:{hp:22, atk:4, pattern:['atk','heat'], villager:true},
+  villager_strong:{hp:38, atk:5, pattern:['vex','atk','doubt'], villager:true},
 };
+// ---- Combat v2 (docs/combat-v2.md): matchups, body and mind, lingering harm ----
+// What each sin can't stand against (x1.5) and shrugs off (x0.5), by the fruit of the verse. Drafts for Luke.
+// kinds: moves that are mind instead of their usual kind (the Grudge's and the Slanderer's blows are words).
+const SINS = {
+  hothead:   {weak:['Gentleness','Patience'], resist:['Self-control']},
+  furnace:   {weak:['Gentleness','Patience'], resist:['Self-control']},
+  villager:  {weak:['Patience','Gentleness'], resist:[]},
+  villager_strong:{weak:['Patience','Gentleness'], resist:['Self-control']},
+  grudge:    {weak:['Love','Goodness'], resist:['Patience'], kinds:{atk:'mind'}},
+  brawler:   {weak:['Self-control','Gentleness'], resist:['Patience']},
+  slanderer: {weak:['Goodness','Self-control'], resist:['Gentleness'], kinds:{atk:'mind'}},
+};
+// Body moves cost HP. Mind moves drain focus (a shield verse soaks them first; the lid only stops blows); with no
+// focus left a mind move hurts instead. pow x their attack. fx: provoke, heat, bitter (lingering: 10% of your max HP
+// once a round, after they act), twist (your next verse does half unless it's perfect).
+const MOVES = {
+  atk:  {kind:'body', pow:1},
+  big:  {kind:'body', pow:2},                 // the haymaker: he winds up on the turn before (that's the tell)
+  vex:  {kind:'mind', pow:0, fx:'provoke'},
+  heat: {kind:'body', pow:0.5, fx:'heat'},     // cleared by a Gentleness verse
+  score:{kind:'mind', pow:0.5, fx:'bitter'},   // keeping score: cleared by a Love or Peace verse
+  doubt:{kind:'mind', pow:1},
+  twist:{kind:'mind', pow:0.5, fx:'twist'},
+};
+const FRUITS_ALL = ['Love','Joy','Peace','Patience','Kindness','Goodness','Faithfulness','Gentleness','Self-control'];
+function sinOf(e){ return SINS[e.id] || SINS.villager; }
+function moveKind(e, a){ return (sinOf(e).kinds||{})[a] || (MOVES[a]||MOVES.atk).kind; }
+// a verse's fruits: Galatians 5:22-23 names all nine, so it counts as whichever is best
+function fruitsOf(v){ return v.ref==='Galatians 5:22-23' ? FRUITS_ALL : [v.type]; }
+function matchup(v, e){ const s = sinOf(e), fr = fruitsOf(v);
+  if(fr.some(f=>s.weak.includes(f))) return 1.5; if(fr.every(f=>s.resist.includes(f))) return 0.5; return 1; }
+const tick = () => Math.max(1, Math.ceil(R.maxHp*0.1));
 const PRONOUNS = {he:{he:'he', him:'him', his:'his', He:'He'}, she:{he:'she', him:'her', his:'her', He:'She'}};
 function makeEnemy(id, i){
   const e = ENEMIES[id], base = {id, hp:e.hp, max:e.hp, atk:e.atk, pattern:e.pattern, step:i%e.pattern.length, freed:false, boss:!!e.boss};
@@ -88,20 +120,19 @@ async function freeBeat(t, ti){
   await freedFX(ti); const th = thanksFor(t);
   await thanksBeat(t, quoted(th)); log(quoted(th));
 }
-const TYPE_MULT = {Patience:1.5, Gentleness:1.25};
 // ids: enemy ids, or an enemy already standing there (a truth villager, encounters.js); here: no wipe, the arena is already up
 function startFight(ids, boss, here){
   R.enemies = ids.map((id,i)=>typeof id==='object' ? id : makeEnemy(id,i));
   R.boss = boss ? {} : null; R.after=false; R.earned={souls:0,talents:0,leveled:false}; R.castRefs=[]; R.castLog=[]; R.unlockMsg=null; R.say=null; R.thoughtAt=-9; R.hurtSaid=false;
   R.spent=[]; R.focus = R.tutorial ? Math.min(R.maxFocus, TUTORIAL_FOCUS) : R.maxFocus; R.brace=false; R.turn=0; R.target=0; R.shield=0; R.vexed=false; R.log=[]; R.busy=false;
-  newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('lid')||has('faith')) R.shield+=4; R.faithUsed=false; R.gearDropped=null;
+  newTurn(); R.stumbleUsed=false; R.gentleUsed=false; if(R.tree.Peace>=3) R.shield=5; if(has('faith')) R.shield+=4; R.guard = has('lid') ? 4 : 0; R.heat=false; R.bitter=false; R.twisted=false; R.faithUsed=false; R.gearDropped=null;
   log(openerLine()); if(!R.tutorial) think('start'); holdTips(TURN_BEAT); if(here){ screen='fight'; render(); } else goto('fight'); setTimeout(()=>{ if(screen==='fight' && !R.after) turnBanner(TEXT.fight.yourTurn, true); }, 680);
 }
 // One action a turn: say one verse (costs focus), or Charge (a tree perk). Then the enemies act. Brace is gone
 // (Luke, 2026-11: no reason to use it); a turn with nothing you can afford shows “Catch your breath” to pass.
 // Focus does not come back during a fight, except through a verse like Romans 12:2.
 function newTurn(){
-  R.turn++; R.shield = 0; R.brace = false;
+  R.turn++; R.shield = 0; R.guard = 0; R.brace = false;
   // each verse works once; when nothing unsaid is affordable, they all come back
   if(R.spent.length && !unsaid().some(ref=>affordable(ref))){ R.spent=[]; log(TEXT.fight.ready); }
   if(R.tutorial && !R.deck.some(c=>c.ref==='Romans 12:2') && !unsaid().some(ref=>affordable(ref))){
@@ -111,7 +142,7 @@ function verseRefs(){ return [...new Set(R.deck.map(c=>c.ref))]; }
 function unsaid(){ return verseRefs().filter(ref=>!R.spent.includes(ref)); }
 function affordable(ref){ return cardCost(BY_REF[ref]) <= R.focus; }
 function infoTarget(){ const t = R.enemies[R.target]; return t && !t.freed ? t : R.enemies.find(e=>!e.freed); }
-function playerHPText(){ return `HP ${Math.max(0,R.hp)}/${R.maxHp}${R.shield?' \u00b7 shield '+R.shield:''}`; }
+function playerHPText(){ return `HP ${Math.max(0,R.hp)}/${R.maxHp}${R.shield?' \u00b7 shield '+R.shield:''}${R.guard?' \u00b7 guard '+R.guard:''}${R.heat?' \u00b7 🔥':''}${R.bitter?' \u00b7 bitter':''}`; }
 // two layers per bar: the colour drains first, a pale trail follows it down (see /* battle feel */)
 const barHTML = (id, pct) => `<b class="lag" id="${id}L" style="width:${pct}%"></b><i id="${id}" style="width:${pct}%"></i>`;
 // move the bars to where things stand now without redrawing the screen, so they drain
@@ -213,6 +244,7 @@ function playCard(ref){
     if(frac===1 && (has('belt')||has('truth'))) R.shield += 2;
     if(frac===1 && has('truth')) mult *= 1.25;
     recordResult(c.ref, frac);
+    if(R.twisted){ R.twisted=false; if(frac<1){ mult *= 0.5; log(TEXT.fight.twistLands); } }   // the Slanderer twisted your words: only a perfect verse comes out straight
     const weak = eff<1; const tier = v.dmg>=12?3: (v.dmg>=7||v.heal||v.shield)?2:1;
     let t = R.enemies[R.target]; if(!t||t.freed) t = R.enemies.find(e=>!e.freed); const ti = R.enemies.indexOf(t);
     R.say = null;   // the room goes quiet while you speak
@@ -220,7 +252,8 @@ function playCard(ref){
     const pl=document.getElementById('pl'); if(pl) pl.classList.add('cast');
     // one line for what you said; the numbers float up over whoever it lands on
     const C = TEXT.fight.cast, vars = {...foeVars(t), ref:passRef(c.ref,sp(c.ref).n), type:v.type};
-    log(pickLine(v.dmg ? (weak?C.halting: tier===3?C.big: TYPE_MULT[v.type]?C.type: C.hit) : v.shield?C.shield: v.heal?C.heal: C.focus, vars));
+    const mu = v.dmg ? matchup(v, t) : 1;
+    log(pickLine(v.dmg ? (weak?C.halting: tier===3?C.big: mu>1?C.type: C.hit) : v.shield?C.shield: v.heal?C.heal: C.focus, vars));
     if(frac<1&&!weak) log(TEXT.fight.peaceSteadies);
     if(frac<SLIP_BELOW) think('slip'); else if(frac===1 && tier===3) think('perfect');
     await castFX(v.type, tier, weak, center('pl'), v.dmg?center('en'+ti):center('pl'));
@@ -228,11 +261,12 @@ function playCard(ref){
     const F = TEXT.fight.float;
     if(v.dmg){
       const base = v.dmg*SM + (R.tree.Patience>=1 && v.type==='Patience' ? 1 : 0) + (has('bible')?1:0) + (has('sword')?3:0);
-      const dmg = Math.round(base*mult*(TYPE_MULT[v.type]||1)*(R.charge?2:1)); if(R.charge){ R.charge=false; log(TEXT.fight.chargedLands); }
+      let dmg = Math.round(base*mult*mu*(R.charge?2:1)); if(R.charge){ R.charge=false; log(TEXT.fight.chargedLands); }
       if(R.tree.Gentleness>=1) R.shield += 2;
       const daze = R.tree.Patience>=3 && frac===1 && v.type==='Patience' && !t.boss; if(daze) t.stun=true;
       t.hp -= dmg;
-      await strike('en'+ti, String(dmg), TYPE_MULT[v.type]?'crit':'', (tier===3 && !weak) || dmg>=12);
+      await strike('en'+ti, String(dmg), mu>1?'crit':'', (tier===3 && !weak) || dmg>=12);
+      if(mu!==1){ floatText('en'+ti, mu>1?F.weak:F.resisted, 'tag', -26); log(pickLine(mu>1?TEXT.fight.weakHit:TEXT.fight.resistHit, foeVars(t))); await teach(mu>1?'weak':'resist'); }
       if(daze) floatText('en'+ti, F.dazed, 'tag', -26);
       await sleep(300);
       if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
@@ -242,6 +276,10 @@ function playCard(ref){
     } else if(v.shield){ const s=Math.round(v.shield*SM*mult); R.shield+=s; floatText('pl', fill(F.shield,{n:s}), 'shield'); }
     else if(v.heal){ const h=Math.round(v.heal*SM*mult); R.hp=Math.min(R.maxHp,R.hp+h); floatText('pl', fill(F.heal,{n:h}), 'heal'); }
     else if(v.focus){ const f=Math.round(v.focus*SM*mult); R.focus=Math.min(R.maxFocus,R.focus+f); floatText('pl', fill(F.focus,{n:f}), 'focus'); }
+    // the truth that answers lingering harm: Gentleness cools heat; Love or Peace lets bitterness go
+    const fr = fruitsOf(v);
+    if(R.heat && fr.includes('Gentleness')){ R.heat=false; log(TEXT.fight.heatOff); }
+    if(R.bitter && (fr.includes('Love') || fr.includes('Peace'))){ R.bitter=false; log(TEXT.fight.bitterOff); }
     barsSync();
     R.busy=false;
     if(modal){ render(); return; }
@@ -273,21 +311,41 @@ async function enemyTurn(beatDone){
     if(!reacted && Math.random()<0.75){ speak(i, tauntFor(e)); await sleep(CALM()?200:420); }
     const el=document.getElementById('en'+i); if(el){ el.classList.remove('windup'); if(!CALM()) el.classList.add('lunge'); }
     await sleep(180);   // the lunge reaches you, then the hit lands
-    if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); } }
+    const mv = MOVES[a] || MOVES.atk, kind = moveKind(e, a);
+    if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else if(has('sabatons')) log(fill(TEXT.fight.vexShoes,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); await teach('provoke'); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,vars)); floatText('pl', TEXT.fight.float.glance, 'shield'); }
-    else { let d = a==='big'? e.atk+3 : e.atk; if(has('breast')) d=Math.max(0,d-2); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
+    else if(kind==='body'){ let d = Math.round(e.atk*mv.pow); if(has('breast')) d=Math.max(0,d-2);
+      const guarded=Math.min(R.guard||0,d); R.guard-=guarded; d-=guarded; const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
       log(fill(TEXT.fight.hits, vars));
-      if(absorbed) floatText('pl', fill(TEXT.fight.float.blocked,{n:absorbed}), 'shield', d>0?-26:0);
-      if(d>0){ hitFX(); await strike('pl', String(d), 'you', a==='big'); } else barsSync(); }
+      if(absorbed+guarded) floatText('pl', fill(TEXT.fight.float.blocked,{n:absorbed+guarded}), 'shield', d>0?-26:0);
+      if(d>0){ hitFX(); await strike('pl', String(d), 'you', a==='big'); } else barsSync();
+      if(d>0 && mv.fx==='heat' && !R.heat){ R.heat=true; log(TEXT.fight.heatOn); await teach('heat'); } }
+    else {   // a mind move: the shield soaks it, then it drains focus; with no focus left, it hurts
+      let d = Math.max(1, Math.round(e.atk*mv.pow)); const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed;
+      const drain=Math.min(R.focus,d), over=d-drain; R.focus-=drain; R.hp-=over;
+      log(fill(TEXT.fight.mindHits, {...vars, n:drain}));
+      if(absorbed) floatText('pl', fill(TEXT.fight.float.blocked,{n:absorbed}), 'shield', -26);
+      if(drain) floatText('pl', fill(TEXT.fight.float.focusLoss,{n:drain}), 'focusloss');
+      if(over){ log(TEXT.fight.mindOverflow); hitFX(); await strike('pl', String(over), 'you', false); } else barsSync();
+      if(d>0){ await teach('mind');
+        if(mv.fx==='bitter' && !R.bitter){ R.bitter=true; log(TEXT.fight.bitterOn); await teach('bitter'); }
+        if(mv.fx==='twist'){ R.twisted=true; log(TEXT.fight.twisted); await teach('twist'); } } }
     await sleep(700); if(el) el.classList.remove('lunge');   // time to read what he did before the next one moves
     if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); barsSync(); }
     if(R.hp<=0){ R.busy=false; defeat(); return; }
   }
+  // lingering harm ticks once a round, after they've acted (10% of your max HP); the Shoes of Peace let it wear off
+  for(const k of ['heat','bitter']){ if(!R[k] || R.after) continue; const n = tick(); R.hp -= n;
+    log(TEXT.fight[k+'Tick']); hitFX(); await strike('pl', String(n), 'you', false);
+    if(has('sabatons')){ R[k]=false; log(TEXT.fight.shoesWear); }
+    if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); barsSync(); }
+    if(R.hp<=0){ R.busy=false; defeat(); return; } }
   await sleep(TURN_BEAT);   // and his, before it's your turn again
   holdTips(TIP_DELAY);   // before anything renders, so a popup can't jump in ahead of “Your turn”
   newTurn(); R.busy=false;
   if(R.hp < R.maxHp*0.4 && !R.hurtSaid){ R.hurtSaid=true; think('hurt', {}, true); }
   render(); turnBanner(TEXT.fight.yourTurn, true);
+  if(R.enemies.some(e=>!e.freed && e.pattern[e.step]==='big')){ await sleep(TIP_DELAY); await teach('haymaker'); }   // he's winding up: the first time, Amos says so
 }
 function charge(){ if(R.busy||R.charge||R.after) return; if(tipPending()){ R.tipHold=0; render(); return; } R.charge=true; log(TEXT.fight.chargeLog); enemyTurn(); }
 function fightWon(){
