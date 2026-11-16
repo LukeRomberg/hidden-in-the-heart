@@ -27,10 +27,13 @@ function codexHTML(){
     <div class="dock"><button class="wide" onclick="goto(R&&R.codexFrom||'title')">Back</button></div>`;
 }
 function deckHTML(){
-  return `<h1>Deck</h1>${R.deck.map(c=>{const v=BY_REF[c.ref]; return `<div class="panel deckrow ty-${v.type}"><div class="gem">${spellCost(v)}</div><div class="drbody"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div></div>`;}).join('')}
+  // inside a cave: what's in your satchel first, the rest marked as left in town (satchel.js)
+  const bag = R.deckFrom==='dive' && R.satchel ? carried() : null, S = TEXT.dive.satchel;
+  const rows = bag ? [...bag.map(ref=>({ref})), ...R.deck.filter(c=>!bag.includes(c.ref))] : R.deck;
+  return `<h1>Deck</h1>${rows.map(c=>{const v=BY_REF[c.ref], out = bag && !bag.includes(c.ref); return `<div class="panel deckrow ty-${v.type}${out?' left':''}"><div class="gem">${spellCost(v)}</div><div class="drbody"><div class="px t-${v.type}">${spellLine(c.ref)} · ${v.type}</div><div class="small mute">${bag?(out?S.leftHome:S.packed)+' · ':''}${TIER_NAME[sp(c.ref).tier]} · ${spellEff(v)} · ${spellCost(v)} ${TEXT.fight.focus.toLowerCase()}</div></div></div>`;}).join('')}
     <div class="dock"><button class="wide" onclick="goto(R.deckFrom||'town')">Back</button></div>`;
 }
-const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','dive','codex','intro']);
+const HUD_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','dive','codex','intro','pack']);
 const TABS = [['town','Town','town'],['church','Church','church'],['gear','Gear','gear'],['tree','Tree','tree'],['deck','Deck','deck']];
 const TAB_ON = new Set(['town','church','forge','inn','training','scriptorium','world','tree','gear','deck','codex']);
 function hudHTML(){
@@ -45,7 +48,7 @@ function tabsHTML(){
 }
 function tab(id){ if(modal) return; R.treeFrom='town'; R.gearFrom='town'; R.deckFrom='town'; R.codexFrom='town'; if(id==='tree') R.treeSel=null; goto(id); }
 function render(){
-  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, meet:meetHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
+  const S = {town:townHTML, church:churchHTML, inn:innHTML, training:trainingHTML, scriptorium:scriptoriumHTML, world:worldHTML, pro1:pro1HTML, pro2:pro2HTML, pro3:pro3HTML, pro4:pro4HTML, title:titleHTML, codex:codexHTML, intro:introHTML, pack:packHTML, dive:diveHTML, caveintro:caveIntroHTML, cavedone:caveDoneHTML, chapterend:chapterEndHTML, fight:fightHTML, meet:meetHTML, tutorial:tutorialHTML, tutend:tutendHTML, saves:savesHTML, reward:rewardHTML, forge:forgeHTML, gear:gearHTML, tree:treeHTML, drop:dropHTML, victory:victoryHTML, defeat:defeatHTML, deck:deckHTML};
   let html = (S[screen]||titleHTML)();
   if(R && HUD_ON.has(screen) && screen!=='intro') html = hudHTML() + html;
   // no tabs until Bram is free (the opening walks the town map)

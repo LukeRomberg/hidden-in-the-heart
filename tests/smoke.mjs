@@ -2,7 +2,7 @@
 // Amos, the lid, pick two verses -> walk out to Bram and fight the Furnace (tutorial) -> Amos's tour on the map ->
 // walk into the Forge and out, a boarded door, reload on the town map -> walk to the Hollow's mouth -> the Hollow's map: walk to the first fight and win it, open a chest, say a verse at the
 // truth villager on the battle screen (Amos's first), verse door, pull the lever, bump the boss door -> reload and resume on the map -> move the save to a fresh browser
-// -> in test mode: walk into a townsperson at home, then the finale (the bell, everyone walks to church) into the chapter ending.
+// -> in test mode: walk into a townsperson at home, pack the satchel (eight verses, five go in) and fight with it, then the finale (the bell, everyone walks to church) into the chapter ending.
 // Fails on any console error or page error.
 // Usage: node tests/smoke.mjs [path/to/index.html]   (default: dist/index.html; npm run smoke builds first)
 import { chromium } from 'playwright';
@@ -328,6 +328,30 @@ try {
     const s = await page.evaluate(() => ({ modal: modal && modal.kind, key: modal && modal.key }));
     if (s.modal !== 'talk' || s.key !== 'home-washer') throw new Error('walking into Ruth: ' + JSON.stringify(s));
     await finishDialogue(); await page.locator('#talkpop #acts button').first().click();
+  });
+  await step('test mode: pack the satchel, fight with it', async () => {
+    // eight verses known: the cave mouth opens the packing screen, Amos explains it once
+    await page.evaluate(() => testJump(TEST_JUMPS.findIndex(j => j[0].startsWith('Satchel: packing for the Hollow'))));
+    await waitScreen('pack');
+    if (!(await page.evaluate(() => modal && modal.kind === 'tip' && modal.key === 'satchel'))) throw new Error('no first-time popup from Amos');
+    await page.locator('.overlay.tip button').click();
+    const s0 = await page.evaluate(() => ({ cards: document.querySelectorAll('.packhand .card').length, packed: document.querySelectorAll('.packhand .card.packed').length, tip: !!(P.tips && P.tips.satchel) }));
+    if (s0.cards !== 8 || s0.packed !== 5 || !s0.tip) throw new Error('packing screen: ' + JSON.stringify(s0));
+    // full: a sixth won't go in; take two out (a card and a slot), put a new one in, and the button waits for five
+    const card = ref => page.locator(`.packhand .card[onclick="togglePack('${ref}')"]`);
+    await card('Proverbs 15:1').click();
+    if (await page.evaluate(() => R.pack.sel.includes('Proverbs 15:1'))) throw new Error('packed a sixth verse');
+    await card('Galatians 5:16').click(); await page.locator(`.pslot[onclick="togglePack('Proverbs 14:29')"]`).click();
+    if (!(await page.locator('.dock button.primary').isDisabled())) throw new Error('could go in with three verses');
+    await card('Proverbs 15:1').click(); await card('James 1:19').click();
+    const want = await page.evaluate(() => R.pack.sel.slice().sort().join('|'));
+    await page.locator('.dock button.primary').click(); await waitScreen('caveintro');
+    await finishDialogue(); await act().click(); await waitScreen('dive');
+    // a fight in there deals only what you packed; the cave remembers it for next time
+    await page.evaluate(() => { R.node = { t: 'fight' }; startFight(['villager'], false); }); await waitScreen('fight');
+    const hand = await page.evaluate(() => [...document.querySelectorAll('.hand .card')].map(c => c.getAttribute('onclick').match(/'(.+)'/)[1]).sort().join('|'));
+    const mem = await page.evaluate(() => satchelFor(0).slice().sort().join('|'));
+    if (hand !== want || mem !== want) throw new Error(`hand ${hand} / remembered ${mem}, packed ${want}`);
   });
   await step('test mode: the finale, everyone to church', async () => {
     await page.evaluate(() => testJump(TEST_JUMPS.findIndex(j => j[0].startsWith('Finale'))));

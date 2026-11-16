@@ -67,7 +67,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
   const page = await ctx.newPage();
   await page.addInitScript(() => { window.__FAST = true; });   // the fights' pauses for reading (combat.js TURN_BEAT) shrink to a blink
   page.setDefaultTimeout(20000);
-  const rec = { acc, style, play, route, purchases: [], caves: [], issues: [], errors: [], blanks: { right: 0, wrong: 0 }, tutorialTurns: 0, outcome: 'incomplete', final: null, ms: 0 };
+  const rec = { acc, style, play, route, purchases: [], packs: [], caves: [], issues: [], errors: [], blanks: { right: 0, wrong: 0 }, tutorialTurns: 0, outcome: 'incomplete', final: null, ms: 0 };
   let shotN = 0;
   const shot = async name => { const p = `${OUT}/playtest-${tag}-${String(++shotN).padStart(2, '0')}-${name}.png`; try { await page.screenshot({ path: p }); } catch {} return p; };
   page.on('console', m => { if (m.type() === 'error') { rec.errors.push(m.text()); if (rec.errors.length <= 3) shot('console-error').then(p => rec.issues.push({ kind: 'CONSOLE ERROR', msg: m.text(), shot: p })); } });
@@ -176,6 +176,25 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
         return s; };
       return refs.sort((a, b) => score(b) - score(a))[0];
     }, play === 'smart');
+  }
+  // the satchel (satchel.js): with more than five verses, pack what the fight loop leans on: the best heal (it heals
+  // under 50% HP) and a focus verse (what it says when nothing else is affordable), then the rest by pickVerse's
+  // measure (best damage first). Five damage verses and no heal dies in the Quarry at 85%. Returns what it packed, or null.
+  async function packSatchel() {
+    await idle(); if ((await ev(() => screen)) !== 'pack') return null;
+    if (await ev(() => modal && modal.kind === 'tip')) await ev(() => closeTip());   // Amos explains it the first time
+    const want = await ev(() => {
+      const all = knownRefs(), m = ref => spellMult(ref), best = (refs, f) => refs.sort((a, b) => f(b) - f(a))[0];
+      const heal = best(all.filter(r => BY_REF[r].heal), r => BY_REF[r].heal * m(r)), focus = best(all.filter(r => BY_REF[r].focus), r => BY_REF[r].focus * m(r));
+      const score = ref => { const v = BY_REF[ref]; if (v.dmg) return v.dmg * m(ref); if (v.shield) return v.shield * m(ref) * 0.5; return 0; };
+      const pack = [heal, focus].filter(Boolean);
+      return [...pack, ...all.filter(r => !pack.includes(r)).sort((a, b) => score(b) - score(a))].slice(0, SATCHEL);
+    });
+    const card = ref => page.locator(`.packhand .card[onclick="togglePack('${ref}')"]`);
+    for (const ref of await ev(() => R.pack.sel.slice())) if (!want.includes(ref)) await card(ref).click();
+    for (const ref of want) if (!(await ev(r => R.pack.sel.includes(r), ref))) await card(ref).click();
+    await page.locator('#app .dock button.primary').click();
+    return want;
   }
   // plays the fight on screen to its end: returns {result:'won'|'defeat', ...stats}
   async function fightLoop() {
@@ -316,7 +335,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
     }
     if (room === 'verse') {
       const door = await ev(() => R.node.door.join(',')); A.doors[door] = (A.doors[door] || 0) + 1;
-      const ref = await ev(() => { const refs = [...new Set(R.deck.map(c => c.ref))].sort((a, b) => blankCount(BY_REF[a]) - blankCount(BY_REF[b])); return refs[0]; });
+      const ref = await ev(() => { const refs = carried().sort((a, b) => blankCount(BY_REF[a]) - blankCount(BY_REF[b])); return refs[0]; });   // a verse in the satchel
       await page.locator(`#app .panel button[onclick="sayAtDoor('${ref}')"]`).click(); await solveRecall();
       if (A.doors[door] >= DOOR_TRIES && await ev(() => R.room === 'verse')) { await page.locator('#app .dock button').first().click(); A.skip.push(door); }
       return;
@@ -427,6 +446,7 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
   async function startCave(i) {
     await walkTown('cave', i); await page.waitForTimeout(700);
     if ((await ev(() => screen)) === 'town') { const d = await describe(); throw new Softlock(`could not start cave ${i}: still in town (hp ${d.hp}, ${await ev(() => R.tmap.msg)}); too hurt to descend?`); }
+    const packed = await packSatchel(); if (packed) rec.packs.push(`${CAVE_NAMES[i]}: ${packed.join(', ')}`);
     await navigate('dive');
   }
   // after the last cave: the bell, everyone walks to church on the town map (townmap.js), then the chapter ending
@@ -563,6 +583,7 @@ function report(runs) {
     const n = r.blanks.right + r.blanks.wrong;
     p(`Outcome: ${r.outcome}. Target: ${r.target ? r.target[1] : '-'} -> ${r.met === null ? '-' : r.met ? 'met' : 'NOT met'}. Realized recall accuracy ${n ? (100 * r.blanks.right / n).toFixed(1) : '-'}% over ${n} blanks. Furnace ${r.tutorialTurns} turns${r.tutorialDefeats ? ` (${r.tutorialDefeats} restarts)` : ''}. Fruit picks ${r.levelups || 0}.`);
     if (r.purchases.length) p(`Purchases: ${r.purchases.join('; ')}.`);
+    if (r.packs.length) p(`Satchel (packed at the cave mouth): ${r.packs.join('; ')}.`);
     p('');
     if (r.caves.length) {
       p('| Cave | Tries | Defeats | Fights won | Turns/fight (avg, min-max) | HP at fight end (avg, min) | Lowest HP in fight (avg, worst) | Close calls | Boss turns / lowest HP | Talents earned / held | Souls (Lvl) | Truths right/wrong | Helped (walked on) | Chests ok/fail | Time |');

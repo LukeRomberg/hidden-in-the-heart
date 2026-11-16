@@ -138,7 +138,7 @@ function newTurn(){
   if(R.tutorial && !R.deck.some(c=>c.ref==='Romans 12:2') && !unsaid().some(ref=>affordable(ref))){
     addVerse('Romans 12:2'); R.gift=true; log(TEXT.tutorial.giftLog); }
 }
-function verseRefs(){ return [...new Set(R.deck.map(c=>c.ref))]; }
+function verseRefs(){ return carried(); }   // in a cave, only what's in your satchel (satchel.js)
 function unsaid(){ return verseRefs().filter(ref=>!R.spent.includes(ref)); }
 function affordable(ref){ return cardCost(BY_REF[ref]) <= R.focus; }
 function infoTarget(){ const t = R.enemies[R.target]; return t && !t.freed ? t : R.enemies.find(e=>!e.freed); }
