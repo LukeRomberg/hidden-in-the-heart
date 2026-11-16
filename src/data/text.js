@@ -32,11 +32,16 @@ const TEXT = {
   speakers: {
     priest: 'Amos',
     oldPriest: 'Old priest',   // Amos, before he introduces himself
+    priestGrave: 'Amos',   // Amos, grave (his face in the portrait; draft hints, swap freely between priest / priestGrave / priestGlad)
+    priestGlad: 'Amos',    // Amos, glad
     you: 'You',
     blacksmith: 'Bram',
     innkeeper: 'Wendell',
     drill: 'Hale',
     scribe: 'Silas',
+    // the townsfolk (TEXT.villagers and TEXT.living.people), so they can have lines too
+    tomas: 'Tomas', abel: 'Abel', ezra: 'Ezra', jonas: 'Jonas', tobias: 'Tobias',
+    ruth: 'Ruth', lydia: 'Lydia', mara: 'Mara', naomi: 'Naomi', hannah: 'Hannah',
   },
 
   // ---------- Prologue ----------
@@ -75,7 +80,7 @@ const TEXT = {
     },
     lid: {
       lines: [
-        ['priest', '“Well. Look at that.” He leans the broom on a pew and chuckles to himself quietly. “I’m Amos. It seems that the Lord has answered my prayers. You are here to help.”'],
+        ['priestGlad', '“Well. Look at that.” He leans the broom on a pew and chuckles to himself quietly. “I’m Amos. It seems that the Lord has answered my prayers. You are here to help.”'],
         ['priest','“You will need to battle in order to free the oppressed, but I am afraid this is all I can offer in terms of protection at the moment.”'],
         [null, 'He hands you a dented trash-can lid. You look at it and give him a questioning look.'],
         ['you','“What about a weapon?”'],
@@ -98,13 +103,13 @@ const TEXT = {
   // ---------- Tutorial: the Furnace (Bram, burning by the well) ----------
   tutorial: {
     lead: [
-      ['priest', '“Good. Now, about Bram.” Amos takes his coat from the peg by the door. “The anger has burned in him so long that it has become a furnace. You saw it.”'],
+      ['priestGrave', '“Good. Now, about Bram.” Amos takes his coat from the peg by the door. “The anger has burned in him so long that it has become a furnace. You saw it.”'],
       ['you', '“The fire on his skin. I thought I was dreaming.”'],
       ['priest', '“Perhaps you are.” He opens his worn Bible and reads aloud.'],
       ['priest', '“For our struggle is not against flesh and blood, but against the rulers, against the authorities, against the powers of this world’s darkness, and against the spiritual forces of evil in the heavenly realms.” Ephesians 6:12'],
-      ['priest', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire goes out, speak it over him.”'],
+      ['priestGrave', '“Bram is not your enemy, son. He is held. Speak the truth over him, and whatever has hold of him must let go.” He presses a worn card into your hand. “Galatians 5:22–23. When his fire goes out, speak it over him.”'],
       ['you', '“And if he swings at me?”'],
-      ['priest', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
+      ['priestGlad', 'Amos chuckles quietly. “Then I suppose you will be glad you took the lid.”'],
     ],
     start: 'Walk out to the well with Amos',
     // Amos talking you through your first fight
@@ -135,10 +140,10 @@ const TEXT = {
       ['you', '“Are you okay?”'],
       ['blacksmith', '“I feel… peace.” He looks at you properly for the first time. “Why did you help me?”'],
       ['you', '“Honestly? I’m not sure. I fell asleep studying, and I woke up here.”'],
-      ['priest', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
+      ['priestGlad', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
       ['blacksmith', 'Bram looks down at your sneakers and shakes his head. He unlaces his own work boots and pushes them into your arms. “Here. Where you’re going, you’ll want real boots.”'],
       ['you', '“Where am I going?”'],
-      ['priest', '“When the fire went out, the others who were held out here ran. Into the caves outside town, most of them. Wendell. Hale. Silas.” He sighs. “Rest a while, then come and see me at the church. We will go and bring them home.”'],
+      ['priestGrave', '“When the fire went out, the others who were held out here ran. Into the caves outside town, most of them. Wendell. Hale. Silas.” He sighs. “Rest a while, then come and see me at the church. We will go and bring them home.”'],
     ],
     toTown: 'Walk back into town',
   },
@@ -165,7 +170,7 @@ const TEXT = {
       {at: 'hollow', lines: [
         ['you', '“What do I need to know about the caves?”'],
         ['priest', '“Walk the whole cave before you face the one at the end. I preached a long time to those people, and some of them took my notes with them when they ran. You will find scraps that may give insight into their troubles.”'],
-        ['priest', '“The ones down there are held by things that sound true and are not.”'],
+        ['priestGrave', '“The ones down there are held by things that sound true and are not.”'],
         ['you','“Why did God choose me?”'],
         ['priest',"‘It is the glory of God to conceal a matter and the glory of kings to search it out.’"],
         ['priest', '“This town has only a little strength, son. But it kept His word. That is enough to start with.”'],
@@ -219,7 +224,7 @@ const TEXT = {
     // walking into Bram with the lid, Amos beside you: the fight starts
     bramFight: [
       ['blacksmith', '“You again. And the priest. Come to tell me I’m wrong?”'],
-      ['priest', '“Now, son,” Amos says quietly. “Speak the truth over him.”'],
+      ['priestGrave', '“Now, son,” Amos says quietly. “Speak the truth over him.”'],
     ],
     // the church door between the lid and the Furnace
     churchAfterLid: [
@@ -245,7 +250,7 @@ const TEXT = {
   church: {
     heading: 'The Church',
     lineBefore: ['priest', '“The ones who ran are in the caves outside town, son. Bring them home, one at a time. Come back here when you need rest. The Lord goes with you.”'],
-    lineAfter: ['priest', '“Every door in Philadelphia is open again, and people are coming back to service.” He smiles, then nods toward the road. “I have heard there are other towns, though. Worse off than we were.”'],
+    lineAfter: ['priestGlad', '“Every door in Philadelphia is open again, and people are coming back to service.” He smiles, then nods toward the road. “I have heard there are other towns, though. Worse off than we were.”'],
     missions: 'Missions',
     caveCleared: ' · cleared {n}×',
     caveLocked: 'Bring the last one home first.',
@@ -403,7 +408,7 @@ const TEXT = {
       intro: [
         ['priest', '“Hale ran the training yard. He taught half the young men in Philadelphia how to fight, and then he could not stop. He is somewhere in the old quarry.”'],
         ['you', '“Is he dangerous?”'],
-        ['priest', 'Amos chuckles quietly. “He was dangerous before. Bring the lid.”'],
+        ['priestGlad', 'Amos chuckles quietly. “He was dangerous before. Bring the lid.”'],
       ],
       bossLead: 'The tunnel opens onto the quarry floor. A broad, gray-haired man is throwing punches at the rock wall, his knuckles bleeding.',
       done: [
@@ -415,7 +420,7 @@ const TEXT = {
       name: 'The Deep Cave',
       blurb: 'Silas the scribe went in with a lamp and a stack of paper.',
       intro: [
-        ['priest', '“Silas wrote things about his neighbors that were not true, and nailed them to every door. When the fire went out, he ran. Shame does that.”'],
+        ['priestGrave', '“Silas wrote things about his neighbors that were not true, and nailed them to every door. When the fire went out, he ran. Shame does that.”'],
         ['you', '“Will he even want to come back?”'],
         ['priest', '“Tell him the truth, son. The truth is the one thing he has not tried.”'],
       ],
@@ -702,7 +707,7 @@ const TEXT = {
     amosAnswers: '“I will take this one,” Amos says gently.',
     amosYourTurn: ['priest', '“Now you, son. Take your time. If you are wrong, I am right here.”'],
     amosCorrects: ['priest', '“Not quite. Look again at what Scripture says, and try once more.”'],
-    amosLeaves: ['priest', '“Good. That is all it takes: the truth, said plainly.” He pats your shoulder. “I will go back up and put the kettle on. The rest of this cave is yours.”'],
+    amosLeaves: ['priestGlad', '“Good. That is all it takes: the truth, said plainly.” He pats your shoulder. “I will go back up and put the kettle on. The rest of this cave is yours.”'],
     // after the answer
     rightTrue: '“It’s true,” you say. Their shoulders drop. They have been holding their breath for weeks.',
     rightFalse: '“It’s not true,” you say. “Here’s what is.” They read it twice.',
@@ -768,7 +773,7 @@ const TEXT = {
     atBoss: '{name} limps in behind you and stands at your back. Shield +{n}.',
     amosFirst: [
       [null, 'Amos catches up with you, lantern swinging.'],
-      ['priest', '“I wanted to be here for this one.” He looks at the man on the ground, then at you. “We can talk about Scripture all day, son. He needs his ankle wrapped.”'],
+      ['priestGrave', '“I wanted to be here for this one.” He looks at the man on the ground, then at you. “We can talk about Scripture all day, son. He needs his ankle wrapped.”'],
     ],
     // look: their sprite (townsfolk.json); hurt: how they look until helped, 'hurt' (standing) or 'badly' (sat down)
     people: [
@@ -847,9 +852,9 @@ const TEXT = {
       [null, 'Amos steps up to the pulpit and looks out at a church that is full for the first time in years. For a while he does not say anything.'],
       ['priest', '“This town was named for a church, long ago. The Lord had a letter written to it, and He had nothing against them. Not one thing.” He opens his worn Bible and reads.'],
       [null, '“I know your deeds. See, I have placed before you an open door, which no one can shut. For you have only a little strength, yet you have kept My word and have not denied My name.” Revelation 3:8'],
-      ['priest', '“A little strength. That is us, friends. We ran, and we burned, and we kept lists. But a few of us kept His word, and it was enough to bring the rest of us home.”'],
+      ['priestGlad', '“A little strength. That is us, friends. We ran, and we burned, and we kept lists. But a few of us kept His word, and it was enough to bring the rest of us home.”'],
       ['you', '“I came here because I couldn’t memorize one verse.”'],
-      ['priest', 'Amos chuckles quietly. “And now look at you.” He points out the open doors, past the square, to the road east. “That road runs to Ephesus. I have not had a letter from their church in a long time, son. The door is open. No one can shut it. But someone has to walk through it.”'],
+      ['priestGlad', 'Amos chuckles quietly. “And now look at you.” He points out the open doors, past the square, to the road east. “That road runs to Ephesus. I have not had a letter from their church in a long time, son. The door is open. No one can shut it. But someone has to walk through it.”'],
     ],
     toStats: 'Step out into the square',
     heading: 'Philadelphia',

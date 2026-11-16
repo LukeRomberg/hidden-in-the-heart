@@ -7,10 +7,14 @@ const IMG = {
     church: __IMG__('scenes/04_church_interior.png'),
     title: __IMG__('scenes/05_title_emberford.png'),
   },
+  // battle backdrops (PixelLab), picked by arenaBG() in art.js: the square by day for fights in town,
+  // the square at night for the Furnace, one per cave (keyed by CAVES[].id)
   battle: {
+    day: __IMG__('battle/square_day.png'),
     square: __IMG__('battle/square_night.png'),
-    lair: __IMG__('battle/furnace_lair.png'),
-    cave: __IMG__('battle/cave.png'),   // PixelLab
+    hollow: __IMG__('battle/hollow.png'),
+    quarry: __IMG__('battle/quarry.png'),
+    deep: __IMG__('battle/deep.png'),
   },
   // one scene per cave (PixelLab), keyed by CAVES[].id
   cave: {
@@ -37,13 +41,20 @@ const IMG = {
     scriptorium: [__IMG__('town/scriptorium_closed.png'), __IMG__('town/scriptorium_open.png')],
   },
   portrait: {
-    // keyed by speaker id (see TEXT.speakers)
+    // keyed by speaker id (see TEXT.speakers). Amos has three faces: priest (warm), priestGrave, priestGlad.
     priest: __IMG__('portraits/priest.png'),
+    priestGrave: __IMG__('portraits/priest_grave.png'),
+    priestGlad: __IMG__('portraits/priest_glad.png'),
     oldPriest: __IMG__('portraits/priest.png'),
     blacksmith: __IMG__('portraits/blacksmith.png'),
     innkeeper: __IMG__('portraits/innkeeper.png'),
     drill: __IMG__('portraits/drill.png'),
     scribe: __IMG__('portraits/scribe.png'),
+    // the townsfolk (PixelLab, redrawn from their sprites in townsfolk.json), keyed by their speaker id = name in lowercase
+    tomas: __IMG__('portraits/folk/baker.png'), abel: __IMG__('portraits/folk/shepherd.png'), ezra: __IMG__('portraits/folk/farmhand.png'),
+    jonas: __IMG__('portraits/folk/carpenter.png'), tobias: __IMG__('portraits/folk/quarryman.png'), ruth: __IMG__('portraits/folk/washer.png'),
+    lydia: __IMG__('portraits/folk/dyer.png'), mara: __IMG__('portraits/folk/grandmother.png'), naomi: __IMG__('portraits/folk/dairymaid.png'),
+    hannah: __IMG__('portraits/folk/girl.png'),
   },
   tree: __IMG__('tree/tree.png'),
   // gear: one icon per item in ITEMS (gear.js), cut from icons/gear_sheet.png

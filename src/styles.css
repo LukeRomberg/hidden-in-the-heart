@@ -853,3 +853,18 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
   .mlights .lt, .tl .mk.fire, .tl .sconce.flame{ animation:none; }
   .sctitle{ animation:sctitleCalm 2.1s steps(1) forwards; } #wipe.fade.on, #wipe.fade.off{ animation-duration:.01s; }
 }
+
+/* battle faces: idle breathing in the arena, faces beside encounters */
+/* the held, the hurt and Amos breathe: a slow, stepped rise from the feet (whole pixels, no blur), a little sway on the out-breath.
+   It sits on the sprite, so the lunge/hit/windup on .en still own .en's transform. The old 3px bob gives way to it. */
+.en:not(.windup):not(.lunge):not(.hit){ animation:none; }
+.en:not(.wave) .sprite, .amosin img{ transform-origin:50% 100%; animation:breathe 3.4s steps(1,end) infinite; }
+#en1 .sprite{ animation-delay:-1.5s; } #en2 .sprite{ animation-delay:-.8s; } .amosin img{ animation-delay:-2.2s; animation-duration:4s; }
+.en.hurtp .sprite{ animation-duration:4.6s; }
+@keyframes breathe{
+  0%{ transform:none; } 18%{ transform:scaleY(1.015); } 34%{ transform:scaleY(1.03); } 50%{ transform:scaleY(1.03) translateX(1px); }
+  66%{ transform:scaleY(1.015) translateX(1px); } 82%{ transform:none; }
+}
+@media (prefers-reduced-motion: reduce){ .en:not(.wave) .sprite, .amosin img{ animation:none; } }
+.meetbox .mface{ float:left; width:48px; height:48px; margin:2px 10px 4px 0; image-rendering:pixelated; border:3px solid #5a4632; background:#2b2320; }
+.meetbox::after{ content:''; display:block; clear:both; }
