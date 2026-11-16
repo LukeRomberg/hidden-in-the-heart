@@ -31,7 +31,9 @@ const TEST_JUMPS = [
   ['Town map: out to the well with Amos', ()=>{ testHero(false); townPlace(frontOf(townSpot('door','church'))); goto('town'); }],
   ['Amos’s town tour', ()=>{ testHero(true); startTour(true); }],
   ['Town map, after the tutorial', ()=>{ testHero(true); P.toured = true; townPlace(frontOf(townSpot('door','church'))); goto('town'); }],
-  ['Town map, every door open', ()=>{ testHero(true); P.toured = true; CAVES.forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null; townPlace(tourAt('well')); goto('town'); }],
+  ['Town map, every door open', ()=>{ testHero(true); P.toured = true; CAVES.forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); P.chapters = {philadelphia:1}; R.unlockMsg = null; townPlace(tourAt('well')); goto('town'); }],
+  ['Town map, a few folk home', ()=>{ testHero(true); P.toured = true; P.caves[CAVES[0].id] = 1; townUnlock(CAVES[0].boss); P.home = ['baker','washer','dyer','carpenter']; P.helpedAll = ['tobias']; R.unlockMsg = null; townPlace(tourAt('well')); goto('town'); }],
+  ['Finale: the bell and the walk to church', ()=>{ testHero(true); P.toured = true; CAVES.forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null; finaleStart(); }],
   // the town at dusk (mapfx.js): tinted, the lamps lit, fireflies by the trees; stays on for this test session
   ['Town map at dusk', ()=>{ testHero(true); P.toured = true; CAVES.forEach(c=>{ P.caves[c.id] = 1; townUnlock(c.boss); }); R.unlockMsg = null; MAPFX.town.dusk = true; townPlace(tourAt('well')); goto('town'); }],
   ['The Hollow', ()=>{ testHero(true); startCave(0); }],

@@ -40,6 +40,28 @@ const IMG = {
     training: [__IMG__('town/training_yard_closed.png'), __IMG__('town/training_yard_open.png')],
     scriptorium: [__IMG__('town/scriptorium_closed.png'), __IMG__('town/scriptorium_open.png')],
   },
+  // the town map's kit (tools/build_town.py; sizes and door positions in src/data/town.json)
+  // houses by look (TEXT.villagers / TEXT.living.people): [boarded, open]
+  house: {
+    baker: [__IMG__('town/house_baker_closed.png'), __IMG__('town/house_baker_open.png')],
+    shepherd: [__IMG__('town/house_shepherd_closed.png'), __IMG__('town/house_shepherd_open.png')],
+    farmhand: [__IMG__('town/house_farmhand_closed.png'), __IMG__('town/house_farmhand_open.png')],
+    carpenter: [__IMG__('town/house_carpenter_closed.png'), __IMG__('town/house_carpenter_open.png')],
+    quarryman: [__IMG__('town/house_quarryman_closed.png'), __IMG__('town/house_quarryman_open.png')],
+    washer: [__IMG__('town/house_washer_closed.png'), __IMG__('town/house_washer_open.png')],
+    dyer: [__IMG__('town/house_dyer_closed.png'), __IMG__('town/house_dyer_open.png')],
+    grandmother: [__IMG__('town/house_grandmother_closed.png'), __IMG__('town/house_grandmother_open.png')],
+    dairymaid: [__IMG__('town/house_dairymaid_closed.png'), __IMG__('town/house_dairymaid_open.png')],
+    girl: [__IMG__('town/house_girl_closed.png'), __IMG__('town/house_girl_open.png')],
+  },
+  prop: {
+    tree: __IMG__('town/prop_tree.png'), bush: __IMG__('town/prop_bush.png'), well: __IMG__('town/prop_well.png'),
+    lamp: __IMG__('town/prop_lamp.png'), bench: __IMG__('town/prop_bench.png'), fence: __IMG__('town/prop_fence.png'),
+    planter: __IMG__('town/prop_planter.png'), sign: __IMG__('town/prop_sign.png'), barrels: __IMG__('town/prop_barrels.png'),
+    dummy: __IMG__('town/prop_dummy.png'), mouth: __IMG__('town/prop_mouth.png'),
+  },
+  // Wang strips: tile i has corners NW,NE,SW,SE = bits 8,4,2,1 (1 = path); cobble's grass is cut away
+  ground: { dirt: __IMG__('town/ground_dirt.png'), cobble: __IMG__('town/ground_cobble.png') },
   portrait: {
     // keyed by speaker id (see TEXT.speakers). Amos has three faces: priest (warm), priestGrave, priestGlad.
     priest: __IMG__('portraits/priest.png'),

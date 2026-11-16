@@ -246,6 +246,64 @@ const TEXT = {
         ['scribe', '“I have been copying Scripture since I came home. Slowly. I check every word twice now.”'],
       ],
     },
+    // DRAFTS (Claude), for Luke to rewrite. Each cottage on the map, by the look of who lives there
+    // (TEXT.villagers, TEXT.living.people). shut: walking into the door while they're away (a line under
+    // the map). open: knocking once they're home, or walking into them outside.
+    homes: {
+      baker: {
+        shut: 'The baker’s door is boarded over. No smoke from the oven.',
+        open: [[null, 'Tomas leans in the doorway, flour to the elbows. “First loaf in a month. It’s ugly. I’m eating it anyway.”']],
+      },
+      shepherd: {
+        shut: 'Abel’s cottage. The shutters are nailed and the sheep pen is empty.',
+        open: [[null, 'Abel is mending a fence rail by his door. “The sheep came home before I did. Says something, that.”']],
+      },
+      farmhand: {
+        shut: 'A blue cottage with its door boarded up. A straw hat hangs on a nail by the step, waiting.',
+        open: [[null, 'Ezra tips his straw hat. “My brother let me in. Didn’t say a word. Just moved over on the bench.”']],
+      },
+      carpenter: {
+        shut: 'The carpenter’s cottage. Even the boards across the door are crooked, like they went up in a temper.',
+        open: [[null, 'Jonas runs a thumb along a plank. “Taking the boards off my own door. Best work I’ve done all year.”']],
+      },
+      quarryman: {
+        shut: 'Tobias’s stone cottage is shut tight. There is quarry dust on the step.',
+        open: [[null, 'Tobias sits on his step with his bad leg stretched out. “Still sore. But I walked home on it. Didn’t think I would.”']],
+      },
+      washer: {
+        shut: 'Ruth’s washing line is bare. The door is nailed shut.',
+        open: [[null, 'Ruth is pegging out sheets. “Everything in this town needed a wash. Me included.”']],
+      },
+      dyer: {
+        shut: 'The dyer’s cottage. Purple cloth hangs stiff on the line, faded from a month in the sun.',
+        open: [[null, 'Lydia’s hands are purple to the wrist. “I’m dyeing everything I own. I wanted something to look new.”']],
+      },
+      grandmother: {
+        shut: 'A round green door, boarded. The flower pots have gone dry.',
+        open: [[null, 'Mara waves you over. “My sister is coming for supper. We haven’t eaten together in nine years. Pray it goes well.”']],
+      },
+      dairymaid: {
+        shut: 'The timber cottage is shut up. Somewhere behind it, a goat complains.',
+        open: [[null, 'Naomi has a pail on each arm. “The goats have forgiven me. Mostly. One of them is still sulking.”']],
+      },
+      girl: {
+        shut: 'A tall brick house, boarded at the door. Someone has drawn a chalk cat on the step.',
+        open: [[null, 'Hannah is on the step, drawing with chalk. “Mama says I can play in the square again. Because of you.”']],
+      },
+    },
+    // DRAFT (Claude). After the last cave: back in town the bell rings and everyone walks to church, you and Amos last.
+    finale: {
+      bell: [
+        [null, 'The church bell rings. Once, twice, then on and on, the way it hasn’t rung in years.'],
+        [null, 'All round the square, doors open.'],
+      ],
+      walking: 'The whole town is walking up the lane to the church.',
+      amos: [
+        ['priest', 'Amos falls in beside you. “Come on, son. They have saved you a seat.”'],
+      ],
+      go: 'Everyone has gone in. Amos waits with you at the church door.',
+      notNow: 'Not now. The bell is still ringing.',
+    },
   },
   church: {
     heading: 'The Church',

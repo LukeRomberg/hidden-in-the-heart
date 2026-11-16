@@ -223,7 +223,7 @@ function caveDone(){
 function caveDoneHTML(){
   const C = TEXT.caves[R.cave];
   // chapter ending hook: the first clear that finishes the last cave goes to the closing scene (story.js), not town
-  const next = R.firstClear && allCavesDone() ? "R.endStats=false;goto('chapterend')" : "R.cave=null;goto('town')";
+  const next = R.firstClear && allCavesDone() ? "finaleStart()" : "R.cave=null;goto('town')";   // the bell and the walk to church (townmap.js), then the chapter ending
   return `${caveScene()}${talk('cavedone'+R.cave, C.done, `<button class="primary wide" onclick="${next}">${TEXT.dive.home}</button>`)}`;
 }
 

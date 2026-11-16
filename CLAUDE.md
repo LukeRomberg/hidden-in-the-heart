@@ -116,6 +116,19 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   each shopkeeper by their door once it's open) talk in a popup over the map (`talkPop`, lines in `TEXT.townMap`).
   The opening plays on it: you wake in the square, walk to the church (prologue scenes), then out to Bram with
   Amos beside you. Where you stand is `P.town.pos` / `P.town.face` (P.town also holds the building flags).
+  The art is front-facing (Luke's pick, 2026-11: the facade straight on, roof from above, like the characters):
+  the kit from `tools/build_town.py`, drawn at `TSC` 0.85 screen px per art pixel; the ground is one picture made
+  from two Wang strips (`townGround`, dual grid: dirt under grass, cobblestone over that).
+- **Cottages and townsfolk on the map**: one cottage (`H`, owner in `TOWN.houses`) per person in `TEXT.villagers`
+  and `TEXT.living.people`, boarded until they're home: a held villager once freed (`townHome`, called from
+  combat.js and encounters.js, kept in `P.home`; `pickFreed` prefers someone still away), a hurt person once
+  helped (`P.helpedAll`), and everyone once all three caves are clear. Then they stand beside their door and
+  wander a few tiles (`R.folk`, walk cycles in `folkwalk.json`); walk into them or their door to talk
+  (`TEXT.townMap.homes`; a boarded door gives the `shut` line).
+- **The finale** (townmap.js): the first clear of the last cave sends `caveDoneHTML` to `finaleStart()`, not
+  straight to `chapterend`. The bell rings (`TEXT.townMap.finale`), everyone walks out of their door into a line
+  from you to the church, Amos says his line, the line walks in, you and Amos last; stepping in at the church
+  door plays the chapter ending. `finaleDue()` restarts it from the bell after a reload. Test jump: "Finale".
 - **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,
   `B` the held townsperson, `D` boss door, `V` verse door, `L`/`K` levers for `G`/`H` gates,
   digits = that cave's `marks`: fights, chests, campfire; lowercase letters = the encounters in
@@ -214,6 +227,12 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
   cave, 32px, transition 0.5, plus seven 32px Pixen objects) into `assets/source/caves/map/`: a 4x4 ground sheet per cave
   indexed by corner mask (NW 8, NE 4, SW 2, SE 1; 1 = rock), colour-graded (`GRADE`), and the objects with their derived
   states (open doors and swinging leaves, raised gate, pulled lever, a second campfire frame).
+- `build_folk_walk.py`: the townsfolk's walk cycles (animate_character, template "walking", 6 frames,
+  south/north/east/west) into `folkwalk.json` (`FOLK_WALK`); `--fetch` downloads them again from PixelLab.
+- `build_town.py`: the town kit from `assets/source/town/raw/` (PixelLab create_map_object, low top-down,
+  selective outline; ground from create_topdown_tileset): buildings and cottages open and boarded (the boarded
+  one is drawn: planks over the door rect, lit windows put out), props, two ground strips, and `town.json`
+  (sizes, door positions).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
   card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
 
@@ -248,8 +267,8 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 ## Art still wanted
 
 - Impact effects for Joy, Kindness, Faithfulness (32x32 x6) once those fruit unlock.
-- Townsfolk walking frames (animate_character, template "walk", ~1 generation per direction) for the town map.
-- Town tileset (being redrawn by the town session). The caves' tilesets and objects are done (2026-11).
+- The town (style A, front-facing), the caves' tiles and objects, the townsfolk with walk cycles, the hero's
+  side walk, portraits and battle backdrops are all PixelLab art now (2026-11).
 
 ## Conventions
 
