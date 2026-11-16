@@ -361,6 +361,126 @@ h2{ font-size:15px; font-weight:800; letter-spacing:1.2px; }
 button .t-Patience{ color:#ffd860; } button .t-Gentleness{ color:#c4e88e; } button .t-Self-control, button .t-Peace{ color:#acd6ff; }
 button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .sub{ color:#ffe8c0; }
 
+/* ================= UI pass (2026-11): one family of frames, buttons, type and popups =================
+   Type scale: --fs-cap 13 (credits, captions) · --fs-s 15 (labels, notes) · --fs-m 17 (buttons, lists)
+   · --fs-l 19 (reading text) · --fs-xl 22 (popup titles) · h1 26. Ink on parchment: --pi (text), --pi2
+   (headings, numbers), --pi3 (quiet). Results: --ok, --warn, --bad. */
+:root{ --fs-cap:13px; --fs-s:15px; --fs-m:17px; --fs-l:19px; --fs-xl:22px;
+  --pi:#3a2414; --pi2:#7a4a24; --pi3:#8a6a48; --ok:#4f7a2a; --warn:#a8780e; --bad:#b0401c; --brass:#ffd860; }
+/* buttons: plank (normal), pressed plank, green plank (primary), grey sunk plank (disabled) */
+button{ min-height:48px; }
+button:disabled, button.primary:disabled{ opacity:1; filter:none; border-image-source:url(__FRAME__(btnOff)); color:#ddd2bf; text-shadow:1px 1px 0 #2a2018; cursor:not-allowed; }
+button:disabled:active{ transform:none; }
+button:disabled .sub, button:disabled [class^="t-"]{ color:#cfc4b0 !important; }
+button:focus-visible{ outline:3px solid var(--brass); outline-offset:2px; }
+@media (hover:hover){ button:not(:disabled):hover{ filter:brightness(1.08); } }
+/* actions read centered; list buttons (a name and a line under it) stay left */
+.dock button, .overlay .panel > button.wide, #app > button.wide:not(:has(.sub)){ text-align:center; }
+.dock .opts button{ text-align:center; }
+/* headings on the wood: a little air above, tight to what they head */
+#app > h2{ margin:16px 2px 8px; }
+#app > h1{ margin:2px 2px 12px; }
+.panel h2{ margin-bottom:8px; }
+/* inputs: a brass ring when focused instead of the browser's blue */
+input[type=text]:focus, textarea.code:focus{ outline:3px solid #d8a630; outline-offset:1px; }
+
+/* ---- popups: one family. A parchment panel on a dim floor, a small kicker, a title, then the body;
+   the short ones (tips, rewards, level up) sit in the middle of the screen ---- */
+.overlay.reward, .overlay.tip, .overlay.levelup{ display:flex; flex-direction:column; }
+.overlay.reward > .panel, .overlay.tip > .panel, .overlay.levelup > .panel{ margin:auto; width:100%; }
+.overlay .panel > h2:first-child, .overlay .rhead h2{ color:var(--pi2); }
+.overlay .panel > button.wide:last-child{ margin-top:10px; margin-bottom:2px; }
+@media (prefers-reduced-motion: no-preference){ .overlay.tip .panel{ animation:rewardIn .2s ease-out; } }   /* not recall: it re-renders on every answer */
+
+/* ---- the recall popup (recall.js) ---- */
+.overlay.recall .panel{ padding:2px 4px 0; }
+.rhead{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.rhead h2{ margin:0; }
+.rtier{ flex:none; font-size:var(--fs-s); font-weight:700; color:var(--pi2); border:7px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 7px round; padding:0 4px; line-height:1.2; }
+.rprog{ display:flex; align-items:center; gap:8px; margin:8px 0 6px; }
+.rprog .pips{ flex:1; display:flex; gap:3px; height:10px; }
+.rprog .pips.tight{ gap:1px; }
+.rprog .pips i{ flex:1; background:#e2cc9a; border:1px solid #c8a26a; }
+.rprog .pips i.ok{ background:var(--ok); border-color:#2e5220; }
+.rprog .pips i.bad{ background:var(--bad); border-color:#7a2a14; }
+.rprog .pips i.cur{ background:#f2c84a; border-color:#a8780e; box-shadow:0 0 0 1px #f2c84a; }
+.rcount{ flex:none; font-size:var(--fs-s); font-weight:800; color:var(--pi3); min-width:4.2em; text-align:right; }
+.verse.rverse{ border:10px solid transparent; border-image:url(__FRAME__(inset)) 5 fill / 10px round; padding:2px 4px; margin:0 0 10px; color:var(--pi); font-size:20px; line-height:1.9; }
+.rverse .rref{ display:block; text-align:right; font-weight:700; color:var(--pi2); line-height:1.7; }
+.rverse .rref::before{ content:"\2014\00a0"; }
+.rverse .vn{ font-size:.6em; color:var(--pi3); margin-right:2px; }
+/* blanks: a sunk slot; the one you're on glows; right is green, wrong is struck through in red */
+.rverse .blank{ min-width:2.8em; line-height:1.3; padding:0 .3em; border:0; border-bottom:3px solid #a8865a; background:rgba(138,106,72,.13); color:var(--pi); }
+.rverse .blank.cur{ background:#f6d86a; border-bottom-color:#a8780e; box-shadow:0 0 0 2px #e8b84a; font-weight:800; color:#7a4a10; }
+.rverse .blank.ok{ background:rgba(79,122,42,.16); border-bottom-color:var(--ok); color:var(--ok); font-weight:700; }
+.rverse .blank.bad{ background:rgba(176,64,28,.12); border-bottom-color:var(--bad); color:var(--bad); }
+.rverse .fix{ color:var(--ok); font-weight:800; }
+.rverse .ph{ display:inline-block; width:calc(var(--n) * .5em + .4em); height:1em; vertical-align:-.12em; border-bottom:3px dotted #a8865a; background:rgba(138,106,72,.08); }
+.rverse .ph.cur{ border-bottom:3px solid #a8780e; background:#f6d86a; box-shadow:0 0 0 2px #e8b84a; }
+.rverse .lw.ok{ color:var(--ok); }
+.rverse .lw.bad{ color:var(--bad); text-decoration:underline wavy; text-underline-offset:3px; }
+@media (prefers-reduced-motion: no-preference){ .rverse .blank.cur, .rverse .ph.cur{ animation:curPulse 1s steps(2) infinite; } }
+@keyframes curPulse{ 50%{ box-shadow:0 0 0 2px #fff0a0; } }
+/* choices: two by two, big enough for a thumb */
+.overlay.recall .opts{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+.overlay.recall .opts button{ margin:0; min-height:56px; font-size:19px; padding:0 4px; text-align:center; line-height:1.15; }
+.overlay.recall .opts.refopts button{ font-size:21px; }
+.overlay.recall .dock > .small.mute:first-child{ font-weight:700; color:var(--pi2); }
+.overlay.recall #ans{ margin:4px 0 2px; }
+/* the end of a recall: a stamp that says how it went */
+.rresult{ text-align:center; padding:4px 0 2px; }
+.rresult .stamp{ display:inline-block; font-size:28px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; line-height:1.1;
+  padding:4px 14px; border:4px double currentColor; transform:rotate(-3deg); margin:2px 0 6px; background:rgba(255,248,230,.6); }
+.rresult.perfect .stamp{ color:var(--ok); box-shadow:0 0 0 3px rgba(242,200,74,.55), 0 0 18px 4px rgba(242,200,74,.5); }
+.rresult.steady .stamp{ color:var(--warn); }
+.rresult.slipped .stamp{ color:var(--bad); }
+.rresult .rline{ font-size:var(--fs-l); font-weight:700; color:var(--pi); }
+.rresult .small{ margin-top:2px; }
+@media (prefers-reduced-motion: no-preference){ .rresult .stamp{ animation:stampIn .32s steps(4) 1; } }
+@keyframes stampIn{ from{ transform:rotate(-3deg) scale(1.9); opacity:0; } 60%{ transform:rotate(-3deg) scale(.92); opacity:1; } to{ transform:rotate(-3deg) scale(1); } }
+/* ---- title screen ---- */
+h1.gametitle{ text-align:center; font-size:34px; font-weight:900; line-height:1.1; margin:10px 0 14px; color:#ffe8b0; letter-spacing:.02em;
+  text-shadow:0 3px 0 #1e1008, 2px 2px 0 #1e1008, -2px -1px 0 #1e1008, 0 0 18px rgba(242,200,74,.35); }
+.panel.titleverse{ text-align:center; } .titleverse .small{ font-style:italic; color:var(--pi); margin:6px 0; font-size:var(--fs-m); }
+.titleverse .tref{ display:block; font-style:normal; font-weight:800; font-size:var(--fs-s); color:var(--pi2); margin-top:2px; }
+.titlemenu{ display:flex; flex-direction:column; }
+.titlemenu button{ text-align:center; }
+.titlemenu .row{ gap:8px; flex-wrap:nowrap; } .titlemenu .row button{ flex:1; }
+.credit{ font-size:var(--fs-cap) !important; line-height:1.45; text-align:center; margin-top:14px; }
+#app > .credit{ color:#b8a07a !important; }
+
+/* ---- Codex: the Creed piece by piece, then every verse ---- */
+.cxhead{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.cxcount{ font-size:var(--fs-s); font-weight:800; color:var(--pi2); }
+.cxbar{ display:flex; gap:3px; margin:6px 0 4px; } .cxbar i{ flex:1; height:8px; background:#e2cc9a; border:1px solid #c8a26a; } .cxbar i.on{ background:#d8a630; border-color:#8a6018; }
+ol.verse.creed{ list-style:none; padding:0; margin:8px 0 10px; font-size:var(--fs-m); line-height:1.45; }
+ol.creed li{ display:flex; gap:8px; padding:4px 0; border-top:1px dashed rgba(122,82,50,.25); }
+ol.creed li:first-child{ border-top:0; }
+ol.creed .cn{ flex:none; width:22px; height:22px; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:var(--fs-cap); font-weight:900;
+  color:#fff0d0; background:#a8780e; border:2px solid #5a3a10; }
+ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; color:#7a5a38; border-color:#a8865a; }
+.panel.codexv .verse{ font-size:var(--fs-l); margin:6px 0 8px; }
+.cxtype{ font-size:var(--fs-s); font-weight:800; }
+
+/* ---- Deck: one line per verse, the focus gem like the card's ---- */
+.panel.deckrow{ display:flex; align-items:center; gap:10px; }
+.deckrow .gem{ flex:none; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; color:#1e120a;
+  border:3px solid #1e120a; background:linear-gradient(180deg, color-mix(in srgb, var(--tc) 70%, white), var(--tc)); box-shadow:inset -2px -2px 0 rgba(0,0,0,.25); }
+.deckrow .drbody{ flex:1; min-width:0; }
+
+/* ---- shops: buying is the one action on a line, so it's the green plank ---- */
+.ware .wbuy{ border-image-source:url(__FRAME__(btnPrimary)); color:#f4ffe0; min-height:44px; padding:0 14px; }
+.ware .wbuy:active{ border-image-source:url(__FRAME__(btnPrimaryDown)); }
+
+/* ---- popups (tips, rewards, level up) share one title style ---- */
+.overlay.tip h2{ text-transform:none; letter-spacing:0; font-size:var(--fs-xl); color:var(--pi); }
+.overlay.tip .tiphead img{ width:48px; height:48px; }
+.overlay.tip .tipbody{ color:var(--pi); }
+.overlay .panel > button.lvopt{ text-align:left; }
+.treesheet .panel button.wide{ text-align:center; }
+.levelup .lvopt > span{ flex:1; }
+/* ================= end UI pass ================= */
+
 /* ---- Fight: compact arena and log, cards in a side-scrolling row in the pinned bar ---- */
 /* arena height and scale k are set per screen in arenaHTML; these follow it */
 .arena .info{ zoom:max(var(--k,1), .86); }
@@ -424,9 +544,34 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .textbox #log div:not(:last-child) .thought{ color:#8aa4b8; }
 .textbox .hint{ display:block; font-size:13px; color:#c8ac84; border-top:2px dashed rgba(232,210,168,.28); padding-top:5px; margin-top:6px; }
 /* after the fight: who was freed and how each verse went */
-.afterfight .freed span:last-child{ color:var(--leaf); font-weight:700; text-align:right; }
-.afterfight .verse-res{ margin-bottom:6px; }
-.afterfight .res{ font-weight:700; } .afterfight .res.perfect{ color:var(--leaf); } .afterfight .res.steady{ color:var(--gold); } .afterfight .res.slipped{ color:var(--ember); }
+.afterfight .alabel{ display:block; font-size:var(--fs-cap); font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--pi3); }
+.afterfight .afreed{ margin:0 0 8px; }
+.afterfight .afaces{ display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+.afterfight .afree{ margin:0; display:flex; align-items:center; gap:6px; font-weight:800; color:var(--ok); font-size:var(--fs-m); }
+.afterfight .afree img{ image-rendering:pixelated; background:#e8d6aa; border:2px solid #d8a630; box-sizing:content-box; }
+.afterfight .afree .fspr{ object-fit:cover; object-position:top; width:40px; height:40px; }
+.afterfight .aunlock{ font-size:var(--fs-s); font-weight:700; color:var(--ok); margin:0 0 8px; }
+.afterfight .aearn{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 8px; }
+.afterfight .atile{ border:8px solid transparent; border-image:url(__FRAME__(inset)) 5 fill / 8px round; padding:0 4px; }
+.afterfight .atile b{ display:inline-block; margin-right:6px; font-size:var(--fs-xl); font-weight:900; color:var(--pi); line-height:1.2; }
+.afterfight .atile b .ico{ vertical-align:-2px; }
+.afterfight .asub{ font-size:var(--fs-s); color:var(--pi3); font-weight:600; }
+.afterfight .alevel{ margin:0 0 4px; } .afterfight .alevel .stat{ font-weight:800; align-items:baseline; }
+.afterfight .alevel.up .stat > span:first-child{ color:var(--warn); }
+.bar.xp i{ background:#e8b84a; }
+.afterfight h2.ahead{ margin:12px 0 4px; }
+.afterfight .verse-res{ padding:6px 0; border-top:2px dashed rgba(122,82,50,.3); }
+.afterfight .vrtop{ display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; }
+.afterfight .vref{ font-weight:800; font-size:var(--fs-m); }
+.afterfight .casts{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.afterfight .res{ font-size:var(--fs-cap); font-weight:900; letter-spacing:.05em; text-transform:uppercase; padding:1px 7px; border:2px solid currentColor; line-height:1.4; }
+.afterfight .res.perfect{ color:var(--ok); background:rgba(79,122,42,.12); } .afterfight .res.steady{ color:var(--warn); background:rgba(168,120,14,.1); } .afterfight .res.slipped{ color:var(--bad); background:rgba(176,64,28,.1); }
+.afterfight .vrtier{ display:flex; justify-content:space-between; align-items:center; font-size:var(--fs-s); color:var(--pi3); margin-top:3px; }
+.afterfight .perf3{ display:flex; align-items:center; gap:3px; } .afterfight .perf3 i{ width:12px; height:12px; background:#e2cc9a; border:2px solid #a8865a; }
+.afterfight .perf3 i.on{ background:#4a9ad8; border-color:#2a5a88; } .afterfight .perf3 b{ margin-left:4px; font-size:var(--fs-cap); }
+.afterfight .vrwarn{ font-size:var(--fs-s); color:var(--bad); font-weight:700; margin-top:2px; }
+.afterfight .anotes{ margin-top:8px; padding-top:6px; border-top:2px dashed rgba(122,82,50,.3); }
+.afterfight .anotes .stat{ font-weight:700; }
 @media (prefers-reduced-motion: reduce){
   .en.lunge, .en.hit, .pl.hit, .say, .beat, .beat.out, .turnban span{ animation:none; }
   .float{ animation:none; } .info .bar i, .info .bar b.lag{ transition:none; }

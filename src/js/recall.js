@@ -47,38 +47,48 @@ function answer(val){ const o=curTok(); o.given = o.kind==='word' ? core(val) : 
 function letterInput(el){
   const chars = el.value.toLowerCase().replace(/[^a-z0-9]/g,''); el.value='';
   for(const ch of chars){ if(modal.c.done) break; const o=curTok(); if(o.mode!=='letter') break; o.given=ch; advance(); }
-  if(modal.c.done || curTok().mode!=='letter') render(); else { document.getElementById('rv').innerHTML=verseMarkup(); document.getElementById('rp').textContent=progressText(); }
+  if(modal.c.done || curTok().mode!=='letter') render(); else { document.getElementById('rv').innerHTML=verseMarkup(); document.getElementById('rp').innerHTML=progressHTML(); }
 }
 function finishRecall(){ const c = modal.c; const right = c.order.filter(i=>c.toks[i].given===c.toks[i].ans).length; const fn = modal.onDone; modal = null; fn(right / c.order.length, c); }
 function verseMarkup(){
   const c=modal.c; const curI=c.order[c.cur];
-  return c.toks.map((o,i)=>{
+  const parts = c.toks.map((o,i)=>{
     let sepBefore = i===0 ? '' : (o.kind==='vs' ? ':' : ' ');
-    if(o.kind==='num') return `${sepBefore}<sup class="mute" style="font-size:.6em">${o.w}</sup>`;
-    if(!o.mode) return sepBefore+o.w;
+    if(o.kind==='num') return `${sepBefore}<sup class="vn">${o.w}</sup>`;
+    if(o.kind==='sep') return '';   // the reference gets its own line instead of a dash
+    if(!o.mode) return o.kind==='book' ? o.w : sepBefore+o.w;
     // the blank is the whole word, hyphens and apostrophes inside it included; only outer punctuation stays visible
     const lead = o.kind==='word' ? (o.w.match(/^[^A-Za-z0-9]*/)||[''])[0] : ''; const trail = o.kind==='word' ? (o.w.slice(lead.length).match(/[^A-Za-z0-9]*$/)||[''])[0] : '';
     const bare = o.kind==='word' ? o.w.slice(lead.length, o.w.length-trail.length) : o.w;
+    if(o.kind==='book') sepBefore = '';
     if(o.given!==undefined){ const ok=o.given===o.ans;
-      if(o.mode==='letter') return `${sepBefore}${lead}<span class="${ok?'t-Gentleness':'t-Goodness'}">${bare}</span>${trail}`;
-      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:(o.kind==='word'?wordForm(o.given):o.given)}</span>${trail}${ok||!c.done?'':`<span class="t-Gentleness"> ${bare}</span>`}`; }
-    if(o.mode==='letter') return `${sepBefore}${lead}<span class="ph ${i===curI?'cur':''}">${'_'.repeat(Math.min(bare.length,7))}</span>${trail}`;
+      if(o.mode==='letter') return `${sepBefore}${lead}<span class="lw ${ok?'ok':'bad'}">${bare}</span>${trail}`;
+      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:(o.kind==='word'?wordForm(o.given):o.given)}</span>${trail}${ok||!c.done?'':` <span class="fix">${bare}</span>`}`; }
+    if(o.mode==='letter') return `${sepBefore}${lead}<span class="ph ${i===curI?'cur':''}" style="--n:${Math.min(bare.length,9)}"></span>${trail}`;
     return `${sepBefore}${lead}<span class="blank ${i===curI?'cur':''}">${i===curI?'?':'&nbsp;'}</span>${trail}`;
-  }).join('');
+  });
+  const si = c.toks.findIndex(o=>o.kind==='sep');
+  return `<span class="rtext">${parts.slice(0,si).join('')}</span><span class="rref">${parts.slice(si+1).join('')}</span>`;
 }
 function progressText(){ const c=modal.c; return `${c.done?c.order.length:c.cur} of ${c.order.length}`; }
+// one pip per blank: right, wrong, the one you're on, still to come
+function progressHTML(){ const c=modal.c;
+  const pips = c.order.map((ti,k)=>{ const o=c.toks[ti]; return `<i class="${o.given!==undefined ? (o.given===o.ans?'ok':'bad') : (k===c.cur&&!c.done?'cur':'')}"></i>`; }).join('');
+  return `<span class="pips ${c.order.length>28?'tight':''}" aria-hidden="true">${pips}</span><span class="rcount">${progressText()}</span>`; }
 function recallHTML(){
   const c = modal.c; const KIND = {word:'word', book:'book', ch:'chapter', vs:'verse'};
   let controls = '';
   if(c.done){ const right = c.order.filter(i=>c.toks[i].given===c.toks[i].ans).length;
-    controls = `<div class="small mute">${fill(TEXT.recall.score,{right, total:c.order.length})}${right===c.order.length?TEXT.recall.fullPower:''}</div><button class="primary wide" onclick="finishRecall()">Continue</button>`;
+    const res = castResult(right/c.order.length);   // perfect / steady / slipped, the same words as the after-fight panel
+    controls = `<div class="rresult ${res}" role="status"><div class="stamp">${TEXT.afterFight.result[res]}</div><div class="rline">${TEXT.recall.verdict[res]}</div>
+      <div class="small mute">${fill(TEXT.recall.score,{right, total:c.order.length})}${right===c.order.length?TEXT.recall.fullPower:''}</div></div><button class="primary wide" onclick="finishRecall()">Continue</button>`;
   } else if(curTok().mode==='letter'){
     controls = `<div class="small mute">${TEXT.recall.typeHint}</div>
       <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="letterInput(this)" style="text-align:center;font-size:28px;letter-spacing:.3em">`;
-  } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${o.kind!=='word'?x: x===o.ans?bareOf(o.w):wordForm(x)}</button>`).join('')}</div>`; }
+  } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts ${o.kind==='word'?'':'refopts'}">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${o.kind!=='word'?x: x===o.ans?bareOf(o.w):wordForm(x)}</button>`).join('')}</div>`; }
   const s=sp(c.verse.ref);
   const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : '';   // in the Furnace fight Amos says it in a popup first (tutorialFirst)
-  return `<div class="overlay"><div class="panel"><h2>${modal.title}</h2>
-    <div class="small mute">${glyphs(c.verse.ref)} \u00b7 ${TIER_NAME[c.tier]} \u00b7 <span id="rp">${progressText()}</span></div>
-    <div class="verse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}<div class="dock">${controls}</div></div></div>`;
+  return `<div class="overlay recall"><div class="panel ${c.done?'done':''}"><div class="rhead"><h2>${modal.title}</h2><span class="rtier">${glyphs(c.verse.ref)} ${TIER_NAME[c.tier]}</span></div>
+    <div class="rprog" id="rp">${progressHTML()}</div>
+    <div class="verse rverse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}<div class="dock">${controls}</div></div></div>`;
 }

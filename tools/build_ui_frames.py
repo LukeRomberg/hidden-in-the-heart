@@ -57,7 +57,7 @@ def parch_thin(size=18):
 OUT['paper']=save(parch_thin(),'paper')
 
 # ---- 3. Buttons: wood plank, raised and pressed. 20x20 slice 6
-def button(pressed=False, base='#9a6436', dark='#7a4a24', light='#b87a44', top='#d49a5a'):
+def button(pressed=False, base='#9a6436', dark='#7a4a24', light='#b87a44', top='#d49a5a', rivets=True):
     s=20; im=Image.new('RGBA',(s,s),(0,0,0,0))
     rect(im,1,0,s-1,s,'#2a160c'); rect(im,0,1,s,s-1,'#2a160c')
     grain(im,1,1,s-1,s-1,hx(base),hx(dark),hx(light))
@@ -65,7 +65,8 @@ def button(pressed=False, base='#9a6436', dark='#7a4a24', light='#b87a44', top='
         rect(im,1,1,s-1,3,top); rect(im,1,s-4,s-1,s-1,'#4e2c14'); rect(im,1,s-5,s-1,s-4,'#6a3c1c')
     else:
         rect(im,1,1,s-1,3,'#4e2c14'); rect(im,1,s-2,s-1,s-1,top)
-    for cx in (3,s-5): rect(im,cx,8 if not pressed else 9,cx+2,10 if not pressed else 11,'#f2c45a')
+    if rivets:
+        for cx in (3,s-5): rect(im,cx,8 if not pressed else 9,cx+2,10 if not pressed else 11,'#f2c45a')
     return im
 OUT['btn']=save(button(),'btn'); OUT['btnDown']=save(button(True),'btnDown')
 OUT['btnPrimary']=save(button(base='#3e6a2a',dark='#2e5220',light='#5a8a3a',top='#8cc05a'),'btnPrimary')
@@ -109,12 +110,25 @@ def floor():
         rect(im,(off+24)%w,band+4,(off+24)%w+1,band+5,'#5a3a24')
     return im
 OUT['floor']=save(floor(),'floor')
+
+# ---- 7. (UI pass, 2026-11) added after the floor so the frames above keep their random grain.
+# A plank that can't be pressed: weathered grey wood, sunk flat, no brass.
+OUT['btnOff']=save(button(True,base='#6e6254',dark='#5a5046',light='#7e7262',top='#8a7e6c',rivets=False),'btnOff')
+# A sunken parchment well (the verse in the recall popup, stat tiles): dark lip at the top-left, light at the bottom-right.
+def inset(size=18):
+    im=Image.new('RGBA',(size,size),(0,0,0,0))
+    rect(im,1,0,size-1,size,'#8a6a48'); rect(im,0,1,size,size-1,'#8a6a48')
+    parchment(im,1,1,size-1,size-1,base='#fbf0d2',spk='#f0e0b8',hi='#fff8e6')
+    rect(im,1,1,size-1,3,'#d8bc86'); rect(im,1,1,3,size-1,'#d8bc86'); rect(im,1,1,size-1,2,'#c8a26a'); rect(im,1,1,2,size-1,'#c8a26a')
+    rect(im,1,size-2,size-1,size-1,'#fff8e6'); rect(im,size-2,1,size-1,size-1,'#fff8e6')
+    return im
+OUT['inset']=save(inset(),'inset')
 write_data('ui-frames.json', OUT, indent=1)
 
 # preview sheet
 prev=Image.new('RGBA',(520,200),(30,18,10,255))
 x=4
-for n in ['panel','dark','paper','btn','btnDown','btnPrimary','portrait','plate','card_Patience','card_Love','card_Peace']:
+for n in ['panel','dark','paper','inset','btn','btnDown','btnPrimary','btnOff','portrait','plate','card_Patience','card_Love','card_Peace']:
     im=Image.open(out_path(n+'.png')); im=im.resize((im.width*4,im.height*4),Image.NEAREST); prev.alpha_composite(im,(x,4)); x+=im.width+6
     if x>420: x=4
 prev.save(out_path('ui_preview.png'))
