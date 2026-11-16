@@ -39,6 +39,7 @@ in `tools/out/` (gitignored).
 | `.venv/bin/python tools/build_enemies.py` | `enemies_freed_48x64.png`, `furnace_96x96.png` | `enemies.json` (`ENEMY_IMG`) |
 | `.venv/bin/python tools/build_villagers.py` | `hero_starter_sheet.png` | `freed.json` (`FREED_IMG`, placeholder townsfolk) |
 | `.venv/bin/python tools/build_townsfolk.py` | `townsfolk/<look>.png` | `townsfolk.json` (`FOLK`), preview `tools/out/townsfolk_sheet.png` |
+| `.venv/bin/python tools/build_cave_art.py` | `caves/pixellab/` (tilesets + objects) | `caves/map/*.png` (inlined by `dive.js`), preview `tools/out/cave_art.png` |
 | `.venv/bin/python tools/build_ui_frames.py` | nothing (drawn in code) | `ui-frames.json` (`__FRAME__(name)` in `styles.css`) |
 
 All of them reproduce the shipped art pixel for pixel. The PNG bytes inside the data URIs can

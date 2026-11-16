@@ -98,11 +98,11 @@ function townTrigger(m){
 function townDoor(id){
   const T = TEXT.townMap;
   if(!P.tutorialDone && id==='church'){
-    if(!R.deck.length){ goto('pro3'); return; }   // the first time: Amos is inside, sweeping
+    if(!R.deck.length){ swingDoor(townSpot('door',id), ()=>goto('pro3')); return; }   // the first time: Amos is inside, sweeping
     talkPop('town-church', T.churchAfterLid); return; }
   if(!P.tutorialDone && id!=='church'){ say(TEXT.town.boarded[id]); return; }
   if(!(BUILD[id].always || P.town[id])){ say(TEXT.town.boarded[id]); return; }
-  enterBuilding(id);
+  swingDoor(townSpot('door',id), ()=>enterBuilding(id));   // the door swings in (mapfx.js), then you're inside
 }
 function townCave(i){
   const T = TEXT.townMap;

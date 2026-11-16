@@ -448,7 +448,6 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .tl .mk.who.n2-0{ left:-12px; } .tl .mk.who.n2-1{ left:8px; bottom:0; }
 .tl .mk.boss{ width:52px; left:-6px; filter:drop-shadow(0 0 3px #e0402a); }
 .tl.dim .mk.shade{ filter:brightness(0) drop-shadow(0 0 2px rgba(224,64,42,.5)); }
-.tl .mk.flame{ animation:cflame .5s steps(2) infinite; transform-origin:50% 70%; }
 @keyframes cflame{ 50%{ transform:scale(.9,1.1) translateX(1px); } }
 .tl .glow{ position:absolute; inset:4px 6px 10px; background:radial-gradient(closest-side, rgba(242,200,74,.35), transparent); animation:cglow 2s ease-in-out infinite; pointer-events:none; }
 @keyframes cglow{ 50%{ opacity:.4; } }
@@ -456,14 +455,15 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .chero .hs{ position:absolute; left:-6px; bottom:-1px; }
 .chero.walking .hs{ animation:cbob .24s steps(2) infinite; }
 @keyframes cbob{ 50%{ transform:translateY(-2px); } }
-.torch{ position:absolute; inset:0; pointer-events:none; animation:ctorch 3s ease-in-out infinite;
+/* your torch: the light comes and goes a little, unevenly, like a flame */
+.torch{ position:absolute; inset:0; pointer-events:none; animation:ctorch 2.7s steps(1) infinite;
   background:radial-gradient(circle at 50% 46%, rgba(255,176,80,.16) 0, rgba(255,150,60,.08) 70px, rgba(11,8,6,0) 120px, rgba(11,8,6,.5) 170px, rgba(11,8,6,.85) 260px); }
-@keyframes ctorch{ 50%{ opacity:.88; } }
+@keyframes ctorch{ 0%{ opacity:1; } 9%{ opacity:.9; } 17%{ opacity:.97; } 31%{ opacity:.86; } 38%{ opacity:1; } 55%{ opacity:.92; } 63%{ opacity:.84; } 71%{ opacity:.96; } 88%{ opacity:.9; } }
 .cavename{ position:absolute; left:10px; top:8px; font-family:'Nunito',sans-serif; font-weight:700; font-size:15px; color:#f2d25a; text-shadow:2px 2px 0 #1e100a; pointer-events:none; }
 .cavemsg{ font-size:17px; line-height:1.35; min-height:3.2em; margin-bottom:0; }
 .divetools{ margin:0; gap:6px; flex-wrap:nowrap; }
 .divetools button{ flex:1; margin:4px 0; font-size:15px; text-align:center; padding-left:2px; padding-right:2px; }
-@media (prefers-reduced-motion: reduce){ .cmap, .chero{ transition:none; } .torch, .tl .mk.flame, .tl .glow, .chero.walking .hs{ animation:none; } }
+@media (prefers-reduced-motion: reduce){ .cmap, .chero{ transition:none; } .torch, .tl .glow, .chero.walking .hs{ animation:none; } }
 
 /* cave encounters (encounters.js) */
 .tl .mk.who.hurt{ filter:saturate(.85); }   /* the sprite is already the hurt person (townsfolk.json) */
@@ -647,3 +647,64 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 .meetbox b{ color:#f2c84a; font-weight:800; }
 .meetbox .verse.truthverse{ font-size:15px; margin:4px 0; }
 .meetdock .tfbtns button{ min-height:52px; font-size:20px; }
+
+/* ---- map feel (mapfx.js, tilemap.js, dive.js): the caves' ground, shadows, light pools, small motion, doors, arrivals ---- */
+.cmap.grounded{ background-color:#0b0806; background-size:100% 100%; background-repeat:no-repeat; image-rendering:pixelated; }
+/* soft shadows: under the hero (and whoever walks with you), under anyone standing on a tile, under props */
+.chero::before{ content:""; position:absolute; left:7px; right:7px; bottom:0; height:9px; border-radius:50%; background:radial-gradient(closest-side, rgba(0,0,0,.45), rgba(0,0,0,0)); }
+.tl:has(> .mk.who)::before, .tl:has(> .mk.prop)::before, .tl > .shd{ content:""; position:absolute; left:5px; right:5px; bottom:1px; height:10px; border-radius:50%;
+  background:radial-gradient(closest-side, rgba(0,0,0,.42), rgba(0,0,0,0)); pointer-events:none; }
+/* cave objects (PixelLab): the campfire's two frames take turns; a door's leaf swings in; a gate rises into the roof */
+.tl .mk.fire{ animation:fireA .5s steps(1) infinite; } .tl .mk.fire.f2{ animation-name:fireB; }
+@keyframes fireA{ 50%{ opacity:0; } } @keyframes fireB{ 0%{ opacity:0; } 50%{ opacity:1; } }
+.tl .mk.leaf{ transform-origin:28% 50%; animation:leafswing .5s steps(5) forwards; } .tl .mk.leaf.verse{ transform-origin:34% 50%; }
+@keyframes leafswing{ to{ transform:scaleX(.08); filter:brightness(.45); } }
+.tl .mk.rise{ animation:gaterise .6s steps(6) forwards; }
+@keyframes gaterise{ to{ transform:translateY(-82%); clip-path:inset(82% 0 0 0); } }
+/* a torch on the wall face (code-drawn, 32 to a tile like the cave objects) */
+.tl .sconce{ position:absolute; left:15px; top:-3px; width:10px; height:17.5px; image-rendering:pixelated; pointer-events:none; }
+.tl .sconce.flame{ animation:cflame .45s steps(2) infinite; transform-origin:50% 30%; }
+/* layers over the map: dusk tint (multiply), light pools (screen), particles */
+.mdusk{ position:absolute; inset:-1500px; z-index:900; pointer-events:none; background:rgba(48,40,112,.62); mix-blend-mode:multiply; }
+.mlights{ position:absolute; inset:0; z-index:901; pointer-events:none; mix-blend-mode:screen; }
+.mparts{ position:absolute; inset:0; z-index:902; pointer-events:none; }
+.lt{ position:absolute; border-radius:50%; background:radial-gradient(closest-side, rgba(255,160,76,.32), rgba(255,130,50,.11) 55%, rgba(255,120,40,0)); }
+.lt.torch{ background:radial-gradient(closest-side, rgba(255,176,90,.28), rgba(255,140,60,.09) 55%, rgba(255,120,40,0)); }
+.lt.lamp{ background:radial-gradient(closest-side, rgba(255,214,120,.55), rgba(255,190,90,.2) 50%, rgba(255,170,80,0)); animation:lampglow 4s ease-in-out infinite; }
+.lt.forge{ background:radial-gradient(closest-side, rgba(255,140,60,.5), rgba(255,100,40,.18) 55%, rgba(255,90,30,0)); }
+.lt.fire, .lt.torch, .lt.forge{ animation:flick 2.3s steps(1) var(--d,0s) infinite; }
+@keyframes flick{ 0%{ opacity:1; transform:scale(1); } 13%{ opacity:.84; transform:scale(.97); } 21%{ opacity:1; transform:scale(1.03); } 44%{ opacity:.9; } 58%{ opacity:.76; transform:scale(.96); } 66%{ opacity:.96; transform:scale(1.01); } 83%{ opacity:.87; } }
+@keyframes lampglow{ 50%{ opacity:.82; } }
+.em{ position:absolute; width:0; height:0; }
+.em b{ position:absolute; top:0; width:3px; height:3px; opacity:0; }
+.em.embers b{ background:#ffc04d; box-shadow:0 0 3px #ff7a2a; animation:ember var(--t) steps(14) var(--d) infinite; }
+@keyframes ember{ 0%{ opacity:0; transform:translate(0,0); } 12%{ opacity:1; } 65%{ opacity:.85; background:#ff8a3a; } 100%{ opacity:0; transform:translate(var(--x), -46px); } }
+.em.leaf b{ width:4px; height:3px; background:#93a84a; box-shadow:1px 1px 0 #55692a; animation:leaffall var(--t) linear var(--d) infinite; }
+@keyframes leaffall{ 0%{ opacity:0; transform:translate(0,0) rotate(0); } 3%{ opacity:1; } 11%{ transform:translate(calc(var(--x) * -.4), 22px) rotate(90deg); }
+  21%{ transform:translate(calc(var(--x) * .5), 46px) rotate(190deg); } 30%{ opacity:1; transform:translate(var(--x), 70px) rotate(270deg); } 34%, 100%{ opacity:0; transform:translate(var(--x), 78px) rotate(300deg); } }
+.em.ffly b{ background:#eaf47e; box-shadow:0 0 5px 1px rgba(234,244,126,.8); animation:ffly var(--t) ease-in-out var(--d) infinite; }
+@keyframes ffly{ 0%{ opacity:0; transform:translate(0,0); } 20%{ opacity:1; } 45%{ opacity:.15; transform:translate(var(--x), var(--y)); } 62%{ opacity:1; }
+  100%{ opacity:0; transform:translate(calc(var(--x) * -.5), calc(var(--y) * -1)); } }
+/* dust hanging in your light (over the view, under the torch's dark edge) */
+.motes{ position:absolute; inset:0; pointer-events:none; }
+.motes b{ position:absolute; width:2px; height:2px; background:#f0dcb0; opacity:0; animation:mote var(--t) ease-in-out var(--d) infinite; }
+@keyframes mote{ 0%{ opacity:0; transform:translate(0,0); } 30%{ opacity:.5; } 70%{ opacity:.3; } 100%{ opacity:0; transform:translate(var(--x), var(--y)); } }
+/* a town door (part of the building's art): a plain leaf over the doorway swings in on a lit room */
+.doorfx{ position:absolute; width:40px; height:40px; pointer-events:none; }
+.doorfx i{ position:absolute; left:11px; right:11px; top:8px; bottom:1px; }
+.doorfx .room{ background:linear-gradient(#ffd27e, #e08a3a); box-shadow:0 0 14px 5px rgba(255,190,100,.55); opacity:0; animation:roomlit .26s steps(3) forwards; }
+.doorfx .leaf{ background:#6a4424; box-shadow:inset 0 0 0 2px #2a160c, inset 3px 0 0 #8a5a2e; transform-origin:0 50%; animation:leafswing .26s steps(4) forwards; }
+@keyframes roomlit{ to{ opacity:1; } }
+/* between places: a fade instead of the wipe (goto in state.js), and the place's name as you arrive */
+#wipe.fade.on{ animation:wipefade .3s ease-in forwards; } #wipe.fade.off{ animation:wipefade .32s ease-out reverse forwards; }
+@keyframes wipefade{ from{ opacity:0; } to{ opacity:1; } }
+.sctitle{ position:fixed; left:0; right:0; top:17%; display:flex; justify-content:center; pointer-events:none; animation:sctitle 2.1s ease-out forwards; }
+.sctitle span{ font-family:'Pixelify Sans',sans-serif; font-size:30px; line-height:1.2; color:#f2d25a; text-shadow:2px 2px 0 #1e100a, 0 0 12px rgba(0,0,0,.7); padding:3px 26px;
+  border-top:2px solid rgba(242,210,90,.5); border-bottom:2px solid rgba(242,210,90,.5); background:linear-gradient(90deg, transparent, rgba(14,10,8,.6) 22%, rgba(14,10,8,.6) 78%, transparent); }
+@keyframes sctitle{ 0%{ opacity:0; transform:translateY(8px); } 15%, 72%{ opacity:1; transform:none; } 100%{ opacity:0; } }
+@keyframes sctitleCalm{ 0%, 85%{ opacity:1; } 100%{ opacity:0; } }
+@media (prefers-reduced-motion: reduce){
+  .mparts, .motes, .doorfx, .tl .mk.leaf, .tl .mk.rise, .tl .mk.fire.f2{ display:none; }
+  .mlights .lt, .tl .mk.fire, .tl .sconce.flame{ animation:none; }
+  .sctitle{ animation:sctitleCalm 2.1s steps(1) forwards; } #wipe.fade.on, #wipe.fade.off{ animation-duration:.01s; }
+}

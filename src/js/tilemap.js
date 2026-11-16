@@ -16,7 +16,10 @@
      cls(), name(), viewCls()       css classes on the map and the view, the name in the corner
      extra()           more html inside the map (buildings, people who move);  overlay  html over the view
      placed()          after the hero moves (someone walking with you follows);  retarget([x,y]) where a tap really means
-     save()            remember where you are */
+     save()            remember where you are
+     ground()          optional: the whole map's ground as one image (the caves' tilesets, drawn on a dual grid),
+                       or null while it's still being drawn; the tiles above it then only carry fog and things
+   Light pools, particles, shadows, doors swinging and arrival titles are mapfx.js, configured per place in MAPFX. */
 const PLACES = {};
 const MAP_T = 40, STEP_MS = 120, SIGHT = 3.3;   // tile size in px, walking speed, how far the light reaches (tiles)
 const tid = (x,y)=>x+','+y;
@@ -41,10 +44,10 @@ function updateSight(){
     if(x<0||y<0||x>=m.W||y>=m.H || !inSight(hx,hy,x,y)) continue;
     const k = y*m.W+x; vis.add(k); if(!M.seen[k]){ M.seen[k]=1; fresh.push(k); } }
   const changed = new Set([...vis].filter(k=>!M.vis.has(k)).concat([...M.vis].filter(k=>!vis.has(k))));
-  M.vis = vis; changed.forEach(k=>redrawTile(k)); return fresh;
+  M.vis = vis; changed.forEach(k=>redrawTile(k)); fxSeen(fresh); return fresh;
 }
 function redrawTile(k){ const el = document.getElementById('t'+k); if(!el) return; const pl = here(), m = pl.grid(), x = k%m.W, y = (k-x)/m.W;
-  el.className = pl.tileCls(x,y); el.innerHTML = pl.tileInner(x,y); }
+  el.className = pl.tileCls(x,y); el.innerHTML = pl.tileInner(x,y) + fxTileHTML(pl,x,y); }
 
 // ---- Walking: BFS over tiles you've seen; a marker can end a path but not be walked through ----
 function reach(){
@@ -72,7 +75,7 @@ function planTo(goal){
 }
 function mapTap(ev){
   const pl = PLACES[screen];
-  if(!pl || modal || pl.busy() || (pl.noTap && pl.noTap())) return;
+  if(!pl || modal || fxDoorBusy || pl.busy() || (pl.noTap && pl.noTap())) return;
   const r = document.getElementById('cmap').getBoundingClientRect();
   const x = Math.floor((ev.clientX-r.left)/MAP_T), y = Math.floor((ev.clientY-r.top)/MAP_T);
   walkToward([x,y]);
@@ -125,13 +128,14 @@ function mapView(pl){
   M.vis = new Set(); const [hx,hy] = M.pos;
   for(let y=0;y<m.H;y++) for(let x=0;x<m.W;x++) if(inSight(hx,hy,x,y)){ const k=y*m.W+x; M.vis.add(k); M.seen[k]=1; }
   let tiles = '';
-  for(let y=0;y<m.H;y++) for(let x=0;x<m.W;x++) tiles += `<div class="${pl.tileCls(x,y)}" id="t${y*m.W+x}" style="left:${x*MAP_T}px;top:${y*MAP_T}px;z-index:${y*2}">${pl.tileInner(x,y)}</div>`;
+  for(let y=0;y<m.H;y++) for(let x=0;x<m.W;x++) tiles += `<div class="${pl.tileCls(x,y)}" id="t${y*m.W+x}" style="left:${x*MAP_T}px;top:${y*MAP_T}px;z-index:${y*2}">${pl.tileInner(x,y)}${fxTileHTML(pl,x,y)}</div>`;
   const hero = `<div id="chero" class="chero" data-face="${M.face}" style="transform:translate(${hx*MAP_T}px,${hy*MAP_T}px);z-index:${hy*2+1}"><div class="hs">${heroSprite()}</div></div>`;
+  const g = pl.ground ? pl.ground() : null;
   return `<div class="cave-view ${pl.viewCls()}" onclick="mapTap(event)" role="application" aria-label="${pl.name()}">
-    <div id="cmap" class="cmap ${pl.cls()}" style="width:${m.W*MAP_T}px;height:${m.H*MAP_T}px;transform:${camera()}">${tiles}${pl.extra?pl.extra():''}${hero}</div>
-    ${pl.overlay||''}<div class="cavename">${pl.name()}</div></div>`;
+    <div id="cmap" class="cmap ${pl.cls()}${pl.ground?' grounded':''}" style="width:${m.W*MAP_T}px;height:${m.H*MAP_T}px;transform:${camera()}${g?`;background-image:url(${g})`:''}">${tiles}${pl.extra?pl.extra():''}${hero}${fxLayersHTML(pl)}</div>
+    ${fxViewHTML(pl)}${pl.overlay||''}<div class="cavename">${pl.name()}</div></div>`;
 }
-// Pixel textures, drawn once into data URIs (placeholder art until a tileset is approved)
+// Pixel textures drawn in code, once, into data URIs (the town's placeholder tiles and objects, the caves' wall torch)
 function pxCanvas(w,h,draw){ const c = document.createElement('canvas'); c.width=w; c.height=h; const g = c.getContext('2d'); draw((x,y,col,ww=1,hh=1)=>{ g.fillStyle=col; g.fillRect(x,y,ww,hh); }); return c.toDataURL(); }
 function rnd(seed){ let s = seed>>>0 || 1; return ()=>((s = (s*1664525+1013904223)>>>0) / 4294967296); }
 // a 16x16 grid of palette letters ('.' is clear) as a data URI

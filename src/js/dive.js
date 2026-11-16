@@ -191,18 +191,18 @@ function faceBoss(){ const n = R.node; R.node = {...n, t:'elite', caveBoss:true,
 function bump(x,y){ const c = tileAt(x,y), D = TEXT.dive;
   if(c==='D'){ const n = fightsLeft();
     if(n){ say(fill(D.bossDoorShut,{n})); return; }
-    R.map.open.push(tid(x,y)); say(D.bossDoorOpen); updateSight(); redrawTile(y*caveMap(R.cave).W+x); saveRun(); return; }
+    R.map.open.push(tid(x,y)); fxOpening(R.map, tid(x,y)); say(D.bossDoorOpen); updateSight(); redrawTile(y*caveMap(R.cave).W+x); saveRun(); return; }
   if(c==='V'){ R.room='verse'; R.node={door:[x,y]}; render(); return; }
   say(D.gateShut);
 }
 function pullLever(x,y){ const m = caveMap(R.cave), gate = LEVERS[tileAt(x,y)];
   R.map.open.push(tid(x,y)); say(TEXT.dive.leverPulled);
-  m.rows.forEach((row,gy)=>Array.from(row).forEach((c,gx)=>{ if(c===gate) redrawTile(gy*m.W+gx); }));
+  m.rows.forEach((row,gy)=>Array.from(row).forEach((c,gx)=>{ if(c===gate){ fxOpening(R.map, tid(gx,gy)); redrawTile(gy*m.W+gx); } }));
   redrawTile(y*m.W+x); updateSight(); saveRun(); }
 function sayAtDoor(ref){
   const [x,y] = R.node.door, D = TEXT.dive;
   openRecall(BY_REF[ref], frac=>{ recordResult(ref,frac);
-    if(frac>=SLIP_BELOW){ R.map.open.push(tid(x,y)); R.room=null; R.node=null; R.map.msg = D.verseOpen; saveRun(); }
+    if(frac>=SLIP_BELOW){ R.map.open.push(tid(x,y)); fxOpening(R.map, tid(x,y)); R.room=null; R.node=null; R.map.msg = D.verseOpen; saveRun(); }
     else toast(D.verseShut);
     render(); }, undefined, D.verseTitle);
 }
@@ -229,20 +229,21 @@ function caveDoneHTML(){
 
 // the cave as a place to walk (tilemap.js)
 PLACES.dive = {grid:()=>caveMap(R.cave), st:()=>R.map, lit:false, walkable, mark:markAt, closed:closedAt, blocksSight,
-  trigger, bump, arrive:caveArrive, busy:()=>!!(R.room || R.node), tileCls, tileInner, prep:caveTiles, save:saveRun,
+  trigger, bump, arrive:caveArrive, busy:()=>!!(R.room || R.node), tileCls, tileInner, ground:caveGround, save:saveRun,
   cls:()=>'c-'+CAVES[R.cave].id, viewCls:()=>R.room?'short':'', name:()=>TEXT.caves[R.cave].name, overlay:'<div class="torch"></div>'};
 
-// ---- Drawing the map: tiles drawn in code (placeholder art until a tileset is approved) ----
-// base look of a tile: rock top, rock face (rock with open ground below it), floor, floor in a wall's shadow
+// ---- Drawing the map ----
+// The ground is one image per cave (caveGround, below); each tile on top only carries the fog and what's on it.
+// The classes say what the tile is (rk rock, rf a wall facing the floor, rs re/rw a wall seen side-on, fl floor)
+// for anything that wants to style by them.
 function baseOf(x,y){
   const c = tileAt(x,y), solid = (a,b)=>{ const t = tileAt(a,b); return t==='#' || t==='D' || t==='V'; };
   if(c==='#'){ if(!solid(x,y+1)) return 'rf';
-    // a wall seen side-on (open ground to its left or right): the same wall face, turned to face the floor
     const open = (a,b)=>{ const t = tileAt(a,b); return t && t!=='#'; };
     if(open(x+1,y)) return 'rs re'; if(open(x-1,y)) return 'rs rw';
     return 'rk'; }
   if(c==='D' || c==='V') return 'rf';
-  return solid(x,y-1) ? 'fl sh' : 'fl';
+  return 'fl';
 }
 function tileCls(x,y){
   const M = R.map, m = caveMap(R.cave), k = y*m.W+x, v = ((x*7+y*13+x*y*3)%4+4)%4;
@@ -250,20 +251,39 @@ function tileCls(x,y){
 }
 function tileInner(x,y){
   const M = R.map, m = caveMap(R.cave); if(!M.seen[y*m.W+x]) return '';
-  const c = tileAt(x,y), art = n=>`<img class="mk" src="${caveArt()[n]}" alt="">`;
-  if(c==='D') return art(isOpen(x,y)?'doorOpen':'door');
-  if(c==='V') return art(isOpen(x,y)?'doorOpen':'verseDoor') + (isOpen(x,y)?'':'<i class="glow"></i>');
-  if(LEVERS[c]) return art(isOpen(x,y)?'leverDown':'leverUp');
-  if(leverFor(c)) return art(closedAt(x,y)?'gate':'gateUp');
+  const c = tileAt(x,y), A = CAVE_ART, art = (n,cls='')=>`<img class="mk ${cls}" src="${A[n]}" alt="">`, id = tid(x,y), moving = fxOpeningNow(M, id);
+  // doors: open, the leaf swinging in as it opens; the verse door glows while it's shut
+  if(c==='D') return isOpen(x,y) ? art('door_open') + (moving ? art('door_leaf','leaf door') : '') : art('door');
+  if(c==='V') return isOpen(x,y) ? art('verse_open') + (moving ? art('verse_leaf','leaf verse') : '') : art('verse')+'<i class="glow"></i>';
+  if(LEVERS[c]) return art(isOpen(x,y)?'lever_down':'lever_up','prop');
+  if(leverFor(c)) return closedAt(x,y) ? art('gate') : art('gate_up') + (moving ? art('gate','rise') : '');
   const mk = markAt(x,y); if(!mk) return '';
-  if(mk.t==='lock') return art('chest');
-  if(mk.t==='scrap') return art('note');
+  if(mk.t==='lock') return art('chest','prop');
+  if(mk.t==='scrap') return art('note','prop');
   if(mk.t==='hurt') return `<img class="mk who hurt" src="${hurtSrc(mk.who)}" alt="">`;
-  if(mk.t==='rest') return art('logs')+`<img class="mk flame" src="${caveArt().flame}" alt="">`;
+  if(mk.t==='rest') return art('fire','prop fire') + art('fire2','fire f2');
   // people: still held, so a shadow with an angry glow; the named townsperson is drawn as themselves
   if(mk.t==='truth') return `<img class="mk who shade" src="${folkSrc(TEXT.villagers[truthFolk(mk)],'idle')}" alt="">`;   // the same person you meet in the arena
   if(mk.t==='boss' && standIn(mk.e[0])===mk.e[0]){ const E = ENEMY_IMG[mk.e[0]]; return `<img class="mk who boss" src="${E.f[0]}" alt="">`; }
   return mk.e.map((e,i)=>`<img class="mk who shade n${mk.e.length}-${i}" src="${FREED_IMG['freed'+((x+y+i*3)%6)].f[0]}" alt="">`).join('');
+}
+// what a cave tile gives off (mapfx.js): the campfire's glow and embers, and here and there a torch on a wall face
+function caveFxAt(x,y){
+  const mk = markAt(x,y);
+  if(mk && mk.t==='rest') return {light:'fire', emit:'embers'};
+  if(sconces().has(tid(x,y))) return {light:'torch', emit:'sparks', sconce:true};
+  return null;
+}
+// wall torches: on plain floor tiles right under a flat stretch of wall face, spread out, the same every visit
+const SCONCES = {};
+function sconces(){
+  const i = R.cave; if(SCONCES[i]) return SCONCES[i];
+  const m = caveMap(i), got = [], plain = (x,y)=>tileAt(x,y)==='.';
+  for(let y=1;y<m.H;y++) for(let x=1;x<m.W-1;x++){
+    if(!plain(x,y) || m.mk[tid(x,y)] || tileAt(x,y-1)!=='#' || tileAt(x-1,y-1)!=='#' || tileAt(x+1,y-1)!=='#') continue;
+    if(((x*37+y*61+i*13)%5)!==0 || got.some(([a,b])=>Math.abs(a-x)+Math.abs(b-y)<5)) continue;
+    got.push([x,y]); }
+  return SCONCES[i] = new Set(got.map(p=>tid(...p)));
 }
 function mapHTML(){ return mapView(PLACES.dive); }
 function diveHTML(){
@@ -286,69 +306,42 @@ function versePanel(){
     ${refs.map(ref=>`<button class="wide" onclick="sayAtDoor('${ref}')">${spellLine(ref)} · ${TIER_NAME[sp(ref).tier]}</button>`).join('')}</div>`;
 }
 
-// Pixel textures for the map, drawn once per cave into data URIs: rock, rock face, floor, and the
-// objects on top. Colors per cave: the Hollow warm earth, the Quarry grey stone, the Deep Cave blue-black.
-const CAVE_PAL = {
-  hollow:{fl:['#5e422a','#6e4e32','#7a5638','#8a6440','#9c7650'], rk:['#2e231b','#3a2c22','#47372a'], rf:['#2a1f18','#45342a','#56412f','#6a523e','#82684c']},
-  quarry:{fl:['#554b3f','#62584a','#6e6352','#7c705e','#91846e'], rk:['#2a2825','#35322e','#423e39'], rf:['#262420','#403d38','#524e47','#67625a','#827c71']},
-  deep:  {fl:['#3a3430','#443d37','#4e463e','#5a5148','#6a6054'], rk:['#1d2027','#262a33','#31353f'], rf:['#16181e','#2a2d36','#383c48','#4a4f5e','#606678']},
+// Cave art (PixelLab; tools/build_cave_art.py makes these from assets/source/caves/pixellab/).
+// Ground: a 4x4 sheet of 32px Wang tiles per cave, the tile for corners NW,NE,SW,SE (1 = rock) at index NW*8+NE*4+SW*2+SE.
+const CAVE_GROUND = {hollow:__IMG__('caves/map/hollow_ground.png'), quarry:__IMG__('caves/map/quarry_ground.png'), deep:__IMG__('caves/map/deep_ground.png')};
+const CAVE_ART = {
+  door:__IMG__('caves/map/door.png'), door_open:__IMG__('caves/map/door_open.png'), door_leaf:__IMG__('caves/map/door_leaf.png'),
+  verse:__IMG__('caves/map/verse.png'), verse_open:__IMG__('caves/map/verse_open.png'), verse_leaf:__IMG__('caves/map/verse_leaf.png'),
+  gate:__IMG__('caves/map/gate.png'), gate_up:__IMG__('caves/map/gate_up.png'), lever_up:__IMG__('caves/map/lever_up.png'), lever_down:__IMG__('caves/map/lever_down.png'),
+  chest:__IMG__('caves/map/chest.png'), fire:__IMG__('caves/map/fire.png'), fire2:__IMG__('caves/map/fire2.png'), note:__IMG__('caves/map/note.png'),
 };
-const artCache = {};
-function caveTiles(){
-  const id = CAVES[R.cave].id; if(document.getElementById('tiles-'+id)) return;
-  const P_ = CAVE_PAL[id], css = [];
-  for(let v=0;v<4;v++){
-    const r = rnd(id.length*977+v*131+7);
-    css.push(`.c-${id} .fl.v${v}{background-image:url(${pxCanvas(16,16,px=>{ px(0,0,P_.fl[2],16,16);
-      for(let i=0;i<40;i++) px(Math.floor(r()*16), Math.floor(r()*16), P_.fl[r()<.5?1:3]);
-      for(let i=0;i<10;i++) px(Math.floor(r()*16), Math.floor(r()*16), P_.fl[0]);
-      for(let i=0;i<2;i++){ const x=Math.floor(r()*13), y=Math.floor(r()*13); px(x,y,P_.fl[4],2,1); px(x,y+1,P_.fl[0],2,1); } })})}`);
-    css.push(`.c-${id} .rk.v${v}{background-image:url(${pxCanvas(16,16,px=>{ px(0,0,P_.rk[1],16,16);
-      for(let i=0;i<30;i++) px(Math.floor(r()*16), Math.floor(r()*16), P_.rk[r()<.5?0:2]);
-      for(let i=0;i<3;i++){ const x=Math.floor(r()*14), y=Math.floor(r()*14); px(x,y,P_.rk[2],2,2); px(x+1,y+1,P_.rk[0]); } })})}`);
-    // the wall face: lit top edge, two courses of blocks, dark foot where it meets the floor
-    const face = (px, seed) => { const r2 = rnd(seed); px(0,0,P_.rf[2],16,16); px(0,0,P_.rf[4],16,1); px(0,1,P_.rf[3],16,1);
-      const o = v%2 ? 4 : 0;
-      [5,10].forEach((y,j)=>{ px(0,y,P_.rf[1],16,1); px(0,y+1,P_.rf[3],16,1); for(let x=(o+j*5)%8;x<16;x+=8) px(x,j?y+1:2,P_.rf[1],1,j?4:3); });
-      for(let i=0;i<14;i++) px(Math.floor(r2()*16), 2+Math.floor(r2()*12), P_.rf[r2()<.5?1:3]);
-      px(0,14,P_.rf[1],16,1); px(0,15,P_.rf[0],16,1); };
-    const seed = id.length*313+v*71+3;
-    css.push(`.c-${id} .rf.v${v}{background-image:url(${pxCanvas(16,16,px=>face(px, seed))})}`);
-    // side walls: the same face turned a quarter, its foot toward the floor (east: floor to the right)
-    css.push(`.c-${id} .rs.re.v${v}{background-image:url(${pxCanvas(16,16,px=>face((x,y,c,w=1,h=1)=>px(y,x,c,h,w), seed))})}`);
-    css.push(`.c-${id} .rs.rw.v${v}{background-image:url(${pxCanvas(16,16,px=>face((x,y,c,w=1,h=1)=>px(16-y-h,x,c,h,w), seed))})}`);
-  }
-  const st = document.createElement('style'); st.id = 'tiles-'+id; st.textContent = css.join('\n'); document.head.appendChild(st);
+// The ground of cave i drawn once, on a dual grid: each 32px tile sits over the corner where four map cells meet
+// and takes rock or floor from each of them, so walls get real edges, faces and corners. Doors, gates and
+// levers stand on floor. Returns a data URI, or null the first time (the sheet is still loading); the map gets it then.
+const GROUND = {};
+function caveGround(){
+  const i = R.cave, id = CAVES[i].id; if(GROUND[id] && GROUND[id]!=='…') return GROUND[id];
+  if(!GROUND[id]){ GROUND[id] = '…'; const img = new Image();
+    img.onload = ()=>{ GROUND[id] = drawGround(img, i); const el = document.getElementById('cmap');
+      if(el && screen==='dive' && R.cave===i) el.style.backgroundImage = `url(${GROUND[id]})`; };
+    img.src = CAVE_GROUND[id]; }
+  return null;
 }
-// objects on the map, 16x16 pixel grids: k outline, w wood, W light wood, d dark wood, g gold, G dark gold,
-// i iron, I light iron, j dark iron, s stone, S light stone, t dark stone, r ember, o flame, y yellow, Y white-hot, x shadow
+function drawGround(img, i){
+  const m = caveMap(i), T = 32, c = document.createElement('canvas'), g = c.getContext('2d'), r = rnd(i*7919+3);
+  c.width = m.W*T; c.height = m.H*T;
+  const rock = (x,y)=>x<0 || y<0 || x>=m.W || y>=m.H || m.rows[y][x]==='#';
+  for(let y=0;y<=m.H;y++) for(let x=0;x<=m.W;x++){
+    const k = rock(x-1,y-1)<<3 | rock(x,y-1)<<2 | rock(x-1,y)<<1 | rock(x,y), flip = (k===0 || k===15) && r()<.5;
+    g.save(); g.translate(x*T-T/2 + (flip?T:0), y*T-T/2); if(flip) g.scale(-1,1);   // plain floor and plain rock: mirrored now and then, so it doesn't read as a grid
+    g.drawImage(img, (k%4)*T, (k>>2)*T, T, T, 0, 0, T, T); g.restore(); }
+  return c.toDataURL();
+}
+// pixel palette for small things drawn in code (the town's placeholder objects use it, and the caves' wall torch):
+// k outline, w wood, W light wood, d dark wood, g gold, G dark gold, i iron, I light iron, j dark iron, s stone,
+// S light stone, t dark stone, r ember, o flame, y yellow, Y white-hot, x shadow, n black
 const ART_PAL = {k:'#1e140c', w:'#8a5a2e', W:'#b07a40', d:'#5e3a1c', g:'#f2c84a', G:'#a67a12', i:'#4a4c54', I:'#7c808a', j:'#2a2b30',
   s:'#8a8272', S:'#aaa290', t:'#5a5448', r:'#c8502a', o:'#e8903a', y:'#f2d25a', Y:'#fff4c0', x:'rgba(0,0,0,.35)', n:'#0b0806'};
-const ART = {
-  chest:['................','................','................','...kkkkkkkkkk...','..kWWWWWWWWWWk..','..kwwwwwwwwwwk..','..kwwwwggwwwwk..','..kkkkkgGkkkkk..',
-         '..kdddwgGwdddk..','..kwwwwggwwwwk..','..kwwwwwwwwwwk..','..kddddddddddk..','..kkkkkkkkkkkk..','...xxxxxxxxxx...','................','................'],
-  note: ['................','................','................','....kkkkkkkk....','...kYYYYYYYYk...','...kYSSSSSSYk...','...kYYYYYYYYk...','...kYSSSSYYYk...',
-         '...kYYYYYYYYk...','...kYSSSSSSYk...','...kYYYYYYttk...','...kYSSSYYtsst..','...kkkkkkktsssk.','.....xxxxxxtttx.','................','................'],
-  logs: ['................','................','................','................','................','................','................','................',
-         '................','................','...kdk....kdk...','..kWwwdkkdwwWk..','..kdwwwWWwwwdk..','.tSkkkkkkkkkkSt.','..tSt.tSt.tSt...','................'],
-  flame:['................','................','.......y........','......yo........','......ooy.......','.....oyyo.......','.....ryyor......','....royYyo......',
-         '....royYYor.....','.....roYyr......','......ror.......','................','................','................','................','................'],
-  leverUp:  ['................','................','...kk...........','..krrk..........','..krrk..........','...kkI..........','.....Ij.........','......Ij........',
-             '.......Ij.......','........Ij......','......kkkkk.....','.....ktttttk....','.....kssssSk....','.....kkkkkkk....','......xxxxx.....','................'],
-  leverDown:['................','................','...........kk...','..........krrk..','..........krrk..','..........Ikk...','.........jI.....','........jI......',
-             '.......jI.......','......jI........','......kkkkk.....','.....ktttttk....','.....kssssSk....','.....kkkkkkk....','......xxxxx.....','................'],
-  gate:  ['jIjjIjjIjjIjjIjj','jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.','jjjjjjjjjjjjjjjj','IIIIIIIIIIIIIIII','jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.',
-          'jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.','jjjjjjjjjjjjjjjj','IIIIIIIIIIIIIIII','jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.','jIj.jIj.jIj.jIj.','jyj.jyj.jyj.jyj.'],
-  gateUp:['jIjjIjjIjjIjjIjj','jjjjjjjjjjjjjjjj','jIj.jIj.jIj.jIj.','.x...x...x...x..','................','................','................','................',
-          '................','................','................','................','................','................','................','................'],
-  door:  ['..kkkkkkkkkkkk..','.kdWwwdWwwdWwdk.','.kdWwwdWwwdWwdk.','.kdwwwdwwwdwwdk.','.kjjjjjjjjjjjjk.','.kdWwwdWwwdWwdk.','.kdwwwdwwwdwwdk.','.kkkkkkkkkkkkkk.',
-          '.kGggggggggggGk.','.kkkkkkkkkkkkkk.','.kdwwwdwwwdwwdk.','.kdwwwdwgwdwwdk.','.kjjjjjjjjjjjjk.','.kdwwwdwwwdwwdk.','.kdwwwdwwwdwwdk.','kkkkkkkkkkkkkkkk'],
-  verseDoor:['..kkkkkkkkkkkk..','.ktSSSSSSSSSSSk.','.ktsssssssssssk.','.kts.gg.g.ggssk.','.ktsssssssssssk.','.kts.g.ggg.g.sk.','.ktsssssssssssk.','.kts.ggg.gg.ssk.',
-             '.ktsssssssssssk.','.kts.gg.gggg.sk.','.ktsssssssssssk.','.ktsssssssssssk.','.kttttttttttttk.','.ktsssssssssssk.','.kttttttttttttk.','kkkkkkkkkkkkkkkk'],
-  doorOpen:['..kkkkkkkkkkkk..','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.',
-            '.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.','.knnnnnnnnnnnnk.'],
-};
-function caveArt(){ if(!artCache.done){ Object.entries(ART).forEach(([n,rows])=>artCache[n]=pxArt(rows, ART_PAL)); artCache.done=true; } return artCache; }
 
 // ---- Rooms that open under the map ----
 function rewardHTML(){

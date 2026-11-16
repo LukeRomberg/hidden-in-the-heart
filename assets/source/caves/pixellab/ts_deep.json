@@ -1,0 +1,231 @@
+{
+ "id": "7d7e95c5-721f-4b7f-a828-1eafd80fa768",
+ "lower": "dark slate-blue wet stone cave floor with moderate smooth texture and soft highlights and shadows, scattered small pebbles",
+ "upper": "near-black blue-grey rough cave rock mass with moderate surface texture and soft highlights and shadows, irregular vertical cracks",
+ "tiles": [
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "upper",
+    "SE": "upper",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 0,
+    "y": 0,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "upper",
+    "SE": "lower",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 32,
+    "y": 0,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "lower",
+    "SE": "lower",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 64,
+    "y": 0,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "upper",
+    "SE": "lower",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 96,
+    "y": 0,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "lower",
+    "SE": "lower",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 0,
+    "y": 32,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "upper",
+    "SE": "lower",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 32,
+    "y": 32,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "lower",
+    "SE": "lower",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 64,
+    "y": 32,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "lower",
+    "SE": "upper",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 96,
+    "y": 32,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "upper",
+    "SE": "upper",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 0,
+    "y": 64,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "lower",
+    "SE": "upper",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 32,
+    "y": 64,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "lower",
+    "SE": "lower",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 64,
+    "y": 64,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "lower",
+    "SE": "upper",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 96,
+    "y": 64,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "upper",
+    "SE": "upper",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 0,
+    "y": 96,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "upper",
+    "SE": "lower",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 32,
+    "y": 96,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "lower",
+    "NW": "upper",
+    "SE": "upper",
+    "SW": "lower"
+   },
+   "bounding_box": {
+    "x": 64,
+    "y": 96,
+    "width": 32,
+    "height": 32
+   }
+  },
+  {
+   "corners": {
+    "NE": "upper",
+    "NW": "lower",
+    "SE": "upper",
+    "SW": "upper"
+   },
+   "bounding_box": {
+    "x": 96,
+    "y": 96,
+    "width": 32,
+    "height": 32
+   }
+  }
+ ]
+}
