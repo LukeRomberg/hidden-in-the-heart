@@ -368,7 +368,7 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
 :root{ --fs-cap:13px; --fs-s:15px; --fs-m:17px; --fs-l:19px; --fs-xl:22px;
   --pi:#3a2414; --pi2:#7a4a24; --pi3:#8a6a48; --ok:#4f7a2a; --warn:#a8780e; --bad:#b0401c; --brass:#ffd860; }
 /* buttons: plank (normal), pressed plank, green plank (primary), grey sunk plank (disabled) */
-button{ min-height:48px; }
+button{ min-height:44px; }   /* 44: a thumb; the plank already gives single-line buttons this height */
 button:disabled, button.primary:disabled{ opacity:1; filter:none; border-image-source:url(__FRAME__(btnOff)); color:#ddd2bf; text-shadow:1px 1px 0 #2a2018; cursor:not-allowed; }
 button:disabled:active{ transform:none; }
 button:disabled .sub, button:disabled [class^="t-"]{ color:#cfc4b0 !important; }
