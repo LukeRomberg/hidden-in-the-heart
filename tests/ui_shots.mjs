@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const out = resolve(process.argv[2] || 'tests/out/ui'); mkdirSync(out, { recursive: true });
-const url = pathToFileURL(resolve('dist/index.html')).href + '?test' + (process.env.UI ? '&ui=' + process.env.UI : '');   // UI=N: one of the design options (src/ui-options.css)
+const url = pathToFileURL(resolve('dist/index.html')).href + '?test';
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 430, height: 932 }, deviceScaleFactor: 1 });
 await page.addInitScript(() => { window.__FAST = true; });

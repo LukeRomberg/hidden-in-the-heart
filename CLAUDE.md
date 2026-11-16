@@ -202,7 +202,8 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
   sprite under the red CSS tint. All ten looks are done (`LOOKS`); a new look without a sheet falls back to:
 - `build_villagers.py`: six recolored townsfolk (`freed.json`, the old placeholders).
 - `build_ui_frames.py`: the pixel UI kit (wood/parchment 9-slice frames, plank buttons,
-  card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image.
+  card rims per fruit, portrait frame, name plate, floor tile), used via CSS border-image. Since the
+  leather-journal look (2026-11) only the card rim and the name plate are still used; the rest is drawn in CSS.
 
 Style line for all generated art: "Cozy farming-sim pixel art, colored outlines, 3-tone
 shading, light from top-left, no text, no UI." Sheets must be real pixel art on a true grid
@@ -238,6 +239,10 @@ doesn't cut them off. Armor and the three locked fruit borrow the Patience star.
 
 ## Conventions
 
+- The interface look is a leather journal (Luke picked it from ten options, 2026-11): stitched dark leather for the
+  frame of the game (status bar, dialogue, bottom bar, tabs, fight log), lined paper pages with a red margin rule for
+  what you read, stitched leather tabs for buttons (green = the main action, grey = can't). Tokens (`--lth`, `--page`,
+  `--stitch`, `--btn`, `--go`, `--off`, `--rubric`) and the type scale are at the top of the `UI pass` block in styles.css.
 - Phone-first. Test at ~430px wide. Safe-area insets are handled; keep them.
 - A screen's main actions (Back, Next, Go in, Move on, Brace…) go in a `<div class="dock">` as the
   last element: it pins to the bottom of the screen (above the tab bar) while content scrolls.

@@ -2,7 +2,7 @@
 // Modules are plain scripts that share one global scope (the game's onclick handlers
 // call top-level functions by name), so ORDER matters only for top-level initializers:
 // data first, then anything a later file's top-level code reads at load.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,8 +27,7 @@ const IMG_RE = /__IMG__\((['"]?)([\w./-]+)\1\)/g;
 
 export function build({ out = join(ROOT, 'dist/index.html') } = {}) {
   const frames = JSON.parse(read('data/ui-frames.json'));
-  // ui-options.css: design options to compare (test mode, ?test&ui=N); delete it once one is chosen
-  const styles = (read('styles.css').trimEnd() + (existsSync(join(SRC, 'ui-options.css')) ? '\n' + read('ui-options.css').trimEnd() : '')).replace(/__FRAME__\(([\w-]+)\)/g, (_, k) => {
+  const styles = read('styles.css').trimEnd().replace(/__FRAME__\(([\w-]+)\)/g, (_, k) => {
     if (!frames[k]) throw new Error(`styles.css: unknown frame "${k}"`);
     return frames[k];
   }).replace(IMG_RE, (_, q, p) => img(p));

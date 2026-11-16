@@ -194,9 +194,9 @@ body.has-tabs #app{ padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));
   --stone:#b9a27a; --stone2:#a88f66; --stone3:#c8b48c; --room:#3a2a1e; --path:#d8c6a0;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#f3e2b6; --panel:#f3e2b6; --ink:#3a2414; --mute:#8a6a48; --line:#5a3a20; --gold:#b8861a; --leaf:#4f7a2a; --sky:#3a6a98; --ember:#c8502a; --rose:#b04a78; --stone:#b9a27a; --stone2:#a88f66; --stone3:#c8b48c; --room:#3a2a1e; --path:#d8c6a0; color-scheme:light; } }
-html, body{ background:#2a1a0e url(__FRAME__(floor)) repeat; background-size:96px 96px; image-rendering:pixelated; }
+html, body{ background:var(--lth) radial-gradient(rgba(0,0,0,.18) 1px, transparent 2px) 0 0 / 6px 6px; }   /* leather */
 body{ font-size:19px; color:#f2deb0; }
-body::before{ background:#2a1a0e; }
+body::before{ background:var(--lth); }
 #app{ color:#f2deb0; }
 h1{ font-size:26px; font-weight:700; color:#ffe8b0; text-shadow:2px 2px 0 #1e1008, -1px -1px 0 #1e1008; letter-spacing:.5px; }
 h2{ font-size:15px; font-weight:600; color:#e8b860; text-shadow:1px 1px 0 #1e1008; text-transform:uppercase; letter-spacing:1px; }
@@ -207,35 +207,36 @@ h2{ font-size:15px; font-weight:600; color:#e8b860; text-shadow:1px 1px 0 #1e100
 .small{ font-size:16px; }
 .verse{ font-size:21px; line-height:1.45; }
 /* panels: carved wood with a parchment page */
-.panel{ border:18px solid transparent; border-image:url(__FRAME__(panel)) 9 fill / 18px round; background:none; box-shadow:none; padding:2px 4px; color:#3a2414; margin-bottom:12px; }
+.panel{ border:0; border-radius:2px 6px 6px 2px; background:var(--page) repeating-linear-gradient(transparent 0 25px, var(--pageline) 25px 26px); color:#3a2414; margin-bottom:12px;
+  padding:12px 12px 10px 18px; box-shadow:inset 6px 0 0 #e6d6b4, inset 8px 0 0 var(--pagemargin), 0 4px 0 var(--edge); }   /* a lined page with a margin rule */
 .panel .mute, .card .mute{ color:#8a6a48; }
 .panel h2{ color:#7a4a24; text-shadow:none; }
 .panel.scene, .panel[style*="padding:0"]{ padding:0 !important; }
 /* buttons: wooden planks */
-button{ border-style:solid; border-width:12px; border-color:transparent; border-image:url(__FRAME__(btn)) 6 fill / 12px round; background:none; box-shadow:none;
-  color:#fff0d0; text-shadow:1px 1px 0 #2a160c; font-family:'Nunito',system-ui,sans-serif; font-size:16px; font-weight:600; padding:0 6px; margin:4px 4px 4px 0; line-height:1.35; }
-button:active{ transform:translateY(1px); box-shadow:none; border-image-source:url(__FRAME__(btnDown)); }
-button.primary{ border-image-source:url(__FRAME__(btnPrimary)); background:none; color:#f4ffe0; }
-button.primary:active{ border-image-source:url(__FRAME__(btnPrimaryDown)); }
+button{ border:2px solid var(--edge); border-radius:6px; background:var(--btn); outline:2px dashed var(--btnstitch); outline-offset:-7px; box-shadow:0 3px 0 var(--edge);   /* a stitched leather tab */
+  color:#fbe8c8; text-shadow:1px 1px 0 #2a160c; font-family:'Nunito',system-ui,sans-serif; font-size:16px; font-weight:600; padding:8px 12px; margin:4px 4px 4px 0; line-height:1.35; }
+button:active{ transform:translateY(2px); box-shadow:0 1px 0 var(--edge); }
+button.primary{ background:var(--go); outline-color:var(--gostitch); color:#f4ffe0; }
+button.primary:active{ background:#34592c; }
 button:disabled{ opacity:.5; filter:grayscale(.6); }
 
 button.wide{ margin:6px 0; }
 .opts button{ font-size:20px; font-weight:500; }
 /* dialogue: dark wood box, gold portrait frame, name plate */
-.dlg{ border:18px solid transparent; border-image:url(__FRAME__(dark)) 9 fill / 18px round; background:none; box-shadow:none; padding:4px 6px 8px; color:#f6e6c0; margin-top:14px; }
-.dlg .pt{ flex:0 0 72px; width:72px; height:72px; border:12px solid transparent; border-image:url(__FRAME__(portrait)) 6 fill / 12px round; background:none; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
+.dlg{ border:0; border-radius:6px; background:var(--lth2); outline:2px dashed var(--stitch); outline-offset:-6px; box-shadow:0 0 0 2px var(--edge); padding:12px; color:#f6e6c0; margin-top:22px; }
+.dlg .pt{ flex:0 0 72px; width:72px; height:72px; border:3px solid var(--stitch); border-radius:4px; background:var(--lth); display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
 .dlg .pt > *{ width:48px !important; height:48px !important; }
 .dlg .pt > div{ background-size:96px 128px !important; background-position:-24px -4px !important; }
-.dlg .who{ position:absolute; top:-30px; left:76px; border:10px solid transparent; border-image:url(__FRAME__(plate)) 5 fill / 10px round; padding:0 4px; font-size:15px; font-weight:700; color:#fff0d0; text-shadow:1px 1px 0 #2a160c; }
+.dlg .who{ position:absolute; top:-14px; left:76px; border:0; background:var(--page); color:#3a2214; padding:1px 8px; font-size:15px; font-weight:700; text-shadow:none; box-shadow:2px 2px 0 var(--edge); transform:rotate(-2deg); }   /* a paper name tag */
 .dlg.narr .tw{ color:#e0c89a; }
 .dlg .tw{ font-size:20px; }
 .dlg .more{ color:#f2c84a; } .dlg .step{ color:#a08060; }
 /* HUD and tabs */
-.hud{ border:14px solid transparent; border-image:url(__FRAME__(dark)) 9 fill / 14px round; background:none; box-shadow:none; padding:0 4px; color:#f6e6c0; font-size:17px; }
-.hud .lv{ font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; background:none; border:8px solid transparent; border-image:url(__FRAME__(plate)) 5 fill / 8px round; color:#fff0d0; padding:0 2px; }
+.hud{ border:0; border-radius:6px; background:var(--lth2); outline:2px dashed var(--stitch); outline-offset:-6px; box-shadow:0 0 0 2px var(--edge); padding:8px 12px; color:#f6e6c0; font-size:17px; }
+.hud .lv{ font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; background:var(--page); border:0; color:#3a2214; padding:1px 8px; box-shadow:2px 2px 0 var(--edge); }
 .hud .tiny{ font-size:14px; color:#d8c09a; }
-.tabs{ background:#2a1a0e url(__FRAME__(floor)) repeat; background-size:96px 96px; border-top:4px solid #c08a52; box-shadow:0 -4px 0 #2a160c; }
-.tabs button{ border:0; border-image:none; font-size:14px; font-weight:700; color:#c8a878; text-shadow:1px 1px 0 #1e1008; }
+.tabs{ background:var(--lth2); border-top:2px dashed var(--stitch); box-shadow:0 -3px 0 var(--edge); }
+.tabs button{ border:0; border-image:none; outline:0; background:none; box-shadow:none; border-radius:0; font-size:14px; font-weight:700; color:#c8a878; text-shadow:1px 1px 0 #1e1008; }
 .tabs button.on{ color:#ffd860; }
 /* bars: inset troughs with a shine line */
 .bar{ height:12px; border:2px solid #2a160c; background:#1e1008; box-shadow:inset 0 2px 0 #120a04; }
@@ -260,17 +261,17 @@ button.wide{ margin:6px 0; }
 .card.sel{ outline:3px solid #ffd860; outline-offset:2px; }
 .card.dim{ opacity:.5; }
 /* battle log, arena trim, info boxes */
-.textbox{ border:14px solid transparent; border-image:url(__FRAME__(dark)) 9 fill / 14px round; background:none; box-shadow:none; color:#f6e6c0; padding:0 4px; margin-top:0; font-size:18px; }
+.textbox{ border:0; border-radius:6px; background:var(--lth2); outline:2px dashed var(--stitch); outline-offset:-6px; box-shadow:0 0 0 2px var(--edge); color:#f6e6c0; padding:8px 12px; margin-top:4px; font-size:18px; }
 .textbox div{ color:#b89a70; } .textbox div:last-child{ color:#fff0d0; }
-.arena{ border:14px solid transparent; border-image:url(__FRAME__(dark)) 9 / 14px round; box-shadow:none; }
-.info{ border:10px solid transparent; border-image:url(__FRAME__(dark)) 9 fill / 10px round; background:none; padding:0 4px; font-size:15px; }
+.arena{ border:14px solid var(--lth2); border-radius:6px; outline:2px dashed var(--stitch); outline-offset:-8px; box-shadow:0 0 0 2px var(--edge); }
+.info{ border:3px solid var(--edge); border-radius:4px; background:rgba(58,34,20,.94); outline:1px dashed var(--stitch); outline-offset:-5px; padding:5px 9px; font-size:15px; }
 /* recall, assembly, inputs, toast */
 .overlay{ background:rgba(20,12,6,.82); }
 .blank{ border-bottom-color:#3a2414; }
-.chip{ border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; background:none; box-shadow:none; color:#3a2414; padding:0 4px; font-size:18px; }
+.chip{ border:2px solid #b8925a; border-radius:3px; background:#fffaf0; box-shadow:2px 2px 0 rgba(30,16,8,.35); color:#3a2414; padding:4px 10px; font-size:18px; }
 .seq{ border:3px dashed #8a6a48; color:#3a2414; }
-input[type=text]{ border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; background:none; color:#3a2414; font-family:'Nunito',sans-serif; }
-.toast{ border:12px solid transparent; border-image:url(__FRAME__(dark)) 9 fill / 12px round; background:none; color:#fff0d0; font-family:'Nunito',sans-serif; font-size:16px; font-weight:600; padding:0 6px; }
+input[type=text]{ border:2px solid #b8925a; border-radius:4px; background:#fffaf0; color:#3a2414; font-family:'Nunito',sans-serif; padding:8px; }
+.toast{ border:0; border-radius:6px; background:var(--lth2); outline:2px dashed var(--stitch); outline-offset:-6px; box-shadow:0 0 0 2px var(--edge); color:#fff0d0; font-family:'Nunito',sans-serif; font-size:16px; font-weight:600; padding:10px 14px; }
 .t-Patience{ color:#a8780e; } .t-Gentleness{ color:#3e6a1e; } .t-Self-control, .t-Peace{ color:#2e5a8a; } .t-Goodness{ color:#b0401c; } .t-Love{ color:#a03a6a; }
 
 /* ---- Art from assets/source ---- */
@@ -293,7 +294,7 @@ input[type=text]{ border:10px solid transparent; border-image:url(__FRAME__(pape
 .card > :not(.gem){ position:relative; }
 
 /* tutorial coaching from Amos */
-.coach{ border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; color:#3a2414; font-size:17px; line-height:1.35; margin:0 0 10px; padding:2px 4px; }
+.coach{ border:0; border-left:4px solid var(--stitch); background:#fff6d8; box-shadow:2px 2px 0 rgba(30,16,8,.3); color:#3a2414; font-size:17px; line-height:1.35; margin:0 0 10px; padding:6px 10px; }
 .coach::before{ content:"Amos: "; font-family:'Nunito',sans-serif; font-weight:700; color:#7a4a24; }
 /* a villager still held by anger: tinted red and dim */
 .sprite.held{ filter:sepia(1) saturate(3.5) hue-rotate(-25deg) brightness(.72) drop-shadow(0 0 3px #e0402a); }
@@ -310,7 +311,7 @@ input[type=text]{ border:10px solid transparent; border-image:url(__FRAME__(pape
 
 /* save codes on the Move your save screen */
 textarea.code{ width:100%; box-sizing:border-box; font-family:ui-monospace,Menlo,monospace; font-size:13px; line-height:1.3; word-break:break-all; resize:vertical;
-  border:10px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 10px round; background:none; color:#3a2414; margin-bottom:8px; }
+  border:2px solid #b8925a; border-radius:4px; background:#fffaf0; color:#3a2414; margin-bottom:8px; }
 
 /* ---- Reading text in Nunito (narration, dialogue, cards, verses, descriptions); game chrome stays pixel ---- */
 body{ font-size:18px; line-height:1.4; }
@@ -333,7 +334,7 @@ button .sub{ display:inline-block; margin-top:2px; font-family:'Nunito',system-u
 /* ---- Pinned buttons: each screen's main actions stay at the bottom of the screen while the
    content scrolls behind them (above the tab bar when it shows). ---- */
 .dock{ position:sticky; bottom:var(--dock-bottom, 0px); z-index:25; margin:12px -12px 0; padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));
-  background:#2a1a0e url(__FRAME__(floor)) repeat; background-size:96px 96px; border-top:4px solid #c08a52; box-shadow:0 -4px 0 #2a160c; }
+  background:var(--lth2); border-top:2px dashed var(--stitch); box-shadow:0 -3px 0 var(--edge); }
 body.has-tabs .dock{ padding-bottom:6px; }
 .dock button.wide{ margin:4px 0; }
 .dock.row{ display:flex; gap:6px; flex-wrap:nowrap; }
@@ -342,7 +343,7 @@ body.has-tabs .dock{ padding-bottom:6px; }
 #app:has(> .dock:last-child), #app:has(> #acts.dock:last-child){ padding-bottom:0; }
 body.has-tabs #app:has(> .dock:last-child){ padding-bottom:var(--dock-bottom, 0px); }
 /* inside a popup the popup itself scrolls, so the dock pins to its bottom, on parchment */
-.overlay .dock{ bottom:0; margin:10px -4px 0; padding:6px 4px 8px; background:#f3e2b6; border-top:3px solid #c8a26a; box-shadow:none; }
+.overlay .dock{ bottom:0; margin:10px -12px 0 -18px; padding:6px 12px 8px 18px; background:var(--page); border-top:2px dashed var(--stitch); box-shadow:none; }
 /* the page is at least one screen tall, so a short screen's dock still sits at the very bottom */
 #app{ min-height:100vh; min-height:100dvh; box-sizing:border-box; display:flex; flex-direction:column; }
 #app > .dock{ margin-top:auto; }
@@ -365,11 +366,25 @@ button .t-Goodness{ color:#ffb68e; } button .t-Love{ color:#ffb4d2; } button .su
    Type scale: --fs-cap 13 (credits, captions) · --fs-s 15 (labels, notes) · --fs-m 17 (buttons, lists)
    · --fs-l 19 (reading text) · --fs-xl 22 (popup titles) · h1 26. Ink on parchment: --pi (text), --pi2
    (headings, numbers), --pi3 (quiet). Results: --ok, --warn, --bad. */
+/* The look (Luke, 2026-11, option 8 of 10): a leather journal. Stitched leather for the frame of the game (status bar,
+   dialogue, the bottom bar and tabs, the fight's log), lined paper pages for what you read, stitched leather tabs for buttons.
+   Borrowed from option 3: a double rule under screen titles, red headings inside the pages. */
+:root{ --lth:#5a3420; --lth2:#3a2214; --edge:#1e1008; --stitch:#c8955a; --page:#f6ecd4; --pageline:rgba(80,120,170,.22); --pagemargin:rgba(200,70,60,.35);
+  --btn:#8a5230; --btnstitch:#d8a46a; --go:#3e6a34; --gostitch:#b8e08a; --off:#7a6a5a; --offstitch:#a8987e; --rubric:#9a2a1a; }
+.fruit, .slot, #testpanel button{ outline:0; }
+.slot{ border-radius:0; } .slot:active{ box-shadow:inset 0 0 0 2px #f6ead0; }
+/* a picture in the journal: mounted on dark leather */
+.panel.scene, .panel[style*="padding:0"]{ background:var(--lth2); padding:6px !important; outline:2px dashed var(--stitch); outline-offset:-4px; box-shadow:0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); border-radius:4px; }
+/* screen titles: a double brass rule underneath; headings inside a page in rubric red */
+#app > h1:not(.gametitle){ padding-bottom:6px; border-bottom:2px solid var(--stitch); box-shadow:0 4px 0 var(--lth), 0 6px 0 var(--stitch); margin-bottom:18px; }
+.panel h2, .overlay .panel > h2:first-child, .overlay .rhead h2{ color:var(--rubric); }
+.dlg:focus-visible, .hud:focus-visible{ outline:3px solid var(--brass); outline-offset:2px; }
+.overlay .panel{ box-shadow:inset 6px 0 0 #e6d6b4, inset 8px 0 0 var(--pagemargin), 0 4px 0 var(--edge), 0 12px 30px rgba(0,0,0,.55); }   /* a popup page lifts off the screen */
 :root{ --fs-cap:13px; --fs-s:15px; --fs-m:17px; --fs-l:19px; --fs-xl:22px;
   --pi:#3a2414; --pi2:#7a4a24; --pi3:#8a6a48; --ok:#4f7a2a; --warn:#a8780e; --bad:#b0401c; --brass:#ffd860; }
 /* buttons: plank (normal), pressed plank, green plank (primary), grey sunk plank (disabled) */
 button{ min-height:44px; }   /* 44: a thumb; the plank already gives single-line buttons this height */
-button:disabled, button.primary:disabled{ opacity:1; filter:none; border-image-source:url(__FRAME__(btnOff)); color:#ddd2bf; text-shadow:1px 1px 0 #2a2018; cursor:not-allowed; }
+button:disabled, button.primary:disabled{ opacity:1; filter:none; background:var(--off); outline-color:var(--offstitch); color:#d4c6b0; text-shadow:none; box-shadow:none; cursor:not-allowed; }
 button:disabled:active{ transform:none; }
 button:disabled .sub, button:disabled [class^="t-"]{ color:#cfc4b0 !important; }
 button:focus-visible{ outline:3px solid var(--brass); outline-offset:2px; }
@@ -388,15 +403,14 @@ input[type=text]:focus, textarea.code:focus{ outline:3px solid #d8a630; outline-
    the short ones (tips, rewards, level up) sit in the middle of the screen ---- */
 .overlay.reward, .overlay.tip, .overlay.levelup{ display:flex; flex-direction:column; }
 .overlay.reward > .panel, .overlay.tip > .panel, .overlay.levelup > .panel{ margin:auto; width:100%; }
-.overlay .panel > h2:first-child, .overlay .rhead h2{ color:var(--pi2); }
 .overlay .panel > button.wide:last-child{ margin-top:10px; margin-bottom:2px; }
 @media (prefers-reduced-motion: no-preference){ .overlay.tip .panel{ animation:rewardIn .2s ease-out; } }   /* not recall: it re-renders on every answer */
 
 /* ---- the recall popup (recall.js) ---- */
-.overlay.recall .panel{ padding:2px 4px 0; }
+.overlay.recall .panel{ padding:10px 12px 0 18px; }
 .rhead{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
 .rhead h2{ margin:0; }
-.rtier{ flex:none; font-size:var(--fs-s); font-weight:700; color:var(--pi2); border:7px solid transparent; border-image:url(__FRAME__(paper)) 5 fill / 7px round; padding:0 4px; line-height:1.2; }
+.rtier{ flex:none; font-size:var(--fs-s); font-weight:700; color:var(--pi2); background:#fffaf0; border:2px solid #b8925a; border-radius:3px; box-shadow:2px 2px 0 rgba(30,16,8,.25); padding:1px 8px; line-height:1.3; }
 .rprog{ display:flex; align-items:center; gap:8px; margin:8px 0 6px; }
 .rprog .pips{ flex:1; display:flex; gap:3px; height:10px; }
 .rprog .pips.tight{ gap:1px; }
@@ -405,7 +419,7 @@ input[type=text]:focus, textarea.code:focus{ outline:3px solid #d8a630; outline-
 .rprog .pips i.bad{ background:var(--bad); border-color:#7a2a14; }
 .rprog .pips i.cur{ background:#f2c84a; border-color:#a8780e; box-shadow:0 0 0 1px #f2c84a; }
 .rcount{ flex:none; font-size:var(--fs-s); font-weight:800; color:var(--pi3); min-width:4.2em; text-align:right; }
-.verse.rverse{ border:10px solid transparent; border-image:url(__FRAME__(inset)) 5 fill / 10px round; padding:2px 4px; margin:0 0 10px; color:var(--pi); font-size:20px; line-height:1.9; }
+.verse.rverse{ border:2px solid #d8c4a0; border-radius:3px; background:#fffaf0; box-shadow:inset 0 2px 0 rgba(90,60,30,.08); padding:8px 10px; margin:0 0 10px; color:var(--pi); font-size:20px; line-height:1.9; }
 .rverse .rref{ display:block; text-align:right; font-weight:700; color:var(--pi2); line-height:1.7; }
 .rverse .rref::before{ content:"\2014\00a0"; }
 .rverse .vn{ font-size:.6em; color:var(--pi3); margin-right:2px; }
@@ -469,8 +483,8 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .deckrow .drbody{ flex:1; min-width:0; }
 
 /* ---- shops: buying is the one action on a line, so it's the green plank ---- */
-.ware .wbuy{ border-image-source:url(__FRAME__(btnPrimary)); color:#f4ffe0; min-height:44px; padding:0 14px; }
-.ware .wbuy:active{ border-image-source:url(__FRAME__(btnPrimaryDown)); }
+.ware .wbuy{ background:var(--go); outline-color:var(--gostitch); color:#f4ffe0; min-height:40px; padding:6px 14px; }
+.ware .wbuy:active{ background:#34592c; }
 
 /* ---- popups (tips, rewards, level up) share one title style ---- */
 .overlay.tip h2{ text-transform:none; letter-spacing:0; font-size:var(--fs-xl); color:var(--pi); }
@@ -552,7 +566,7 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .afterfight .afree .fspr{ object-fit:cover; object-position:top; width:40px; height:40px; }
 .afterfight .aunlock{ font-size:var(--fs-s); font-weight:700; color:var(--ok); margin:0 0 8px; }
 .afterfight .aearn{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 8px; }
-.afterfight .atile{ border:8px solid transparent; border-image:url(__FRAME__(inset)) 5 fill / 8px round; padding:0 4px; }
+.afterfight .atile{ border:2px solid #d8c4a0; border-radius:3px; background:#fffaf0; box-shadow:inset 0 2px 0 rgba(90,60,30,.08); padding:4px 10px; }
 .afterfight .atile b{ display:inline-block; margin-right:6px; font-size:var(--fs-xl); font-weight:900; color:var(--pi); line-height:1.2; }
 .afterfight .atile b .ico{ vertical-align:-2px; }
 .afterfight .asub{ font-size:var(--fs-s); color:var(--pi3); font-weight:600; }
@@ -622,7 +636,7 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 
 /* shops */
 /* a shop's stock: one parchment list, each line name + price, what it does, then a note or a buy button */
-.panel.shop{ padding:2px 6px 4px; }
+.panel.shop{ padding:10px 12px 6px 18px; }
 .shop .shopnote{ margin:2px 0 6px; }
 .ware{ padding:8px 0 6px; border-top:2px dashed #c8a26a; }
 .ware:first-child, .shopnote + .ware{ border-top:0; }
