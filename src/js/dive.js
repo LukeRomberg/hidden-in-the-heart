@@ -104,12 +104,25 @@ function caveMap(i){
 }
 
 // ---- Entering, leaving, saving ----
+// Leaving a cave (or being beaten in one) keeps what you did there: everyone you freed stays free, opened
+// chests and doors stay open, the people you helped still stand with you at the boss (P.caveProgress). You
+// come back in at the mouth. Clearing the cave wipes it, so a run back through starts fresh.
 function startCave(i){
   if(!caveOpen(i)) return;
   if(R.hp < R.maxHp*0.3){ toast(TEXT.church.tooHurt); return; }
   Object.assign(R, {cave:i, room:null, node:null, enemies:[], helmUsed:false, boss:null});
   R.map = freshMap(i); R.map.msg = TEXT.dive.walkHint;
+  const back = P.caveProgress && P.caveProgress[CAVES[i].id];
+  if(back){ restoreProgress(R.map, i, back); R.map.msg = TEXT.dive.backAgain; saveRun(); goto('dive'); return; }
   saveRun(); goto('caveintro');
+}
+function keepProgress(){
+  const M = R.map; if(!M || R.cave==null) return;
+  (P.caveProgress = P.caveProgress||{})[CAVES[R.cave].id] = {seen:M.seen.join(''), done:M.done.slice(), open:M.open.slice(), helped:(M.helped||[]).slice()};
+}
+function restoreProgress(M, i, run){
+  const m = caveMap(i); if(typeof run.seen!=='string' || run.seen.length!==m.W*m.H) return;   // the map was redrawn since
+  M.seen = Array.from(run.seen, Number); M.done = (run.done||[]).filter(id=>m.mk[id]); M.open = (run.open||[]).slice(); M.helped = (run.helped||[]).slice();
 }
 function freshMap(i){ const m = caveMap(i); return {pos:m.start.slice(), face:'back', seen:new Array(m.W*m.H).fill(0), done:[], open:[], helped:[], msg:null, vis:new Set()}; }
 // P.run = {v:2, cave, pos, face, seen:'0110…', done:[marker ids], open:[door and lever ids], helped:[who]}
@@ -216,7 +229,7 @@ function clearColumn(){
 }
 function caveDone(){
   const id = CAVES[R.cave].id, first = !P.caves[id];
-  P.caves[id] = (P.caves[id]||0)+1; P.run = null;
+  P.caves[id] = (P.caves[id]||0)+1; P.run = null; if(P.caveProgress) delete P.caveProgress[id];
   if(first){ R.talents += 20; }
   R.firstClear = first; saveHero(); goto('cavedone');
 }

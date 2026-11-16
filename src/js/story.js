@@ -142,11 +142,11 @@ function victory(){
 }
 function defeat(){
   if(R.tutorial){ R.hp=R.maxHp; modal=null; startFight(['furnace'], true); return; }   // nobody fails the tutorial
-  P.run = null;
+  if(R.cave!=null) keepProgress(); P.run = null;   // beaten: you wake on a pew, but who you freed stays free
   const lost = Math.floor(R.talents*0.25); R.talents-=lost; R.lostTalents=lost; R.hp=Math.ceil(R.maxHp/2);
   modal=null; saveHero(); goto('defeat');
 }
-function retreat(){ R.hp=Math.max(1,R.hp); P.run=null; R.cave=null; saveHero(); goto('town'); }
+function retreat(){ R.hp=Math.max(1,R.hp); keepProgress(); P.run=null; R.cave=null; saveHero(); goto('town'); }
 function victoryHTML(){
   const T = TEXT.victory;
   // what changed: the forge lit and the church bell (town art, open state), not the empty square

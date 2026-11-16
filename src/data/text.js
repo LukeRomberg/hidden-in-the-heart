@@ -496,10 +496,12 @@ const TEXT = {
     notYet: 'Not yet',
     notNow: 'Not now',
     leave: 'Leave',
-    leaveConfirm: 'Leave the cave? You will have to start it over.',
+    leaveConfirm: 'Leave the cave? Everyone you’ve freed stays free. You’ll come back in at the mouth.',
     home: 'Walk back to Philadelphia',
     walkHint: 'It’s dark past arm’s length. Tap where you want to go. Walk up to a door and tap it to try it.',
     resume: 'You pick up where you left off.',
+    // coming back into a cave you left (or were driven out of) before clearing it
+    backAgain: 'You’re back at the mouth of the cave. Everyone you freed is still free; the way you came is still lit.',
     // something new comes into the light
     hints: {
       fight: 'Someone up ahead is shouting at the dark.',
