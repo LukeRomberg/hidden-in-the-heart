@@ -19,13 +19,14 @@ let src = readFileSync(FILE, 'utf8');
 const evalText = s => { const c = {}; vm.runInNewContext(s + '\nthis.TEXT = TEXT;', c); return c.TEXT; };
 const at = (T, p) => p.split('.').reduce((o,k)=>o==null?o:o[k], T);
 // curly quotes, as text.js wants: apostrophes and closing quotes ’ ”, opening quotes ‘ “
-function curl(s){ return s.replace(/(^|[\s(\[—–-])"/g, '$1“').replace(/"/g, '”').replace(/(^|[\s(\[—–-])'/g, '$1‘').replace(/'/g, '’'); }
+function curl(s){ s = s.replace(/\.\.\./g, '…'); return s.replace(/(^|[\s(\[—–-])"/g, '$1“').replace(/"/g, '”').replace(/(^|[\s(\[—–-])'/g, '$1‘').replace(/'/g, '’'); }
 const lit = (s, q) => q + s.replace(/\\/g, '\\\\').replace(new RegExp(q, 'g'), '\\' + q) + q;
 
 const done = [], skipped = [], notes = [];
 for(const e of edits){
   if(e.note) notes.push(e);
   if(e.text == null || e.text === e.orig) continue;
+  if(!e.text.trim()){ skipped.push(`${e.path}: cleared to nothing; left as is (say whether to delete the line)`); continue; }
   const T = evalText(src), now = at(T, e.path);
   if(now !== e.orig){ skipped.push(`${e.path}: text.js no longer says what the page showed (it says ${JSON.stringify(now)})`); continue; }
   const next = curl(e.text.trim());

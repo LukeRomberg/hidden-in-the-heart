@@ -43,7 +43,7 @@ const TEXT = {
   prologue: {
     bedroom: {
       lines: [
-        [null, '2:14 a.m. A desk lamp, a stack of flashcards, and your Bible, open to the same page it has been open to for three hours.'],
+        [null, '12:14 a.m. A desk lamp, a stack of flashcards, and your Bible.'],
         [null, 'Psalm 119:11. Fifteen words. You have read them dozens of times and they still are not memorized.'],
         ['you', '“I have hidden… Your… something. In my heart. Why is this so hard?”'],
         [null, 'The lamp hums. The page swims. One more try, and then bed.'],
@@ -56,9 +56,9 @@ const TEXT = {
       firstRight: 'Every word. You are so pleased with yourself that you rest your head on the open page. Just for a second.',
       firstMissed: 'About half. Your head drifts down onto the open page. Just for a second.',
       lines: [
-        [null, 'You begin to wake to the sound of crickets chirping. Your cheek is cold. As you begin to pick yourself up you realize you were laying on a stone street in a place you have never been before.'],
+        [null, 'You begin to wake to the sound of crickets chirping. Your cheek is cold. As you pick yourself up you realize you were laying on a stone street in a place you have never been before.'],
         [null, 'Adrenaline shocks your body awake and you begin to search around frantically. You are surrounded by vacant buildings. Every door is barred. Every window is dark. The only light comes from a man by the well.'],
-        [null, 'He is shouting and pacing around. Fire dances over his skin and clothes but they do not burn, red smoke rolls off his shoulders like heat off a summer road. Nobody else is out to see it.'],
+        [null, 'He is shouting and pacing around. Fire dances over his skin and clothes but they do not burn, red smoke rolls off his shoulders. Nobody else is out to see it.'],
       ],
       button: 'Try to find someone else to talk to',
     },
@@ -109,13 +109,13 @@ const TEXT = {
     start: 'Walk out to the well with Amos',
     // Amos talking you through your first fight
     coach: {
-      firstRecall: 'Tap the word that fills each blank. Get them all and the verse is cast at full power.',
-      firstCard: 'Each card is a verse you know. The number in the top left is how much focus it takes. You can regain focus between fights or by using certain scriptures. Tap a card to use that verse. You can use one verse per turn.',
-      recall: 'Take your time, son. Fill in each blank. The more you get right, the sharper the sword of the Spirit cuts.',
+      firstRecall: 'Tap a word to fill each blank. The more you get right, the more damage is dealt.',
+      firstCard: 'Each card is a verse you have access to. The number in the top left is how much focus it takes. You can regain focus between fights or by using certain scriptures. Tap a card to use that verse. You can only use one verse per turn, so make it count.',
+      recall: 'Take your time, son. The more you get right, the sharper the sword of the Spirit cuts.',
       oneMove: 'Bram gets his turn after every verse you say.',
-      gift: '“You are running low, aren’t you?” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind. It costs you nothing.”',
-      readIntent: 'Each verse can be said once. When you have said all the ones you have strength for, they will all come back to you.',
-      assembly: 'His fire is out. Now, son: say Galatians 5:22–23 over him, piece by piece, in order. Tap the pieces.',
+      gift: '“Looks like you are all out of focus.” Amos presses a card into your hand. “Romans 12:2. Say it, and let the Lord renew your mind.”',
+      readIntent: 'Each verse can be said once. Once you have casted each one once, they will all become available again.',
+      assembly: 'His fire is out. Now, son: say Galatians 5:22–23 over him, piece by piece, in order.',
     },
     // the fight stops and Amos teaches one rule, the first time it matters (the coach lines above are the body)
     tips: {
@@ -131,9 +131,9 @@ const TEXT = {
     groggy: 'It is hard to focus with the heat coming off Bram, you start the fight with less focus than normal.',
     after: [
       [null, 'The last of the fire goes out. Where the Furnace stood, Bram slowly sits down on the edge of the well, smoke still rising off his sleeves.'],
-      ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks, burning. Let the forge go cold.”'],
+      ['blacksmith', '“Three weeks.” He stares at his hands. “Stood out here three weeks. I let the forge go cold, that is not like me.”'],
       ['you', '“Are you okay?”'],
-      ['blacksmith', '“Don’t know yet.” He looks at you properly for the first time. “Why did you help me?”'],
+      ['blacksmith', '“I feel… peace.” He looks at you properly for the first time. “Why did you help me?”'],
       ['you', '“Honestly? I’m not sure. I fell asleep studying, and I woke up here.”'],
       ['priest', '“The Lord brought him, Bram. Same as He brought you back just now.” Amos helps him to his feet. “Go home. Light the forge. People are going to need it.”'],
       ['blacksmith', 'Bram looks down at your sneakers and shakes his head. He unlaces his own work boots and pushes them into your arms. “Here. Where you’re going, you’ll want real boots.”'],
@@ -485,7 +485,7 @@ const TEXT = {
     grudge: 'Twelve years I carried that list! You said one sentence and I set it down. Praise God!',
     brawler: 'My hands have stopped shaking. Nobody ever told me I could just stop. God is good.',
     slanderer: 'Every word I wrote was a lie, and I knew it. Thank you for saying something true. Glory to God.',
-    furnace: 'I burned so long I forgot I was a man. Thank you. Thank God.',
+    furnace: 'I burned so long I forgot who I was. Thank you. Thank God.',
   },
   // What the held say in a fight. The sin talks, not the person (Ephesians 6:12). Each kind has:
   //   taunts: most turns, in the voice of its sin. waver: below half health. crack: nearly free.
@@ -501,7 +501,7 @@ const TEXT = {
         'Everybody left. Let it burn.',
         'Stoke it. Higher.',
       ],
-      waver: ['Fire’s… low. Why’s it low?', 'Cold. Something’s gone cold.'],
+      waver: ['Fire’s… low. I’m… feeling better…', 'Cold. Something’s gone cold.'],
       crack: ['…what am I burning for?', 'Forge went cold. Why’d I let it?'],
       atk: ['throws a fistful of sparks', 'swings a red-hot fist'],
       big: ['roars up like a bellows', 'swings both fists, white-hot'],
