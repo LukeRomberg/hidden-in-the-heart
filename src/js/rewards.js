@@ -1,7 +1,7 @@
 /* “You got…” popups (Luke, 2026-11): every time you earn something, a popup shows it, so nothing just
    happens silently. reward() queues one; render() shows the next when nothing else is on screen, one at a
    time, never in the middle of a fight (they wait for the after-fight panel). Kinds:
-     gear   {id, before, how:'bought'|'consecrated'}  the icon, your hero before and after, what it does
+     gear   {id, before, how:'bought'|'consecrated'}  the icon, your hero before and after, what it does (consecrated: Amos, at a chapter ending)
      verse  {ref}                                     a new verse card
      spell  {ref, grew}                               a verse you know climbed a tier, or gained a verse
      chest  {talents, creed}                          talents, and the Creed piece if one came with it

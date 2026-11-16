@@ -328,36 +328,21 @@ const TEXT = {
       [null, 'The forge is roaring again. Bram is at the anvil like he never left it.'],
       ['blacksmith', '“There he is.” Bram sets the hammer down. “Didn’t thank you proper. Thank you.”'],
       ['you', '“You don’t have to—”'],
-      ['blacksmith', '“Do. Now listen. Amos says that lid and that Bible are the start of the armor of God. Plain things. Bring me plain gear, say Scripture over it, and I’ll forge it into the real thing.”'],
-      ['you', '“You can do that?”'],
-      ['blacksmith', '“I can’t. The word of God can. I just hold the hammer.”'],
+      ['blacksmith', '“Do. Now listen. Everything on that wall is plain: leather, canvas, a cap. Good work, honest price. It’ll keep you standing.”'],
+      ['you', '“Amos said something about the armor of God.”'],
+      ['blacksmith', '“Aye. That’s not made at an anvil.” He picks the hammer back up. “Amos says it’s given, at the altar, when a town comes home. Till then you’ve got me.”'],
     ],
     line: ['blacksmith', '“Back again. Good. Everything I make is on the wall. Price is the price.”'],
     forSale: 'Plain gear',
-    consecrate: 'Consecrate',
-    consecrateNote: 'Bring the plain piece and recite the passage perfectly. Bram holds the hammer; Scripture does the work. One piece at a time, in the order Ephesians gives them.',
+    // under the stock (draft): the armor of God isn't sold here any more
+    armorNote: 'Bram makes plain gear. The armor of God isn’t forged: Amos gives it at the church, one piece for each town that comes home.',
     owned: 'Yours.',
     ownedUp: 'Yours, and consecrated.',
     gifts: { boots: 'Yours. Bram wouldn’t take a coin.', lid: 'Yours. Amos gave it to you.', bible: 'Yours. Amos gave it to you.' },
     notForSale: 'Not for sale.',
     short: '{n} talents short.',
     buy: 'Buy',
-    recite: 'From the {from}. Recite {ref}.',
-    reciteBtn: 'Recite',
-    consecrated: 'Consecrated.',
-    needPlain: 'Buy the {from} first.',
-    after: 'After the {prev}.',
     seeGear: 'See your gear',
-    // popup, once, after Bram's first line at the Forge: how consecration works
-    tip: {
-      who: 'blacksmith',
-      title: 'Making the armor of God',
-      body: [
-        'Every plain piece can become armor. Bring it here, tap Recite, and say the passage perfectly.',
-        'It goes in the order Ephesians gives: the Belt of Truth first, with 6:14. Each piece after it adds a verse.',
-        'A slip costs nothing. You only pay when the metal takes.',
-      ],
-    },
   },
   inn: {
     heading: 'The Inn',
@@ -734,7 +719,6 @@ const TEXT = {
     bitterOff: 'You let it go. The bitterness lifts.',
     twisted: 'Your next words will come out twisted unless you get them exactly right.',
     twistLands: 'Your words come out twisted, and half of them are lost.',
-    vexShoes: '{name} {move}. Your feet stay steady; you aren’t provoked.',
     shoesWear: 'The Shoes of Peace: it wears off.',
     // your own thoughts, now and then
     thoughts: {
@@ -759,10 +743,10 @@ const TEXT = {
     speakHalting: 'You speak {ref}, haltingly.',
     peaceSteadies: 'Peace steadies your voice.',
     chargedLands: 'The charged word lands.',
-    givesUp: '{name} lowers {his} fists. {He} doesn’t want this anymore.',
     freed: '{name} goes still. Something lets go of {him}.',
     standsDazed: '{name} stands dazed.',
     vexBlocked: '{name} {move}. The Shield of Faith holds.',
+    vexShod: '{name} {move}. You stand your ground. Your feet are ready with peace.',   // draft: the Shoes of Peace
     vexed: '{name} {move}. Your verses cost 1 more focus this turn.',
     glances: '{name} {move}. It glances off the Shield of Faith.',
     helmetHolds: 'The Helmet of Salvation holds. You are still standing.',
@@ -957,6 +941,36 @@ const TEXT = {
       ['you', '“I came here because I couldn’t memorize one verse.”'],
       ['priestGlad', 'Amos chuckles quietly. “And now look at you.” He points out the open doors, past the square, to the road east. “That road runs to Ephesus. I have not had a letter from their church in a long time, son. The door is open. No one can shut it. But someone has to walk through it.”'],
     ],
+    // then Amos calls you up and consecrates Philadelphia's piece of the armor of God (drafts for Luke).
+    // You recite Ephesians 6:15; perfect or not, he finishes it with you. It's a gift, not a test.
+    armor: {
+      toAltar: 'Go up to the altar',
+      lines: [
+        ['priest', '“Before you go. Come up here, son.” Amos waits at the front until you do. The church goes quiet.'],
+        ['priest', '“You came to us in sneakers, and Bram gave you his boots. Good boots. But that road is long, and what waits at the end of it isn’t the kind of trouble boots are made for.”'],
+        ['priestGrave', '“There is armor for that. No forge makes it. The Lord gives it to His people, a piece at a time, and tonight this church asks Him for the first.”'],
+        ['priest', 'He reads from the letter to the church in Ephesus: “and with your feet fitted with the readiness of the gospel of peace.” Ephesians 6:15'],
+        ['priest', '“Now you. Say it over your feet.”'],
+      ],
+      recite: 'Say Ephesians 6:15',
+      recallTitle: 'Before the whole church',
+      // after a perfect recital
+      perfect: [
+        [null, 'You say it without a stumble. Somebody in the back says “Amen,” and then the whole church does.'],
+        ['priestGlad', '“Every word. Hidden in your heart already.”'],
+      ],
+      // after a slip: Amos says it with you, and it is given just the same
+      helped: [
+        [null, 'You stumble halfway. Amos doesn’t stop. He says it with you, word for word, and the front pews say the end of it with you both.'],
+        ['priestGlad', '“It was never a test, son. It’s a gift. You’ll know it by heart soon enough.”'],
+      ],
+      // either way
+      after: [
+        [null, 'Amos takes a pair of shoes from the altar, plain leather, soft as a glove, and kneels to lace them onto your feet himself.'],
+        ['blacksmith', '“I’ll take those boots back,” Bram calls from the back row. “Mend ’em up for the next one.”'],
+        ['priest', '“Let them shout at you. Let them burn. Your feet are ready with peace now: no one can goad you into answering in kind, and what they stir up in you won’t stay.”'],
+      ],
+    },
     toStats: 'Step out into the square',
     heading: 'Philadelphia',
     sub: 'Everyone is home.',
@@ -985,27 +999,21 @@ const TEXT = {
     belt: { name: 'Leather Belt', perk: 'Every perfect cast also shields you for 2.' },
     truth: { name: 'Belt of Truth', perk: 'Every perfect cast shields you for 2 and hits 25% harder.' },
     boots: { name: 'Work Boots', perk: 'Heal 4 after every fight.' },
-    sabatons: { name: 'Shoes of the Gospel of Peace', perk: 'Heal 4 after every fight, and anyone down to 15% gives up and goes free.' },
+    sabatons: { name: 'Shoes of the Gospel of Peace', perk: 'Heal 4 after every fight. Nobody can provoke you, and heat and bitterness wear off after one round.' },
     lid: { name: 'Trash-Can Lid', perk: 'Start every fight behind a shield of 4.' },
     faith: { name: 'Shield of Faith', perk: 'A shield of 4, the first hit of every fight glances off, and nobody can provoke you.' },
     bible: { name: 'Pocket Bible', perk: '+1 damage on every verse.' },
     sword: { name: 'Sword of the Spirit', perk: '+3 damage on every verse, and spells you know entirely by heart hit 25% harder.' },
   },
   gear: {
-    armorHeading: 'The armor of God, in order',
-    armorNote: 'Each piece is consecrated by reciting Ephesians 6 one verse further than the last.',
-    allDone: 'The whole armor of God. There is nothing left to consecrate.',
-    needPlain: 'Next: the {up}. Bring the {from} first.',
-    cost: '{n} talents · recite {ref} perfectly',
-    recallTitle: 'Consecrate',
     fits: '{name}. It fits.',
-    failed: 'The Scripture slipped away from you. The metal stays cold.',
     bought: '{name} on.',
     // the gear screen's slot panel (drafts)
     emptySlot: '{slot}: nothing yet',
     forgeSells: 'Bram sells a {name} at the Forge for {n} talents.',
-    nextConsecrate: 'Next: the {up}. {n} talents at the Forge, and recite {ref} perfectly.',
-    laterConsecrate: 'Becomes the {up}, after the {prev}.',
+    // what a plain piece becomes (drafts): this town's piece, or one from a town still ahead
+    armorHere: 'When all of Philadelphia is home, Amos will make this the {up}.',
+    armorSomeday: 'One day, in another town, the {up}.',
     consecratedWith: 'Consecrated with {ref}.',
   },
 

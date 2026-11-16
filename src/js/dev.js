@@ -64,6 +64,8 @@ const TEST_JUMPS = [
   ['Shop: the Training Yard', ()=>testShop('training', 2, 40)],
   ['Shop: the Scriptorium', ()=>testShop('scriptorium', 3, 30)],
   ['Chapter ending', testChapterEnd],
+  // straight to Amos calling you up to the altar for the Shoes of Peace (story.js, armorRecite)
+  ['Chapter ending: Amos and the Shoes', ()=>testChapterEnd(true)],
 ];
 // a hero who has cleared the first `caves` caves (so those buildings are open) with `talents` to spend
 function testShop(id, caves, talents){
@@ -72,14 +74,15 @@ function testShop(id, caves, talents){
   P.met[id] = true; saveHero(); enterBuilding(id);
 }
 // Silas has just been freed: all three caves cleared for the first time, so the Deep Cave's goodbye leads to the ending
-function testChapterEnd(){
+function testChapterEnd(atAltar){
   testHero(true); R.level = 7; R.souls = 31; R.maxHp = R.hp = 64; R.talents = 87;
   ['Proverbs 16:32','Romans 12:19'].forEach(addVerse);
   ['Proverbs 14:29','Galatians 5:22-23','Romans 12:2'].forEach(r=>setSp(r,{n:1, tier:3, perf:0, fails:0}));
   P.town = {church:true, forge:true, inn:true, training:true, scriptorium:true};
   CAVES.forEach(c=>P.caves[c.id] = 1); P.creed = 5;
   P.notes = TEXT.truths.list.slice(0,4).map(t=>t.id); P.truthsRight = TEXT.truths.list.slice(2,6).map(t=>t.id); P.helpedAll = ['tobias'];
-  R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero(); goto('cavedone');
+  R.cave = 2; R.firstClear = true; TW = {key:null}; saveHero();
+  if(atAltar){ P.chapters = {}; R.endStats = false; R.endStep = 'armor'; goto('chapterend'); } else goto('cavedone');
 }
 // a truth villager or someone hurt in cave `cave`, on the battle screen straight away; first: Amos's first one
 // (the Hollow's first truth villager is the one he walks with you; any hurt person works for his)

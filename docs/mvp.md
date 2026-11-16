@@ -21,12 +21,14 @@ down there, come back stronger, go deeper.** Ship it, play it, then iterate.
    Helping pays off later. Amos is with you for the first one. Talk the talk and walk the walk.
 6. **Shops worth visiting.** Every building shows what it sells, what each thing does, and
    what you can't afford yet. Economy tuned to about one meaningful buy per cave.
-   - Forge: the full gear lineup, and consecration into the Armor of God
+   - Forge: the plain gear lineup (the Armor of God is never sold: Amos gives one piece per town, below)
    - Scriptorium: new verses
    - Training Yard: drill verses
    - Inn: rest, plus a rumor about the next cave
-7. **Chapter ending.** After the third cave: a closing scene, chapter stats, and "The road to
-   Ephesus opens. To be continued."
+7. **Chapter ending.** After the third cave: a closing scene, then Amos consecrates the Shoes of
+   the Gospel of Peace as you recite Ephesians 6:15 (a gift: a slip doesn't stop it), chapter stats,
+   and "The road to Ephesus opens. To be continued." (One piece of the Armor of God per town:
+   `docs/combat-v2.md`, section 6.)
 8. **Full playtest.** A scripted player runs the whole chapter at 60/70/85% accuracy to catch
    dead ends and balance problems. Then Luke plays it on his phone.
 
@@ -51,7 +53,6 @@ fight pay, cleared caves can be run again. Losses: a defeat costs 25%, a pew res
 | Shop | Price | Opens |
 |---|---|---|
 | Forge, plain gear: Leather Belt / Canvas Vest / Ball Cap | 25 / 35 / 45 | after the Furnace |
-| Forge, consecration: Truth / Breastplate / Shoes / Faith / Helmet / Sword | 10 / 15 / 25 / 35 / 45 / 60 | after the Furnace |
 | Scriptorium, a verse by its focus cost 0 / 1 / 2 / 3 | 5 / 20 / 35 / 50 | after the Deep Cave |
 | Inn: eat and sleep | free | after the Hollow |
 | Training Yard: a clean drill pays | +2 | after the Quarry |
@@ -61,13 +62,13 @@ A sample run, one meaningful buy per trip into town:
 | In town with | Buys | Left |
 |---|---|---|
 | 30, before the Hollow | Leather Belt 25 | 5 |
-| 50, before the Quarry | Canvas Vest 35 + Belt of Truth 10 | 5 |
-| 75 + drills, before the Deep Cave | Ball Cap 45 + Breastplate 15 | ~25 |
-| ~100 + drills, chapter end | Shoes 25 + Shield of Faith 35 + one 2-focus verse 35 | ~10 |
+| 50, before the Quarry | Canvas Vest 35 | 15 |
+| 75 + drills, before the Deep Cave | Ball Cap 45 | ~40 |
+| ~100 + drills, chapter end | a 2-focus verse 35 + a 3-focus verse 50 | ~15 |
 
-Still out of reach at the end: the Helmet of Salvation (45) and the Sword of the Spirit (60),
-plus most of Silas's shelf. Consecration also needs Ephesians 6 recited perfectly, so a
-player who hasn't memorized 6:14-17 is held back by that before money.
+The Forge's consecration chain (Truth 10 / Breastplate 15 / Shoes 25 / Faith 35 / Helmet 45 / Sword 60)
+was retired 2026-11-16: the Armor of God is earned at the church, one piece per town, never bought.
+The talents that went there now go to verses at the Scriptorium.
 
 Plain gear no longer drops after fights (`gearDrop()` in gear.js returns null). It used to drop
 on half of all fights and every cave boss, which emptied the Forge by the second cave.

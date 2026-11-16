@@ -51,23 +51,10 @@ function forgeStock(){
     return ware({name:it.name, img:IMG.gear[id], price:it.price, does:it.perk, state:mine?'own':gift?'locked':poor?'short':'', note,
       btn: mine||gift||poor ? '' : `<button class="wbuy" onclick="buy('${id}')">${T.buy}</button>`}); }).join('');
 }
-function consecrateStock(){
-  const T = TEXT.forge, na = nextArmor();
-  return ARMOR_CHAIN.map((a,i)=>{ const up = ITEMS[a.up], from = ITEMS[a.from], done = has(a.up), next = na===a;
-    let state = '', note = '', btn = '';
-    if(done){ state = 'own'; note = T.consecrated; }
-    else if(!next){ state = 'locked'; note = fill(T.after,{prev:ITEMS[ARMOR_CHAIN[i-1].up].name}); }
-    else if(!owns(a.from)){ state = 'locked'; note = fill(T.needPlain,{from:from.name}); }
-    else if(R.talents<a.price){ state = 'short'; note = shortBy(a.price-R.talents); }
-    else btn = `<button class="wbuy" onclick="consecrate()">${T.reciteBtn}</button>`;
-    return ware({name:up.name, img:IMG.gear[a.up], cls:'t-Patience', price:a.price, does:up.perk, state, note, btn,
-      extra:fill(T.recite,{from:from.name, ref:passRef('ARMOR',a.n)})}); }).join('');
-}
 function forgeHTML(){
   const T = TEXT.forge;
   return `<h1>${T.heading}</h1>${talk('forge', R.firstVisit==='forge' ? T.firstVisit : [T.line],'',false)}
-    <h2>${T.forSale}</h2><div class="panel shop">${forgeStock()}</div>
-    <h2>${T.consecrate}</h2><div class="panel shop"><div class="small mute shopnote">${T.consecrateNote}</div>${consecrateStock()}</div>
+    <h2>${T.forSale}</h2><div class="panel shop">${forgeStock()}<div class="small mute shopnote">${T.armorNote}</div></div>
     <div class="dock row"><button onclick="R.gearFrom='forge';goto('gear')">${T.seeGear}</button><button onclick="goto('town')">Back</button></div>`;
 }
 // Wendell's ledger: the cheapest thing on each open shelf you can't afford yet
@@ -77,7 +64,6 @@ function savingFor(){
   if(P.town.forge){
     const f = cheapest(PLAIN_ORDER.filter(id=>!owns(id) && ITEMS[id].price>R.talents).map(id=>({name:ITEMS[id].name, price:ITEMS[id].price})));
     if(f) add(TEXT.town.buildings.forge, f.name, f.price);
-    const a = nextArmor(); if(a && owns(a.from)) add(TEXT.town.buildings.forge, ITEMS[a.up].name, a.price);
   }
   if(P.town.scriptorium){
     const v = cheapest(VERSES.filter(v=>!v.ref.startsWith('Galatians') && !R.deck.some(c=>c.ref===v.ref) && versePrice(v)>R.talents).map(v=>({name:v.ref, price:versePrice(v)})));

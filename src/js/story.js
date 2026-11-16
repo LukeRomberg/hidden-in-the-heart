@@ -129,7 +129,7 @@ function teach(key){
   return new Promise(res=>{ teachDone = res; });
 }
 // one-time popups that wait for a scene's last line to finish typing: {screen: tip key}
-const ONCE_TIPS = {forge:'forge'};
+const ONCE_TIPS = {};   // none right now (Bram's Forge popup went with the Forge's consecrating, 2026-11)
 function onceTip(){ const k = ONCE_TIPS[screen]; if(!k || modal || (P.tips&&P.tips[k])) return;
   const t = TEXT[k].tip; modal = {kind:'tip', key:k, once:{who:t.who, title:t.title, body:t.body, screen}};
   document.getElementById('app').insertAdjacentHTML('beforeend', tipHTML()); }
@@ -171,13 +171,21 @@ function victoryHTML(){
 // ---- The end of the Philadelphia chapter: once, when the last cave is cleared for the first time ----
 // (caveDoneHTML in dive.js sends you here.) A full church, then what you carried home, then the road east.
 const HOME = ['blacksmith','innkeeper','drill','scribe'];   // Bram, Wendell, Hale, Silas: speaker ids
+// The chapter's piece of the armor of God (docs/combat-v2.md, section 6), consecrated by Amos once everyone is home.
+const CHAPTER_ARMOR = {id:ARMOR_OF.philadelphia, ref:'Ephesians 6:15'};
+// R.endStep: undefined (the full church), 'armor' (Amos calls you up), 'armored' (after the recital), then the stats.
+// R.endStats is the old flag for the stats; finaleIn() still clears it.
 function chapterEndHTML(){
-  const T = TEXT.chapterEnd;
-  if(!R.endStats){
-    const at = (spr,x)=>({src:ENEMY_IMG[spr].f[0], x, y:92, w:40});
-    return `${sceneHTML(IMG.scene.church,[at('hothead_f',14), at('grudge_f',58), AT_PRIEST(lineOf('chapterend')>=6?'welcome':'idle'), at('brawler_f',222), at('slanderer_f',266)])}${talk('chapterend', T.lines,
-      `<button class="primary wide" onclick="R.endStats=true;goto('chapterend')">${T.toStats}</button>`)}`;
-  }
+  const T = TEXT.chapterEnd, A = T.armor, step = R.endStats ? 'stats' : R.endStep;
+  const at = (spr,x)=>({src:ENEMY_IMG[spr].f[0], x, y:92, w:40});
+  const church = pose=>sceneHTML(IMG.scene.church,[at('hothead_f',14), at('grudge_f',58), AT_PRIEST(pose), at('brawler_f',222), at('slanderer_f',266)]);
+  const toStats = `<button class="primary wide" onclick="R.endStep=null;R.endStats=true;goto('chapterend')">${T.toStats}</button>`;
+  if(!step) return `${church(lineOf('chapterend')>=6?'welcome':'idle')}${talk('chapterend', T.lines,
+      has(CHAPTER_ARMOR.id) ? toStats : `<button class="primary wide" onclick="R.endStep='armor';render()">${A.toAltar}</button>`)}`;
+  if(step==='armor') return `${church('idle')}${talk('chapterarmor', A.lines,
+      `<button class="primary wide" onclick="armorRecite()">${A.recite}</button>`)}`;
+  if(step==='armored') return `${church('welcome')}${talk('chapterarmored', [...(R.endPerfect ? A.perfect : A.helped), ...A.after],
+      `<button class="primary wide" onclick="R.endStep=null;R.endStats=true;bestowArmor(CHAPTER_ARMOR.id);goto('chapterend')">${T.toStats}</button>`)}`;
   const row = (label, val, cls='')=>`<div class="stat ${cls}"><span>${label}</span><span>${val}</span></div>`;
   const list = names=>`<div class="chnames">${names.join(', ')}</div>`;
   // truths: sermon scraps you read, plus questions you answered right (P.truthsRight, encounters.js)
@@ -194,7 +202,12 @@ function chapterEndHTML(){
       ${row(T.mastered, fill(T.masteredOf,{n:byHeart, total:refs.length}))}
       ${row(T.talents, R.talents)}</div>
     <div class="panel story chroad"><p>${T.road}</p><p class="px">${T.continued}</p></div>
-    <div class="dock"><button class="primary wide" onclick="R.endStats=false;R.cave=null;P.chapters=Object.assign(P.chapters||{},{philadelphia:1});saveHero();goto('town')">${T.button}</button></div>`;
+    <div class="dock"><button class="primary wide" onclick="R.endStats=false;R.endStep=null;R.cave=null;P.chapters=Object.assign(P.chapters||{},{philadelphia:1});saveHero();goto('town')">${T.button}</button></div>`;
+}
+// Amos has you say Ephesians 6:15 over your feet. It's a gift, not a test: a slip isn't counted against the
+// verse, and the Shoes are given either way when you step out (bestowArmor, gear.js), which shows the popup.
+function armorRecite(){
+  openRecall(BY_REF[CHAPTER_ARMOR.ref], frac=>{ R.endPerfect = frac===1; R.endStep = 'armored'; render(); }, undefined, TEXT.chapterEnd.armor.recallTitle);
 }
 function defeatHTML(){
   const T = TEXT.defeat;

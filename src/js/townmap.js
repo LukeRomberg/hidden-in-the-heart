@@ -359,7 +359,7 @@ async function finaleStep(){
   if(F.stage==='march'){ F.busy = true; F.walking = true; say(TEXT.townMap.finale.go); await march(); }
 }
 // stepping into the church at the end
-function finaleIn(){ R.finale = null; R.folk = null; R.endStats = false; goto('chapterend'); }
+function finaleIn(){ R.finale = null; R.folk = null; R.endStats = false; R.endStep = null; goto('chapterend'); }
 const FIN_STEP = ()=>window.__FAST ? 40 : 300;
 // a path over open ground (people don't block each other here)
 function openRoute(from, to){

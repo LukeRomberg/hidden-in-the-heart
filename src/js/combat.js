@@ -269,7 +269,6 @@ function playCard(ref){
       if(mu!==1){ floatText('en'+ti, mu>1?F.weak:F.resisted, 'tag', -26); log(pickLine(mu>1?TEXT.fight.weakHit:TEXT.fight.resistHit, foeVars(t))); await teach(mu>1?'weak':'resist'); }
       if(daze) floatText('en'+ti, F.dazed, 'tag', -26);
       await sleep(300);
-      if(has('sabatons') && !t.boss && t.hp>0 && t.hp<=t.max*0.15){ log(fill(TEXT.fight.givesUp,foeVars(t))); t.hp=0; }
       // the Furnace: let you see him go down before the Galatians pieces open
       if(t.hp<=0){ if(t.boss){ await sleep(TIP_DELAY); R.busy=false; bossAssembly('final'); return; } t.freed=true; const tal=5+(R.tree.Gentleness>=2?5:0); R.talents+=tal; R.earned.talents+=tal; gainXP(R.node&&R.node.t==='elite'?2:1); townUnlock(t.id); townHome(t); await freeBeat(t, ti); }
       else { if(moodOf(t) && t.mood!==moodOf(t)) await sleep(350); reactTo(t, ti); }   // let the number clear first
@@ -312,7 +311,7 @@ async function enemyTurn(beatDone){
     const el=document.getElementById('en'+i); if(el){ el.classList.remove('windup'); if(!CALM()) el.classList.add('lunge'); }
     await sleep(180);   // the lunge reaches you, then the hit lands
     const mv = MOVES[a] || MOVES.atk, kind = moveKind(e, a);
-    if(a==='vex'){ if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else if(has('sabatons')) log(fill(TEXT.fight.vexShoes,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); await teach('provoke'); } }
+    if(a==='vex'){ if(armorCures('provoke')) log(fill(TEXT.fight.vexShod,vars)); else if(has('faith')) log(fill(TEXT.fight.vexBlocked,vars)); else { R.vexed=true; log(fill(TEXT.fight.vexed,vars)); floatText('pl', TEXT.fight.vexTag, 'tag'); await teach('provoke'); } }
     else if(has('faith') && !R.faithUsed){ R.faithUsed=true; log(fill(TEXT.fight.glances,vars)); floatText('pl', TEXT.fight.float.glance, 'shield'); }
     else if(kind==='body'){ let d = Math.round(e.atk*mv.pow); if(has('breast')) d=Math.max(0,d-2);
       const guarded=Math.min(R.guard||0,d); R.guard-=guarded; d-=guarded; const absorbed=Math.min(R.shield,d); R.shield-=absorbed; d-=absorbed; R.hp-=d;
@@ -337,7 +336,7 @@ async function enemyTurn(beatDone){
   // lingering harm ticks once a round, after they've acted (10% of your max HP); the Shoes of Peace let it wear off
   for(const k of ['heat','bitter']){ if(!R[k] || R.after) continue; const n = tick(); R.hp -= n;
     log(TEXT.fight[k+'Tick']); hitFX(); await strike('pl', String(n), 'you', false);
-    if(has('sabatons')){ R[k]=false; log(TEXT.fight.shoesWear); }
+    if(armorCures('linger')){ R[k]=false; log(TEXT.fight.shoesWear); }
     if(R.hp<=0 && has('helm') && !R.helmUsed){ R.helmUsed=true; R.hp=1; log(TEXT.fight.helmetHolds); barsSync(); }
     if(R.hp<=0){ R.busy=false; defeat(); return; } }
   await sleep(TURN_BEAT);   // and his, before it's your turn again
