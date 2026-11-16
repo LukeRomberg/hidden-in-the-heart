@@ -844,7 +844,7 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 #wipe.fade.on{ animation:wipefade .3s ease-in forwards; } #wipe.fade.off{ animation:wipefade .32s ease-out reverse forwards; }
 @keyframes wipefade{ from{ opacity:0; } to{ opacity:1; } }
 .sctitle{ position:fixed; left:0; right:0; top:17%; display:flex; justify-content:center; pointer-events:none; animation:sctitle 2.1s ease-out forwards; }
-.sctitle span{ font-family:'Pixelify Sans',sans-serif; font-size:30px; line-height:1.2; color:#f2d25a; text-shadow:2px 2px 0 #1e100a, 0 0 12px rgba(0,0,0,.7); padding:3px 26px;
+.sctitle span{ font-family:'Nunito',sans-serif; font-weight:900; font-size:30px; line-height:1.2; color:#f2d25a; text-shadow:2px 2px 0 #1e100a, 0 0 12px rgba(0,0,0,.7); padding:3px 26px;
   border-top:2px solid rgba(242,210,90,.5); border-bottom:2px solid rgba(242,210,90,.5); background:linear-gradient(90deg, transparent, rgba(14,10,8,.6) 22%, rgba(14,10,8,.6) 78%, transparent); }
 @keyframes sctitle{ 0%{ opacity:0; transform:translateY(8px); } 15%, 72%{ opacity:1; transform:none; } 100%{ opacity:0; } }
 @keyframes sctitleCalm{ 0%, 85%{ opacity:1; } 100%{ opacity:0; } }
