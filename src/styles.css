@@ -779,11 +779,13 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 @media (prefers-reduced-motion: reduce){ .tl .mk.who.furnace{ animation:none; } }
 
 /* the hero side-on on the maps (tilemap.js heroSprite): standing frame, or the walk strip while moving */
-.chero .side{ width:51px; height:51px; background:var(--stand) 0 0 / 51px 51px no-repeat; image-rendering:pixelated; }
-.chero.walking .side{ background:var(--walk) 0 0 / 306px 51px no-repeat; animation:sidewalk .54s steps(6) infinite; }
+/* one 7-frame strip per layer (gear on top, the lid under): frame 0 stands, 1-6 walk; west is east flipped */
+.chero .side{ width:51px; height:51px; background-size:357px 51px; background-position:0 0; background-repeat:no-repeat; image-rendering:pixelated; }
+.chero .side.west{ transform:scaleX(-1); }
+.chero.walking .side{ animation:sidewalk .54s steps(6) infinite; }
 .chero.walking .hs:has(.side){ animation:none; }
-@keyframes sidewalk{ to{ background-position:-306px 0; } }
-@media (prefers-reduced-motion: reduce){ .chero.walking .side{ animation:none; background:var(--stand) 0 0 / 51px 51px no-repeat; } }
+@keyframes sidewalk{ from{ background-position:-51px 0; } to{ background-position:-357px 0; } }
+@media (prefers-reduced-motion: reduce){ .chero.walking .side{ animation:none; background-position:0 0; } }
 
 /* encounters on the battle screen (encounters.js, screen 'meet') */
 .amosin{ position:absolute; left:calc(96px * var(--k,1)); bottom:calc(14px * var(--k,1)); z-index:1; }

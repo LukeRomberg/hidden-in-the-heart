@@ -36,6 +36,7 @@ in `tools/out/` (gitignored).
 | Command | Reads | Writes |
 |---|---|---|
 | `.venv/bin/python tools/build_hero_layers.py` | `hero_starter_sheet.png`, `hero_armor_sheet.png` | `hero.json` (`HERO`), `hero-alpha.json` (`ALPHA`) |
+| `.venv/bin/python tools/build_hero_side.py` | `hero/walk/side_east.png`, `hero/walk/walk_east.png` | `hero-side.json` (`HERO_SIDE`), preview `tools/out/hero_side.png` |
 | `.venv/bin/python tools/build_enemies.py` | `enemies_freed_48x64.png`, `furnace_96x96.png` | `enemies.json` (`ENEMY_IMG`) |
 | `.venv/bin/python tools/build_villagers.py` | `hero_starter_sheet.png` | `freed.json` (`FREED_IMG`, placeholder townsfolk) |
 | `.venv/bin/python tools/build_townsfolk.py` | `townsfolk/<look>.png` | `townsfolk.json` (`FOLK`), preview `tools/out/townsfolk_sheet.png` |

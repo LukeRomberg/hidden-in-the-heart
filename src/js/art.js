@@ -24,6 +24,16 @@ function heroGrid(view, frame, freed){
   return heroCache[key]=g;
 }
 const ALPHA = __DATA__('hero-alpha.json');
+// The hero side-on (tools/build_hero_side.py): a 7-frame strip (stand, then the walk) with each piece of gear as
+// its own layer. Returned as CSS background layers, top first; the map flips them for west (tilemap.js heroSprite).
+const HERO_SIDE = __DATA__('hero-side.json');
+function heroSideBG(){
+  const worn = R ? Object.values(R.gear||{}).filter(Boolean) : [];
+  const on = GEAR_ORDER.filter(i=>worn.includes(i) && HERO_SIDE.items[i]), L = i=>HERO_SIDE.items[i];
+  const layers = [...on.filter(i=>L(i).over).reverse().map(i=>L(i).over), on.includes('cap') ? HERO_SIDE.capped : HERO_SIDE.base,
+    ...on.filter(i=>L(i).under).map(i=>L(i).under)];
+  return layers.map(u=>`url(${u})`).join(',');
+}
 function heroRects(view, frame, ox, oy, s, freed){
   const g = heroGrid(view, frame, freed); let r='';
   g.forEach((row,y)=>{ let x=0; while(x<row.length){ const c=row[x]; if(c==='.'){x++;continue;} let x2=x; while(x2<row.length&&row[x2]===c) x2++;

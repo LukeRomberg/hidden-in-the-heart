@@ -249,6 +249,11 @@ Source sheets live in `assets/source/`. The generated art lives in `src/data/`
   cave, 32px, transition 0.5, plus seven 32px Pixen objects) into `assets/source/caves/map/`: a 4x4 ground sheet per cave
   indexed by corner mask (NW 8, NE 4, SW 2, SE 1; 1 = rock), colour-graded (`GRADE`), and the objects with their derived
   states (open doors and swinging leaves, raised gate, pulled lever, a second campfire frame).
+- `build_hero_side.py`: the hero's side walk (the PixelLab strip in `assets/source/hero/walk/`, east; west is it
+  flipped) with gear layered on in code: boots, the Shoes of Peace and the vest are recolours, the belt a band, the cap
+  a drawn piece anchored to his eye (and a second base strip with the hair under it trimmed), the lid edge-on behind
+  him. Writes `hero-side.json` (`HERO_SIDE`); `heroSideBG()` in art.js stacks the layers as CSS backgrounds. Armor
+  pieces past the Shoes have no side layer yet; add them here when their towns land. Preview: `tools/out/hero_side.png`.
 - `build_folk_walk.py`: the townsfolk's walk cycles (animate_character, template "walking", 6 frames,
   south/north/east/west) into `folkwalk.json` (`FOLK_WALK`); `--fetch` downloads them again from PixelLab.
 - `build_town.py`: the town kit from `assets/source/town/raw/` (PixelLab create_map_object, low top-down,

@@ -116,9 +116,10 @@ function placeHero(){
   if(h.dataset.face!==M.face){ h.dataset.face = M.face; h.querySelector('.hs').innerHTML = heroSprite(); }
   if(pl.placed) pl.placed();
 }
-// front and back are the layered hero (your gear shows); side-on is the PixelLab walk, which steps while you move
-function heroSprite(){ const f = here().st().face, S = IMG.heroSide[f];
-  if(S) return `<div class="side" style="--stand:url(${S.stand});--walk:url(${S.walk})"></div>`;
+// front and back are the layered hero; side-on is the PixelLab walk with gear layered on (art.js heroSideBG),
+// which steps while you move. Your gear shows either way.
+function heroSprite(){ const f = here().st().face;
+  if(f==='east' || f==='west') return `<div class="side ${f}" style="background-image:${heroSideBG()}"></div>`;
   return sprite(f==='back'?'back':'player',0,0.8); }
 function camera(){ const [x,y] = here().st().pos; return `translate(${-(x+.5)*MAP_T}px,${-(y+.5)*MAP_T}px)`; }
 
