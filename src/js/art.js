@@ -1,6 +1,9 @@
 /* Sprite rendering: layered hero, enemy/freed images, pixel grids, backdrops. */
 const HERO = __DATA__('hero.json');
-const GEAR_ORDER = ['vest','breast','belt','truth','boots','sabatons','cap','helm','lid','faith','bible','sword'];
+const GEAR_ORDER = ['vest','breast','belt','truth','boots','sabatons','cap','helm','bible','sword','lid','faith'];   // the lid after the Bible: its arm pose put a hand through the lid
+// hats hide the hair beside them: in each row the hat fills (MASK_MIN+ pixels), base pixels outside its outline go
+const HAT = new Set(['cap']), MASK_MIN = 10;
+const SOLID = new Set(['lid','faith']);   // nothing but the shield in these layers: every pixel wins, so the hand holds it from behind
 const WEAK = new Set(HERO.weak);
 const heroCache = {};
 function heroGrid(view, frame, freed){
@@ -9,10 +12,15 @@ function heroGrid(view, frame, freed){
   if(heroCache[key]) return heroCache[key];
   const layers = freed ? [HERO.freed[frame]] : [HERO.base[view][frame], ...GEAR_ORDER.filter(i=>items.includes(i)).map(i=>HERO.items[i][view][frame])];
   const g = HERO.base.front[0].map(r=>Array.from(r).fill('.')); const own = g.map(r=>r.map(()=>false));
-  layers.forEach((L,li)=>L.forEach((row,y)=>{ const cs=Array.from(row); cs.forEach((c,x)=>{
+  const names = freed ? [] : [null, ...GEAR_ORDER.filter(i=>items.includes(i))];
+  layers.forEach((L,li)=>L.forEach((row,y)=>{ const cs=Array.from(row); const solid = SOLID.has(names[li]); cs.forEach((c,x)=>{
     if(c==='.') return;
-    if(li>0 && own[y][x] && (c===',' || WEAK.has(c))) return;   // a gear piece's real pixels beat a later piece's stray hoodie pixels
+    if(li>0 && own[y][x] && !solid && (c===',' || WEAK.has(c))) return;   // a gear piece's real pixels beat a later piece's stray hoodie pixels
     g[y][x] = c===',' ? '.' : c; if(li>0) own[y][x]=true; }); }));
+  if(!freed) items.filter(i=>HAT.has(i)).forEach(i=>HERO.items[i][view][frame].forEach((row,y)=>{
+    const xs = Array.from(row).map((c,x)=>c!=='.'&&c!==','?x:-1).filter(x=>x>=0); if(xs.length<MASK_MIN) return;
+    const lo = Math.min(...xs), hi = Math.max(...xs);
+    g[y].forEach((c,x)=>{ if((x<lo||x>hi) && !own[y][x]) g[y][x]='.'; }); }));
   return heroCache[key]=g;
 }
 const ALPHA = __DATA__('hero-alpha.json');
