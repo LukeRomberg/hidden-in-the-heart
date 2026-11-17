@@ -133,8 +133,9 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
     if (await ev(() => modal && modal.kind === 'tip')) await ev(() => closeTip());   // Amos explains the first recall first
     await until(() => modal && modal.kind === 'recall');
     for (let i = 0; i < 400; i++) {
-      const st = await ev(() => { if (!modal || modal.kind !== 'recall') return { gone: true }; const c = modal.c; if (c.done) return { done: true }; const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans, opts: o.opts }; });
+      const st = await ev(() => { if (!modal || modal.kind !== 'recall') return { gone: true }; const c = modal.c; if (c.reading) return { reading: true }; if (c.done) return { done: true }; const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans, opts: o.opts }; });
       if (st.gone) return;
+      if (st.reading) { await ev(() => readDone()); continue; }   // a new verse is read through first
       if (st.done) { await page.locator('.overlay button.primary').click(); return; }
       const right = rng() < acc;
       rec.blanks[right ? 'right' : 'wrong']++;

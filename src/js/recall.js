@@ -38,8 +38,12 @@ function makeChallenge(verse, tierOverride, nOverride, priorTier){
     o.opts = shuffle([ans, ...d]); });
   toks.forEach(o=>{ if(o.mode==='letter') o.ans = core(o.w)[0]; });
   const order = toks.map((o,i)=>i).filter(i=>toks[i].mode);
-  return {verse, toks, order, cur:0, n, tier, done:false, label:passRef(verse.ref,n)};
+  // a verse you've never seen whole is read through once before the blanks (one cast before P.read existed counts as read)
+  const readN = (P.read||{})[verse.ref] ?? ((P.casts||{})[verse.ref] ? s.n : 0);
+  return {verse, toks, order, cur:0, n, tier, done:false, label:passRef(verse.ref,n), reading:readN<n, readN};
 }
+// "I've read it": the blanks come up, and this verse (this many of the passage) won't be shown whole again
+function readDone(){ const c = modal.c; P.read = P.read||{}; P.read[c.verse.ref] = Math.max(P.read[c.verse.ref]||0, c.n); save(); c.reading = false; render(); }
 function openRecall(verse, onDone, tierOverride, title, nOverride, priorTier){ modal = {kind:'recall', c:makeChallenge(verse,tierOverride,nOverride,priorTier), onDone, title: title||TEXT.recall.castTitle}; render(); }
 function curTok(){ const c=modal.c; return c.toks[c.order[c.cur]]; }
 function advance(){ const c=modal.c; if(c.cur < c.order.length-1) c.cur++; else c.done=true; }
@@ -56,6 +60,8 @@ function verseMarkup(){
     let sepBefore = i===0 ? '' : (o.kind==='vs' ? ':' : ' ');
     if(o.kind==='num') return `${sepBefore}<sup class="vn">${o.w}</sup>`;
     if(o.kind==='sep') return '';   // the reference gets its own line instead of a dash
+    if(c.reading){ const w = o.kind==='book' ? o.w : sepBefore+o.w;   // the whole verse; in a growing passage the new verse is marked
+      return c.readN && o.vi>=c.readN ? `<span class="rnew">${w}</span>` : w; }
     if(!o.mode) return o.kind==='book' ? o.w : sepBefore+o.w;
     // the blank is the whole word, hyphens and apostrophes inside it included; only outer punctuation stays visible
     const lead = o.kind==='word' ? (o.w.match(/^[^A-Za-z0-9]*/)||[''])[0] : ''; const trail = o.kind==='word' ? (o.w.slice(lead.length).match(/[^A-Za-z0-9]*$/)||[''])[0] : '';
@@ -78,7 +84,9 @@ function progressHTML(){ const c=modal.c;
 function recallHTML(){
   const c = modal.c; const KIND = {word:'word', book:'book', ch:'chapter', vs:'verse'};
   let controls = '';
-  if(c.done){ const right = c.order.filter(i=>c.toks[i].given===c.toks[i].ans).length;
+  if(c.reading){
+    controls = `<div class="small mute">${c.readN ? TEXT.recall.readNew : TEXT.recall.readHint}</div><button class="primary wide" onclick="readDone()">${TEXT.recall.readButton}</button>`;
+  } else if(c.done){ const right = c.order.filter(i=>c.toks[i].given===c.toks[i].ans).length;
     const res = castResult(right/c.order.length);   // perfect / steady / slipped, the same words as the after-fight panel
     controls = `<div class="rresult ${res}" role="status"><div class="stamp">${TEXT.afterFight.result[res]}</div><div class="rline">${TEXT.recall.verdict[res]}</div>
       <div class="small mute">${fill(TEXT.recall.score,{right, total:c.order.length})}${right===c.order.length?TEXT.recall.fullPower:''}</div></div><button class="primary wide" onclick="finishRecall()">Continue</button>`;
@@ -87,8 +95,8 @@ function recallHTML(){
       <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="letterInput(this)" style="text-align:center;font-size:28px;letter-spacing:.3em">`;
   } else { const o=curTok(); controls = `<div class="small mute">${fill(TEXT.recall.missing,{kind:KIND[o.kind]})}</div><div class="opts ${o.kind==='word'?'':'refopts'}">${o.opts.map(x=>`<button onclick="answer('${x.replace(/'/g,"\\'")}')">${o.kind!=='word'?x: x===o.ans?bareOf(o.w):wordForm(x)}</button>`).join('')}</div>`; }
   const s=sp(c.verse.ref);
-  const coach = screen==='pro1' ? TEXT.tutorial.coach.firstRecall : '';   // in the Furnace fight Amos says it in a popup first (tutorialFirst)
+  const coach = screen==='pro1' && !c.reading ? TEXT.tutorial.coach.firstRecall : '';   // in the Furnace fight Amos says it in a popup first (tutorialFirst)
   return `<div class="overlay recall"><div class="panel ${c.done?'done':''}"><div class="rhead"><h2>${modal.title}</h2><span class="rtier">${glyphs(c.verse.ref)} ${TIER_NAME[c.tier]}</span></div>
-    <div class="rprog" id="rp">${progressHTML()}</div>
+    <div class="rprog" id="rp" ${c.reading?'style="visibility:hidden"':''}>${progressHTML()}</div>
     <div class="verse rverse" id="rv">${verseMarkup()}</div>${coach?`<div class="coach">${coach}</div>`:''}<div class="dock">${controls}</div></div></div>`;
 }

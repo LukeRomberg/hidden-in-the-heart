@@ -1065,6 +1065,10 @@ const TEXT = {
     fullPower: ' — full power',
     // DRAFT (UI pass): one line under the perfect / steady / slipped stamp when a recall ends
     verdict: { perfect: 'Every word in its place.', steady: 'Close enough to hold.', slipped: 'It slipped. Say it again soon.' },
+    // DRAFT: the first time you say a verse, it's shown whole to read once before any blanks
+    readHint: 'You haven’t said this one before. Read it through once, slowly. Then say it from memory.',
+    readNew: 'The passage has grown. Read the new verse through once, then say it all from memory.',
+    readButton: 'I’ve read it',
   },
   tree: {
     heading: 'The tree',

@@ -422,6 +422,7 @@ input[type=text]:focus, textarea.code:focus{ outline:3px solid #d8a630; outline-
 .verse.rverse{ border:2px solid #d8c4a0; border-radius:3px; background:#fffaf0; box-shadow:inset 0 2px 0 rgba(90,60,30,.08); padding:8px 10px; margin:0 0 10px; color:var(--pi); font-size:20px; line-height:1.9; }
 .rverse .rref{ display:block; text-align:right; font-weight:700; color:var(--pi2); line-height:1.7; }
 .rverse .rref::before{ content:"\2014\00a0"; }
+.rverse .rnew{ background:rgba(214,170,60,.22); border-radius:2px; }
 .rverse .vn{ font-size:.6em; color:var(--pi3); margin-right:2px; }
 /* blanks: a sunk slot; the one you're on glows; right is green, wrong is struck through in red */
 .rverse .blank{ min-width:2.8em; line-height:1.3; padding:0 .3em; border:0; border-bottom:3px solid #a8865a; background:rgba(138,106,72,.13); color:var(--pi); }

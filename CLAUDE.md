@@ -79,7 +79,9 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   verse), so a spell slides to match what you actually remember. 75-99% holds steady. Max 5
   verses per spell, data in `PASS` (generated from the BSB, see below). State: `P.spell[ref]`.
 - **Recall UI**: verses at 100% use first-letter typing; the newest verse uses multiple
-  choice blanks; the reference (book, chapter, verse) counts as part of the blank pool.
+  choice blanks; the reference (book, chapter, verse) counts as part of the blank pool. The first time you
+  say a verse (or a passage grows a verse) it's shown whole to read once before the blanks (`c.reading`,
+  `readDone()`, `P.read[ref]` = how many verses of it you've read). At the end each miss shows the right word.
 - **Combat**: one action a turn: say one verse, or Charge (tree perk); then the enemies act. No
   Brace (removed 2026-11); only a turn with nothing affordable shows “Catch your breath” to pass. Verses cost **focus** (`BASE_FOCUS` 6, +2 from Peace and from
   clearing Mission 1). Focus refills at the start of every fight and never during one, except

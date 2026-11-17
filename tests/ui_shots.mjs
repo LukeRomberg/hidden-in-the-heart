@@ -37,11 +37,12 @@ S.tip = async () => { await fresh(); await jump('Tutorial: the Furnace'); for (l
 // recall: answer two choices (one right, one wrong) then shoot; then a first-letter verse; then the end states
 const recallSetup = async () => { await fresh(); await jump('Villager fight'); await wait(300); await ev(() => { R.busy = false; R.say = null; }); };
 S.recallChoice = async () => { await recallSetup();
-  await ev(() => { openRecall(BY_REF['Proverbs 14:29'], () => {}, 1); }); await wait(450); await shot('recall-start');
+  await ev(() => { openRecall(BY_REF['Proverbs 14:29'], () => {}, 1); }); await wait(450); await shot('recall-read');   // a new verse: read it whole first
+  await ev(() => readDone()); await wait(450); await shot('recall-start');
   await ev(() => { const o = curTok(); answer(o.ans); }); await ev(() => { const o = curTok(); answer(o.opts.find(x => x !== o.ans) || o.ans); }); await wait(450); await shot('recall-mid'); };
-S.recallLetters = async () => { await ev(() => { modal = null; openRecall(BY_REF['Philippians 4:7'], () => {}, 3); }); await wait(100);
+S.recallLetters = async () => { await ev(() => { modal = null; openRecall(BY_REF['Philippians 4:7'], () => {}, 3); modal.c.reading = false; }); await wait(100);
   await ev(() => { for (let i = 0; i < 6; i++){ const o = curTok(); o.given = i === 3 ? 'z' : o.ans; advance(); } render(); }); await wait(450); await shot('recall-letters'); };
-const finishAll = (miss) => ev(m => { const c = modal.c; let k = 0; while (!c.done) { const o = curTok(); o.given = (k++ < m) ? 'zz' : o.ans; advance(); } render(); }, miss);
+const finishAll = (miss) => ev(m => { const c = modal.c; c.reading = false; let k = 0; while (!c.done) { const o = curTok(); o.given = (k++ < m) ? 'zz' : o.ans; advance(); } render(); }, miss);
 S.recallPerfect = async () => { await ev(() => { modal = null; openRecall(BY_REF['Proverbs 14:29'], () => {}, 1); }); await finishAll(0); await wait(450); await shot('recall-done-perfect'); };
 S.recallSteady = async () => { await ev(() => { modal = null; openRecall(BY_REF['Proverbs 14:29'], () => {}, 3); }); await finishAll(2); await wait(450); await shot('recall-done-steady'); };
 S.recallSlip = async () => { await ev(() => { modal = null; openRecall(BY_REF['Proverbs 14:29'], () => {}, 1); }); await finishAll(3); await wait(450); await shot('recall-done-slipped'); };

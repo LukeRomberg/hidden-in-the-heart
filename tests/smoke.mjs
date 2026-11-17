@@ -54,10 +54,11 @@ async function solveRecall() {
   for (let i = 0; i < 300; i++) {
     const st = await page.evaluate(() => {
       if (!modal || modal.kind !== 'recall') return { gone: true };
-      const c = modal.c; if (c.done) return { done: true };
+      const c = modal.c; if (c.reading) return { reading: true }; if (c.done) return { done: true };
       const o = c.toks[c.order[c.cur]]; return { mode: o.mode, ans: o.ans, at: o.opts ? o.opts.indexOf(o.ans) : -1 };
     });
     if (st.gone) return;
+    if (st.reading) { await page.locator('.overlay button', { hasText: 'read it' }).click(); continue; }   // a new verse is read through first
     if (st.done) { await page.locator('.overlay button', { hasText: 'Continue' }).click(); return; }
     if (st.mode === 'letter') await page.locator('#ans').pressSequentially(st.ans);
     else await page.locator('.overlay .opts button').nth(st.at).click();   // by position: a choice shows the word as spelled (self-control), the answer is its key (selfcontrol)
