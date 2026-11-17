@@ -821,6 +821,13 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 .tl .sconce.flame{ animation:cflame .45s steps(2) infinite; transform-origin:50% 30%; }
 /* layers over the map: dusk tint (multiply), light pools (screen), particles */
 .mdusk{ position:absolute; inset:-1500px; z-index:900; pointer-events:none; background:rgba(48,40,112,.62); mix-blend-mode:multiply; }
+/* night (mapfx.js darkHTML): the dark has holes where there's light; yours (--hx, --hy) follows you */
+@property --hx{ syntax:'<length>'; inherits:false; initial-value:0px; }
+@property --hy{ syntax:'<length>'; inherits:false; initial-value:0px; }
+.mdark{ position:absolute; inset:-1500px; z-index:900; pointer-events:none; background:rgba(8,9,26,.86);
+  -webkit-mask-composite:source-in; mask-composite:intersect; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  transition:--hx 120ms linear, --hy 120ms linear; }
+.lt.glow{ background:radial-gradient(closest-side, rgba(255,196,110,.34), rgba(255,160,70,.12) 55%, rgba(255,150,60,0)); animation:lampglow 5s ease-in-out infinite; }
 .mlights{ position:absolute; inset:0; z-index:901; pointer-events:none; mix-blend-mode:screen; }
 .mparts{ position:absolute; inset:0; z-index:902; pointer-events:none; }
 .lt{ position:absolute; border-radius:50%; background:radial-gradient(closest-side, rgba(255,160,76,.32), rgba(255,130,50,.11) 55%, rgba(255,120,40,0)); }
@@ -860,7 +867,7 @@ ol.creed li.faded{ opacity:.45; } ol.creed li.faded .cn{ background:#c8b48c; col
 @keyframes sctitleCalm{ 0%, 85%{ opacity:1; } 100%{ opacity:0; } }
 @media (prefers-reduced-motion: reduce){
   .mparts, .motes, .doorfx, .tl .mk.leaf, .tl .mk.rise, .tl .mk.fire.f2{ display:none; }
-  .mlights .lt, .tl .mk.fire, .tl .sconce.flame{ animation:none; }
+  .mlights .lt, .tl .mk.fire, .tl .sconce.flame{ animation:none; } .mdark{ transition:none; }
   .sctitle{ animation:sctitleCalm 2.1s steps(1) forwards; } #wipe.fade.on, #wipe.fade.off{ animation-duration:.01s; }
 }
 

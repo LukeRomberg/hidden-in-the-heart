@@ -63,7 +63,7 @@ function verseMarkup(){
     if(o.kind==='book') sepBefore = '';
     if(o.given!==undefined){ const ok=o.given===o.ans;
       if(o.mode==='letter') return `${sepBefore}${lead}<span class="lw ${ok?'ok':'bad'}">${bare}</span>${trail}`;
-      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:(o.kind==='word'?wordForm(o.given):o.given)}</span>${trail}${ok||!c.done?'':` <span class="fix">${bare}</span>`}`; }
+      return `${sepBefore}${lead}<span class="blank ${ok?'ok':'bad'}">${ok?bare:(o.kind==='word'?wordForm(o.given):o.given)}</span>${ok||!c.done?'':` <span class="fix">${bare}</span>`}${trail}`; }   // the right word goes before the comma or full stop
     if(o.mode==='letter') return `${sepBefore}${lead}<span class="ph ${i===curI?'cur':''}" style="--n:${Math.min(bare.length,9)}"></span>${trail}`;
     return `${sepBefore}${lead}<span class="blank ${i===curI?'cur':''}">${i===curI?'?':'&nbsp;'}</span>${trail}`;
   });

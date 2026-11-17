@@ -112,7 +112,7 @@ function say(msg){ here().st().msg = msg; const el = document.getElementById('ca
 function heroEl(op){ const h = document.getElementById('chero'); if(h) h.classList[op]('walking'); }
 function placeHero(){
   const pl = here(), h = document.getElementById('chero'), mp = document.getElementById('cmap'); if(!h || !mp) return;
-  const M = pl.st(), [x,y] = M.pos; h.style.transform = `translate(${x*MAP_T}px,${y*MAP_T}px)`; h.style.zIndex = y*2+1; mp.style.transform = camera();
+  const M = pl.st(), [x,y] = M.pos; h.style.transform = `translate(${x*MAP_T}px,${y*MAP_T}px)`; h.style.zIndex = y*2+1; mp.style.transform = camera(); fxHero(x, y);
   if(h.dataset.face!==M.face){ h.dataset.face = M.face; h.querySelector('.hs').innerHTML = heroSprite(); }
   if(pl.placed) pl.placed();
 }

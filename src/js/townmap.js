@@ -203,9 +203,24 @@ function npcImg(who){
   if(who==='furnace') return `<img class="mk who furnace" src="${ENEMY_IMG.furnace.f[0]}" alt="${TEXT.speakers.blacksmith}">`;
   return `<img class="mk who" src="${ENEMY_IMG[NPC_IMG[who]].f[0]}" alt="${TEXT.speakers[who]}">`;
 }
+// open: the church always (it's where you go first), a shop once its keeper is home, a cottage once its people are
+function bldOpen(b){ return b.look ? isHome(b.look) : (BUILD[b.id].always || !!P.town[b.id]); }
+// Night over Philadelphia until the last cave is cleared: only what's open is lit (mapfx.js dark), so the light
+// shows you where to go. The church from the start, Bram burning by the well, every open door, the next cave.
+function townDark(){ return !allCavesDone(); }
+function townHoles(){
+  const g = townGrid(), out = [];
+  Object.values(g.bld).forEach(b=>{ if(!bldOpen(b)) return;
+    const w = b.x1-b.x0+1, h = b.y1-b.y0+1;
+    out.push([(b.x0+b.x1)/2, (b.y0+b.y1)/2 - .4, b.look ? 2.4 : Math.max(w,h)/2 + 1.6]); });
+  const furnace = townSpot('npc','furnace'); if(furnace && !P.tutorialDone) out.push([...furnace, 2.8]);
+  const next = P.tutorialDone ? CAVES.findIndex((c,i)=>caveOpen(i) && !P.caves[c.id]) : -1;
+  if(next>=0){ const m = townSpot('cave', next); if(m) out.push([...m, 2.2]); }
+  return out;
+}
 // a building's picture over its footprint: its door over the door tile, its foot on the footprint's bottom edge
 function bldgHTML(b){
-  const house = !!b.look, open = house ? isHome(b.look) : (b.id==='church' ? !!P.town.church : (BUILD[b.id].always || P.town[b.id]));
+  const house = !!b.look, open = bldOpen(b);
   const key = house ? 'house_'+b.look : ART_OF[b.id], m = TOWN_META[key+(open?'_open':'_closed')], src = house ? IMG.house[b.look][open?1:0] : IMG.town[b.id][open?1:0];
   const w = Math.round(m.w*TSC), h = Math.round(m.h*TSC), left = Math.round((b.door[0]+.5)*MAP_T - m.door*TSC), top = (b.y1+1)*MAP_T - h + 2;
   const plate = house ? '' : `<span class="bname ${open?'':'shut'}">${open?BUILD[b.id].name:TEXT.town.boardedLabel}</span>`;

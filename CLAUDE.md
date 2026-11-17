@@ -153,7 +153,10 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   a fade (not the wipe) between places and the place's name as you arrive (`sceneTitle`, from `goto`); doors that
   swing (`swingDoor` for a building's door in town, `fxOpening` for cave doors and gates); light pools (screen-blended:
   campfires, wall torches, the forge, lamps at dusk); embers, dust motes, the odd leaf, fireflies at dusk; soft shadows;
-  `MAPFX.town.dusk` (bool or function) tints the town for dusk. Draw order: row y's tiles at z 2y, people on it at 2y+1,
+  `MAPFX.town.dusk` (bool or function) tints the town for dusk. Until the last cave is cleared the town is night (`MAPFX.town.dark`, `townDark()`): a dark
+  layer with holes masked out where there's light (`townHoles()` in townmap.js: the church from the start, Bram
+  burning, each open shop, each cottage whose people are home, the next cave's mouth) and a small light that follows
+  you. Light is how the town shows you where to go. Draw order: row y's tiles at z 2y, people on it at 2y+1,
   then dusk 900, lights 901, particles 902. All motion stops under `prefers-reduced-motion`. Test jump: “Town map at dusk”.
 - **The satchel** (`satchel.js`, docs/combat-v2.md section 5): you carry five verses into a cave. With more than five
   known, `startCave` opens the packing screen (screen `pack`, at the cave mouth, or “Pack your satchel” in the church,

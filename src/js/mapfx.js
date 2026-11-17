@@ -11,12 +11,15 @@
      trees     glyphs a leaf can drift down from now and then
      dusk      true, or a function: the place at dusk (a cool tint, lamps lit, fireflies by the trees).
                The town session turns this on for the town (MAPFX.town.dusk = ()=>…).
+     dark      true, or a function: night, and only what holes() lights can be seen clearly (wins over dusk).
+     holes()   with dark: the lit places, [x, y, r] in tiles (centre and reach); you carry a small light of your own.
+               Light is how the town shows you where to go: the church, every door that's open, the next cave.
    Draw order on a map (z-index): tile row y at 2y, whoever stands on row y at 2y+1, so anything drawn taller than its
    tile covers someone standing behind it; then the dusk tint (900), the light pools (901), the particles (902).
    Everything moving stops under prefers-reduced-motion. */
 const MAPFX = {
   dive: {dust:true, at:(x,y)=>caveFxAt(x,y)},
-  town: {dusk:false, trees:'T', at:(x,y)=>townFxAt(x,y)},
+  town: {dusk:false, dark:()=>townDark(), holes:()=>townHoles(), trees:'T', at:(x,y)=>townFxAt(x,y)},
 };
 // the town, by its glyphs (townmap.js): lamps, the forge's door once Bram is home, Bram burning by the well, props with shadows
 function townFxAt(x,y){
@@ -30,7 +33,8 @@ function townFxAt(x,y){
 
 function fxKey(pl){ return Object.keys(PLACES).find(k=>PLACES[k]===pl); }
 function fxCfg(pl){ return MAPFX[fxKey(pl)]; }
-function fxDusk(c){ return !!(c && (typeof c.dusk==='function' ? c.dusk() : c.dusk)); }
+function fxDusk(c){ return !fxDark(c) && !!(c && (typeof c.dusk==='function' ? c.dusk() : c.dusk)); }
+function fxDark(c){ return !!(c && (typeof c.dark==='function' ? c.dark() : c.dark)); }
 function fxSeenAt(pl,x,y){ return pl.lit || pl.st().seen[y*pl.grid().W+x]; }
 
 // ---- On a tile: shadows and wall torches (tilemap.js adds this after the place's own tile art) ----
@@ -77,8 +81,25 @@ function fxLayersHTML(pl){
     if(!fxSeenAt(pl,x,y)) continue; const f = c.at && c.at(x,y); if(!f) continue;
     lights += lightHTML(f,x,y,dusk); parts += tileEmitHTML(f,x,y); }
   if(c.trees) parts += treeFX(pl, c, dusk);
-  return `${dusk?'<div class="mdusk"></div>':''}<div class="mlights" id="mlights">${lights}</div><div class="mparts" id="mparts">${parts}</div>`;
+  return `${dusk?'<div class="mdusk"></div>':''}${fxDark(c)?darkHTML(pl,c):''}<div class="mlights" id="mlights">${lights}${fxDark(c)?glowHTML(c):''}</div><div class="mparts" id="mparts">${parts}</div>`;
 }
+// ---- Night: a dark layer with holes cut in it where there's light (a mask, one radial gradient per place) ----
+const DARK_PAD = 1500;   // the dark layer reaches this far past the map's edges (.mdark inset)
+function holeCSS(cx, cy, r){ return `radial-gradient(circle ${r}px at ${cx}px ${cy}px, transparent 45%, #000 100%)`; }
+function darkHTML(pl, c){
+  const [x,y] = pl.st().pos, at = v=>DARK_PAD + v*MAP_T + MAP_T/2;
+  const holes = [`radial-gradient(circle 112px at var(--hx) var(--hy), transparent 40%, #000 100%)`,   // your own light
+    ...(c.holes ? c.holes() : []).map(([hx,hy,r])=>holeCSS(at(hx), at(hy), r*MAP_T))].join(',');
+  return `<div class="mdark" id="mdark" style="--hx:${at(x)}px;--hy:${at(y)}px;-webkit-mask-image:${holes};mask-image:${holes}"></div>`;
+}
+// a warm glow over each lit place, so it reads as lamplight, not just a gap in the dark
+function glowHTML(c){
+  return (c.holes ? c.holes() : []).map(([x,y,r])=>{ const s = r*MAP_T*2.2, cx = x*MAP_T+MAP_T/2, cy = y*MAP_T+MAP_T/2;
+    return `<i class="lt glow" style="left:${cx-s/2}px;top:${cy-s/2}px;width:${s}px;height:${s}px"></i>`; }).join('');
+}
+// your light follows you (tilemap.js placeHero)
+function fxHero(x, y){ const d = document.getElementById('mdark'); if(!d) return;
+  d.style.setProperty('--hx', (DARK_PAD + x*MAP_T + MAP_T/2)+'px'); d.style.setProperty('--hy', (DARK_PAD + y*MAP_T + MAP_T/2)+'px'); }
 // leaves now and then from a handful of trees; fireflies near them at dusk
 function treeFX(pl, c, dusk){
   const m = pl.grid(), trees = [];
