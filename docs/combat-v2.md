@@ -97,6 +97,13 @@ heat, keeps Romans 12:2 for when focus runs low. Each also runs **straight throu
 
 `npm run playtest` reports all of these; balance isn't done until every row holds.
 
+**Where it stands (2026-11-16, satchel and Shoes merged, two seeds each):** 100% clears every run (lowest HP 12–43%).
+90% clears every run; smart straight through loses once or twice and hits 0% (barely). 80% straight through dies in the
+Old Quarry (1–3 defeats there). 80% smart leaving to heal cleared on one seed of two (3 defeats). What set it: the
+Grudge 54 HP / 5 attack with a body blow; the strong villager 42 / 5; the Brawler 80 HP; the Slanderer's plain attack
+is a blow, not a lie (all three of his moves draining focus locked fights at 50 turns); flatter tier scaling
+(`TIER_MULT` 1–1.6, +0.6 a verse).
+
 ## 5. A satchel: the verses you carry into a cave
 
 **Built 2026-11-16** (`src/js/satchel.js`): five verses, packed at the cave mouth or from the church; each cave

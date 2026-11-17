@@ -85,8 +85,14 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   clearing Mission 1). Focus refills at the start of every fight and never during one, except
   through Romans 12:2 (cost 0, restores focus), which Amos hands you the first time you run
   dry in the tutorial (you start that fight groggy, at 3). Each verse works once; when nothing
-  unsaid is affordable, they all come back. A card never costs more than max focus. Damage = verse value x tier multipliers x accuracy. Type advantage:
-  Patience x1.5 and Gentleness x1.25 vs wrath.
+  unsaid is affordable, they all come back. A card never costs more than max focus. Damage = verse value x tier multipliers x accuracy x matchup.
+- **Combat v2** (`docs/combat-v2.md`; tables at the top of combat.js). Matchups: each sin is weak to some fruits
+  (x1.5) and resists others (x0.5) (`SINS`, `matchup()`); Galatians 5:22-23 counts as every fruit. Enemy moves (`MOVES`)
+  are body (HP; the lid's `R.guard` soaks 4 a turn) or mind (drain focus; a shield verse soaks them first; at 0 focus
+  they spill into HP). Lingering heat (Gentleness cools it) and bitterness (Love or Peace) tick 10% of max HP once a
+  round, after the enemies act. Twist halves your next verse unless it's perfect; the haymaker (`big`) has a windup tell.
+  Amos explains each the first time it happens (`teach(key)` in story.js, `TEXT.teach`, once per save in `P.tips`).
+  Leaving a cave or losing keeps its progress (`P.caveProgress`); campfires are gone.
 - **How a fight reads** (presentation only; numbers live in combat.js). The held talk back:
   `TEXT.foes` gives each kind (villagers share one) taunts in the voice of its sin, `waver`
   lines below half HP, `crack` lines near the end, and named moves (`atk`/`big`/`vex`) shown
@@ -131,12 +137,12 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   door plays the chapter ending. `finaleDue()` restarts it from the bell after a reload. Test jump: "Finale".
 - **Caves** (`CAVES` in dive.js) are hand-drawn ASCII tile maps (`#` rock, `.` floor, `S` start,
   `B` the held townsperson, `D` boss door, `V` verse door, `L`/`K` levers for `G`/`H` gates,
-  digits = that cave's `marks`: fights, chests, campfire; lowercase letters = the encounters in
+  digits = that cave's `marks`: fights, chests; lowercase letters = the encounters in
   `encounters.js`: `scrap`, `truth`, `hurt`). Fog of war: light reaches ~3 tiles
   (blocked by rock and shut doors, not gate bars); seen tiles stay dim. Tap a tile to walk the
   BFS path over tiles you've seen; tap the dark to get as near as you can. Walking into a marker
   stops you in front of it: fights switch to the arena and come back (`clearColumn()` is the
-  hand-back combat.js calls), chests and the campfire open a panel under the map, and a cleared
+  hand-back combat.js calls), chests open a panel under the map, and a cleared
   marker is gone. A verse door opens on any verse you carry said without a slip; the boss door
   stays barred until everyone held on the map is free (fights and truth villagers). The ground is one PixelLab Wang
   tileset per cave drawn once onto a canvas on a dual grid (`caveGround`: each 32px tile straddles four cells and takes rock or
@@ -165,11 +171,12 @@ and blood). Reciting truth over them frees them, and each freed person reopens p
   walk on; everyone helped stands with you at the boss (+5 shield each). The first truth
   villager and the first hurt person ever come with Amos (`P.firstTruth`, `P.firstHurt`); with
   him there you can't fail.
-- **Balance**: `npm run playtest` plays the whole chapter at 50/60/70/85/95% recall accuracy,
-  with and without buying gear, and reports lowest HP, close calls and defeats
-  (`tests/out/playtest.md`). Targets: 50% and 60% fail, 70% scrapes through (with gear), 85% is
-  fairly comfortable. Numbers and what set them: `docs/mvp.md`, Balance. Rerun it after any change
-  to enemies, damage, healing or prices (about 15 minutes; `node tests/playtest.mjs 0.7 shopper` for one).
+- **Balance**: `npm run playtest` plays the whole chapter and reports lowest HP, close calls and defeats
+  (`tests/out/playtest.md`). Args: accuracies, `frugal|shopper`, `smart|naive` (smart plays matchups, shields before the
+  haymaker, cleanses, packs for the cave's boss), `straight|leave` (leave goes home to heal when low); runs are seeded,
+  `PLAYTEST_SEED=n` for another sample. Targets (Luke, docs/combat-v2.md section 4): 100% wins; 90% smart wins, barely;
+  80% straight dies in the Old Quarry; 80% smart leaving to heal can get through. Rerun after any change to enemies,
+  damage, healing or prices (`node tests/playtest.mjs 1 0.9 0.8 shopper smart naive straight leave`, about 30 minutes).
 - **Reward popups** (`rewards.js`): anything earned shows a “you got…” popup (`reward({kind,…})` queues
   one; render() shows them one at a time, never mid-fight): gear bought or consecrated (hero before and
   after, what it does), a new verse, a verse leveling up, a chest (talents + Creed piece), a sermon note,

@@ -57,7 +57,7 @@ const f1 = n => (Math.round(n * 10) / 10).toString();
 const mmss = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}m${String(s % 60).padStart(2, '0')}s`; };
 
 async function playOne(acc, style, play = 'smart', route = 'straight') {
-  const seed = Math.round(acc * 1000);
+  const seed = Math.round(acc * 1000) + 101 * (+process.env.PLAYTEST_SEED || 0);   // PLAYTEST_SEED=n: another sample of the same run
   const rng = mulberry(seed * 7919 + 13);
   const tag = `acc${Math.round(acc * 100)}-${style}-${play}-${route}`;
   const started = Date.now();
@@ -193,7 +193,9 @@ async function playOne(acc, style, play = 'smart', route = 'straight') {
       // smart packs for the cave: damage weighed by the matchup against its boss (twice) and the villagers
       const c = CAVES[R.pack.cave], foes = [{ id: c.boss }, { id: c.boss }, { id: 'villager' }, { id: 'villager_strong' }];
       const mu = v => smart ? foes.reduce((a, e) => a + matchup(v, e), 0) / foes.length : 1;
-      const score = ref => { const v = BY_REF[ref]; if (v.dmg) return v.dmg * m(ref) * mu(v); if (v.shield) return v.shield * m(ref) * 0.5; return 0; };
+      // a boss whose moves are mostly lies (mind): a shield verse keeps your focus, so it's worth a slot
+      const mindy = smart && ENEMIES[c.boss].pattern.filter(a => moveKind({ id: c.boss }, a) === 'mind').length >= 2;
+      const score = ref => { const v = BY_REF[ref]; if (v.dmg) return v.dmg * m(ref) * mu(v); if (v.shield) return v.shield * m(ref) * (mindy ? 2 : 0.5); return 0; };
       const pack = [heal, focus].filter(Boolean);
       return [...pack, ...all.filter(r => !pack.includes(r)).sort((a, b) => score(b) - score(a))].slice(0, SATCHEL);
     }, play === 'smart');

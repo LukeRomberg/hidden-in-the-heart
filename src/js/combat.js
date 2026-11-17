@@ -3,16 +3,16 @@ const STEADY_DMG = 0.65;   // a cast at least this accurate hits for its accurac
 const ENEMIES = {
   hothead:{hp:24, atk:3, spr:'hothead', pattern:['atk','atk']},   // Bram, the tutorial (you start it groggy, so you run dry)
   grudge:{hp:54, atk:5, spr:'grudge', pattern:['score','atk','doubt']},
-  brawler:{hp:90, atk:8, spr:'brawler', pattern:['atk','vex','big']},
+  brawler:{hp:80, atk:8, spr:'brawler', pattern:['atk','vex','big']},
   slanderer:{hp:130, atk:7, spr:'slanderer', pattern:['twist','doubt','atk']},
   furnace:{hp:28, atk:2, spr:'furnace', freedSpr:'hothead_f', pattern:['atk','vex','atk','big'], boss:true},
   // townsfolk held by anger: stand-ins once the named person in that room has been freed
   villager:{hp:28, atk:5, pattern:['atk','atk','heat'], villager:true},
-  villager_strong:{hp:48, atk:6, pattern:['vex','atk','doubt'], villager:true},
+  villager_strong:{hp:42, atk:5, pattern:['vex','atk','doubt'], villager:true},
 };
 // ---- Combat v2 (docs/combat-v2.md): matchups, body and mind, lingering harm ----
 // What each sin can't stand against (x1.5) and shrugs off (x0.5), by the fruit of the verse. Drafts for Luke.
-// kinds: moves that are mind instead of their usual kind (the Grudge's and the Slanderer's blows are words).
+// kinds: moves that are mind instead of their usual kind (none right now).
 const SINS = {
   hothead:   {weak:['Gentleness','Patience'], resist:['Self-control']},
   furnace:   {weak:['Gentleness','Patience'], resist:['Self-control']},
@@ -20,7 +20,7 @@ const SINS = {
   villager_strong:{weak:['Patience','Gentleness'], resist:['Self-control']},
   grudge:    {weak:['Love','Goodness'], resist:['Patience']},
   brawler:   {weak:['Self-control','Gentleness'], resist:['Patience']},
-  slanderer: {weak:['Goodness','Self-control'], resist:['Gentleness'], kinds:{atk:'mind'}},
+  slanderer: {weak:['Goodness','Self-control'], resist:['Gentleness']},   // his shove is a blow: all-mind locked your focus for 50 turns
 };
 // Body moves cost HP. Mind moves drain focus (a shield verse soaks them first; the lid only stops blows); with no
 // focus left a mind move hurts instead. pow x their attack. fx: provoke, heat, bitter (lingering: 10% of your max HP
